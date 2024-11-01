@@ -85,4 +85,27 @@ class RestaurantRepository {
       return [];
     }
   }
+  
+  // Fetch restaurants with isApprove set to false
+Future<List<Restaurant>> fetchUnapprovedRestaurants() async {
+  try {
+    QuerySnapshot snapshot = await _restaurantCollection
+        .where('isApprove', isEqualTo: false)
+        .get();
+
+    print('Fetched ${snapshot.docs.length} unapproved restaurants'); // Debugging line
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      print('Unapproved Restaurant data: $data'); // Print each unapproved restaurant's data
+      return Restaurant.fromFirestore(doc);
+    }).toList();
+  } catch (e) {
+    print('Error fetching unapproved restaurants: $e'); // This will show the exact error
+    print("123");
+    return [];
+  }
+}
+
+
 }

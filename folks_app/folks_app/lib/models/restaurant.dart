@@ -11,6 +11,8 @@ class Restaurant {
   String intro;
   String image;
   List<String> tags;
+  bool isApprove;
+  String commentByAdmin;
 
   Restaurant({
     required this.id,
@@ -22,6 +24,8 @@ class Restaurant {
     required this.intro,
     required this.image, // Updated constructor
     required this.tags,
+    required this.isApprove,
+    required this.commentByAdmin,
   });
   
   factory Restaurant.fromFirestore(DocumentSnapshot doc) {
@@ -91,6 +95,8 @@ class Restaurant {
       intro: data['intro'] ?? '',
       image: data['image'] ?? '',
       tags: tags,
+      isApprove: data['isApprove'] ?? false,
+      commentByAdmin: data['commentByAdmin'] ?? '',
     );
   }
 

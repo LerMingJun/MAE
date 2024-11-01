@@ -20,6 +20,9 @@ class UserProvider with ChangeNotifier {
   String? _likeCount;
   String? _participationCount;
   List<Participation>? _history = [];
+  List<User>? _allUsers = [];
+  List<User> _users = [];
+  User? _user;
 
   auth.User? get firebaseUser => _firebaseUser;
   User? get userData => _userData;
@@ -44,6 +47,28 @@ class UserProvider with ChangeNotifier {
       await _fetchUserData(_firebaseUser!.uid);
     }
     notifyListeners();
+  }
+
+  Future<void> fetchAllUsers() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _allUsers = await _userRepository.fetchAllUsers();
+      _users = _allUsers ?? [];
+      print(
+          'Number of Users loaded: ${_allUsers!.length}'); // Debugging line
+    } catch (e) {
+      _users = [];
+      print(
+          'Error in UserProvider: $e'); // This will show the error in provider
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  int get totalUserCount {
+    return _allUsers?.length ?? 0;
   }
 
   Future<void> fetchUserData() async {

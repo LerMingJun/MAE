@@ -1,6 +1,7 @@
 // lib/screens/mainpage.dart
 import 'package:flutter/material.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
+import 'package:folks_app/providers/user_provider.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
@@ -19,15 +20,32 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     Future.microtask(() {
       Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchAllRestaurants();
+        .fetchAllRestaurants();
+       Provider.of<RestaurantProvider>(context, listen: false)
+       .fetchUnapprovedRestaurants();
+      Provider.of<UserProvider>(context, listen: false)
+        .fetchAllUsers();
     });
   }
   int _selectedIndex = 0;
   int _currentCarouselIndex = 0;
+ 
 
-  final List<Map<String, String>> pendingApprovals = [
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final restaurantProvider= Provider.of<RestaurantProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
+
+     final List<Map<String, String>> pendingApprovals = [
     {
-      "title": "Restaurant Pending Approval",
+      "title": "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
       "subtitle": "Please check the application status.",
       "time": "Submitted: 2 days ago",
       "status": "Approval required"
@@ -46,20 +64,6 @@ class _MainPageState extends State<MainPage> {
     },
   ];
 
-  // Mock data for user and partner counts
-  final int userCount = 1200;
-  final int partnerCount = 45;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<RestaurantProvider>(context);
-    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -175,14 +179,14 @@ const SizedBox(height: 16),
                 _buildInfoCard(
                   icon: Icons.people,
                   label: 'Users',
-                  count: userCount,
+                  count: userProvider.totalUserCount,
                   color: Colors.blue,
                 ),
                 const SizedBox(width: 16),
                 _buildInfoCard(
                   icon: Icons.store,
                   label: 'Partners',
-                  count: provider.totalRestaurantCount,
+                  count: restaurantProvider.totalRestaurantCount,
                   color: Colors.green,
                 ),
               ],

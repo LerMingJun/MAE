@@ -15,6 +15,8 @@ class UserRepository {
   final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final CollectionReference _userCollection =
+    FirebaseFirestore.instance.collection('users');
 
   // Get the current user
   auth.User? get currentUser => _firebaseAuth.currentUser;
@@ -143,5 +145,22 @@ class UserRepository {
     }
   }
 
-  
+  Future<List<User>> fetchAllUsers() async {
+    try {
+      QuerySnapshot snapshot = await _userCollection.get();
+      print('Fetched ${snapshot.docs.length} users'); // Debugging line
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        print('User data: $data'); // Print each user's data
+        return User.fromFirestore(
+            doc); // Updated to use DocumentSnapshot directly
+      }).toList();
+    } catch (e) {
+      print(
+          'Error fetching all users: $e'); // This will show the exact error
+      return [];
+    }
+  }
 }
+

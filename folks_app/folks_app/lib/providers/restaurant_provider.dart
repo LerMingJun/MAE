@@ -18,6 +18,7 @@ class RestaurantProvider with ChangeNotifier {
   bool _isLoading = false;
   LatLng? _center;
   Marker? _marker;
+  List<Restaurant> _unapprovedRestaurants = [];
 
   List<Restaurant> get restaurants => _restaurants;
   List<Review> get reviews => _reviews; // Change from List<Tag> to List<Review>
@@ -25,6 +26,7 @@ class RestaurantProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   LatLng? get center => _center;
   Marker? get marker => _marker;
+  List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
 
   Future<void> fetchAllReviews(String restaurantId) async {
     notifyListeners();
@@ -108,4 +110,25 @@ class RestaurantProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+
+  Future<void> fetchUnapprovedRestaurants() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _unapprovedRestaurants = await _restaurantRepository.fetchUnapprovedRestaurants();
+      print('Number of unapproved restaurants loaded: ${_unapprovedRestaurants.length}');
+    } catch (e) {
+      print('Error fetching unapproved restaurants: $e');
+      _unapprovedRestaurants = [];
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+    int get unapprovedRestaurantCount {
+    return _unapprovedRestaurants.length;
+  }
 }
+
