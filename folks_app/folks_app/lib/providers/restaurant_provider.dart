@@ -55,6 +55,10 @@ class RestaurantProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  int get totalRestaurantCount {
+    return _allRestaurants?.length ?? 0;
+  }
+
   Future<void> fetchFilteredRestaurants(String filter) async {
     _isLoading = true;
     notifyListeners();
