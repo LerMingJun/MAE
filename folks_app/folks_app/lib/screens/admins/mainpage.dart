@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
 import 'package:folks_app/providers/user_provider.dart';
+import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
@@ -12,25 +13,21 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-
-
 class _MainPageState extends State<MainPage> {
-    @override
+  @override
   void initState() {
     super.initState();
     Future.microtask(() {
       Provider.of<RestaurantProvider>(context, listen: false)
-        .fetchAllRestaurants();
-       Provider.of<RestaurantProvider>(context, listen: false)
-       .fetchUnapprovedRestaurants();
-      Provider.of<UserProvider>(context, listen: false)
-        .fetchAllUsers();
+          .fetchAllRestaurants();
+      Provider.of<RestaurantProvider>(context, listen: false)
+          .fetchUnapprovedRestaurants();
+      Provider.of<UserProvider>(context, listen: false).fetchAllUsers();
     });
   }
+
   int _selectedIndex = 0;
   int _currentCarouselIndex = 0;
- 
-
 
   void _onItemTapped(int index) {
     setState(() {
@@ -40,29 +37,30 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final restaurantProvider= Provider.of<RestaurantProvider>(context);
+    final restaurantProvider = Provider.of<RestaurantProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
 
-     final List<Map<String, String>> pendingApprovals = [
-    {
-      "title": "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
-      "subtitle": "Please check the application status.",
-      "time": "Submitted: 2 days ago",
-      "status": "Approval required"
-    },
-    {
-      "title": "New Restaurant Application",
-      "subtitle": "Check for initial review.",
-      "time": "Submitted: 3 days ago",
-      "status": "Initial review required"
-    },
-    {
-      "title": "Re-approval Needed",
-      "subtitle": "Previous issues resolved.",
-      "time": "Submitted: 5 days ago",
-      "status": "Final review pending"
-    },
-  ];
+    final List<Map<String, String>> pendingApprovals = [
+      {
+        "title":
+            "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
+        "subtitle": "Please check the application status.",
+        "time": "Submitted: 2 days ago",
+        "status": "Approval required"
+      },
+      {
+        "title": "New Restaurant Application",
+        "subtitle": "Check for initial review.",
+        "time": "Submitted: 3 days ago",
+        "status": "Initial review required"
+      },
+      {
+        "title": "Re-approval Needed",
+        "subtitle": "Previous issues resolved.",
+        "time": "Submitted: 5 days ago",
+        "status": "Final review pending"
+      },
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -101,7 +99,7 @@ class _MainPageState extends State<MainPage> {
               'Today\'s Highlights',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Carousel Section
             SizedBox(
@@ -141,39 +139,51 @@ const SizedBox(height: 16),
             const SizedBox(height: 50),
 
             // Grid Section
-          GridView(
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
+            GridView(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              children: [
+                _buildGridItem(Icons.report_problem, 'Complain'),
+                _buildGridItem(Icons.restaurant, 'Restaurant'),
+                _buildGridItem(Icons.group, 'Community'),
+                _buildGridItem(Icons.person, 'User'),
+                _buildGridItem(Icons.info, 'Info'),
+                _buildGridItem(Icons.local_offer, 'Promotion'),
+               InkWell(
+                 onTap: () {
+                   Future.delayed(const Duration(milliseconds: 200), () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => const OverallAnalyticsScreen()),
+                     );
+                   });
+                 },
+                 splashColor: Colors.grey.withOpacity(0.5),
+                 child: _buildGridItem(Icons.analytics, 'Analytics'),
+               )
+              ],
             ),
-            children: [
-              _buildGridItem(Icons.report_problem, 'Complain'),
-              _buildGridItem(Icons.restaurant, 'Restaurant'),
-              _buildGridItem(Icons.group, 'Community'),
-              _buildGridItem(Icons.person, 'User'),
-              _buildGridItem(Icons.info, 'Info'),
-              _buildGridItem(Icons.local_offer, 'Promotion'),
-              _buildGridItem(Icons.analytics, 'Analytics'),
-            ],
-          ),
             const SizedBox(height: 30),
 
             // Current Users and Restaurant/Partner Section
-       const Row(
-         children: [
-           Expanded(
-             child: Padding(
-               padding: EdgeInsets.only(bottom: 16),
-               child: Text(
-                 "System Performance",
-                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-               ),
-             ),
-           ),
-         ],
-       ),
+            const Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      "System Performance",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Row(
               children: [
                 _buildInfoCard(

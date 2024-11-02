@@ -106,6 +106,47 @@ Future<List<Restaurant>> fetchUnapprovedRestaurants() async {
     return [];
   }
 }
+// Method to get average rating of a specific restaurant
+Future<double> getAverageRating(String restaurantId) async {
+  try {
+    final CollectionReference ratingCollection = 
+        _restaurantCollection.doc(restaurantId).collection('ratings');
 
+    QuerySnapshot snapshot = await ratingCollection.get();
+    
+    if (snapshot.docs.isEmpty) {
+      // If there are no ratings, return 0 as average rating
+      return 0.0;
+    }
+
+    // Calculate the sum of all rating scores
+    double totalRating = 0.0;
+    for (var doc in snapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      totalRating += data['score'] ?? 0.0; // Assuming each rating document has a 'score' field
+    }
+
+    // Calculate the average rating
+    double averageRating = totalRating / snapshot.docs.length;
+    return averageRating;
+  } catch (e) {
+    print('Error calculating average rating for restaurant $restaurantId: $e');
+    return 0.0; // Return 0 if an error occurs
+  }
+}
+Future<List<Map<String, dynamic>>> fetchAllRestaurantsWithRatings() async {
+  List<Restaurant> restaurants = await fetchAllRestaurants();
+  List<Map<String, dynamic>> restaurantsWithRatings = [];
+
+  for (var restaurant in restaurants) {
+    double averageRating = await getAverageRating(restaurant.id);
+    restaurantsWithRatings.add({
+      'restaurant': restaurant,
+      'averageRating': averageRating,
+    });
+  }
+  
+  return restaurantsWithRatings;
+}
 
 }

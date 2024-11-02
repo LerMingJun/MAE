@@ -11,6 +11,10 @@ class RestaurantProvider with ChangeNotifier {
   final RestaurantRepository _restaurantRepository = RestaurantRepository();
   final AuthRepository _authRepository = AuthRepository();
 
+  Map<String, dynamic>? _highestRatingPartner;
+  Map<String, dynamic>? _lowestRatingPartner;
+  Map<String, dynamic>? get highestRatingPartner => _highestRatingPartner;
+  Map<String, dynamic>? get lowestRatingPartner => _lowestRatingPartner;
   List<Restaurant> _restaurants = [];
   Restaurant? _restaurant;
   List<Restaurant>? _allRestaurants = [];
@@ -27,6 +31,12 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? get center => _center;
   Marker? get marker => _marker;
   List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
+Restaurant? _highestRatingRestaurant;
+  Restaurant? _lowestRatingRestaurant;
+
+  // Getter methods
+  Restaurant? get highestRatingRestaurant => _highestRatingRestaurant;
+  Restaurant? get lowestRatingRestaurant => _lowestRatingRestaurant;
 
   Future<void> fetchAllReviews(String restaurantId) async {
     notifyListeners();
@@ -130,5 +140,46 @@ class RestaurantProvider with ChangeNotifier {
     int get unapprovedRestaurantCount {
     return _unapprovedRestaurants.length;
   }
+
+  Future<void> fetchAndProcessRatings() async {
+    final restaurantsWithRatings = await _restaurantRepository.fetchAllRestaurantsWithRatings();
+
+    if (restaurantsWithRatings.isNotEmpty) {
+      _highestRatingPartner = restaurantsWithRatings.reduce((a, b) => 
+        (a['averageRating'] > b['averageRating']) ? a : b);
+
+      _lowestRatingPartner = restaurantsWithRatings.reduce((a, b) => 
+        (a['averageRating'] < b['averageRating']) ? a : b);
+    } else {
+      _highestRatingPartner = null;
+      _lowestRatingPartner = null;
+    }
+
+    notifyListeners();
+  }
+
+   Future<void> _calculateHighestAndLowestRatingRestaurants() async {
+    double maxRating = -1;
+    double minRating = double.infinity;
+
+    for (var restaurant in _restaurants) {
+      double rating = await _restaurantRepository.getAverageRating(restaurant.id);
+      
+      if (rating > maxRating) {
+        maxRating = rating;
+        _highestRatingRestaurant = restaurant;
+      }
+      
+      if (rating < minRating) {
+        minRating = rating;
+        _lowestRatingRestaurant = restaurant;
+      }
+    }
+  }
 }
+
+}
+
+
+
 
