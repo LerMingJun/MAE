@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:folks_app/models/activity.dart';
+import 'package:folks_app/models/complain.dart';
 import 'package:folks_app/models/participation.dart';
 import 'package:folks_app/repositories/auth_repository.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,7 +24,17 @@ class UserProvider with ChangeNotifier {
   List<User>? _allUsers = [];
   List<User> _users = [];
   User? _user;
+  bool _isComplaintsLoading = false;
+  List<Complaint> _allComplaints = [];
+  bool _isLoadingComplaints = false;
+ List<Map<String, dynamic>> _resolvedComplaints = [];
+  List<Map<String, dynamic>> _unresolvedComplaints = [];
 
+  List<Map<String, dynamic>> get resolvedComplaints => _resolvedComplaints;
+  List<Map<String, dynamic>> get unresolvedComplaints => _unresolvedComplaints;
+  List<Complaint> get allComplaints => _allComplaints;
+  bool get isLoadingComplaints => _isLoadingComplaints;
+  bool get isComplaintsLoading => _isComplaintsLoading;
   auth.User? get firebaseUser => _firebaseUser;
   User? get userData => _userData;
   bool? get isHistoryLoading => _isHistoryLoading;
@@ -130,10 +141,15 @@ class UserProvider with ChangeNotifier {
       _history = [];
       print('Error in EventProvider: $e');
     }
-
+  }
+ // Load and classify complaints
+  // Method to load and classify complaints
+  Future<void> loadClassifiedComplaints() async {
+    final classifiedComplaints = await _userRepository.fetchClassifiedComplaints();
+    _resolvedComplaints = classifiedComplaints['resolved']!;
+    _unresolvedComplaints = classifiedComplaints['unresolved']!;
+    notifyListeners();
   }
 
-  
-
-  
 }
+

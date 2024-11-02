@@ -6,17 +6,22 @@ import 'package:provider/provider.dart';
 import 'package:folks_app/screens/admins/mainpage.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
 import 'package:folks_app/providers/user_provider.dart';
-
+import 'package:folks_app/repositories/complain_repository.dart'; // Adjust the import according to your structure
 
 Future<void> main() async {
   // Ensure widget binding is initialized before running the app
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp();
-  
+
   // Initialize date formatting
   await initializeDateFormatting();
+
+  // Directly instantiate complainRepository and call fetchClassifiedComplaints
+  ComplainRepository complainRepository = ComplainRepository();
+  print('Fetching classified complaints...'); // Adjust as necessary
+      await complainRepository.fetchUserComplaints();
 
   runApp(const MyApp());
 }
@@ -29,8 +34,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
-                ChangeNotifierProvider(create: (_) => UserProvider(null)),
- ],
+        ChangeNotifierProvider(create: (_) => UserProvider(null)),
+      ],
       child: const MaterialApp(
         home: MainPage(),
       ),

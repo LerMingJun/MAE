@@ -20,7 +20,7 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
   }
 
   @override
-  Future<Widget> build(BuildContext context) async {
+  Widget build(BuildContext context) {
         final restaurantProvider = Provider.of<RestaurantProvider>(context);
     return Scaffold(
       appBar: AppBar(
@@ -59,22 +59,15 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
             //   change: '▼ 10',
             //   changeColor: Colors.red,
             // ),
-            // Lowest Rating Partner
             _buildAnalyticsCard(
               title: 'Lowest Rating Partner',
-              value: restaurantProvider.lowestRatingRestaurant?.name ?? 'N/A',
-              additionalInfo: restaurantProvider.lowestRatingRestaurant != null
-                  ? 'Rating: ${await restaurantProvider.lowestRatingRestaurant.getAverageRating()}'
-                  : 'No rating available',
+              value: 'John\'s Café',
+              additionalInfo: 'Rating: 2.0',
             ),
-
-            // Highest Rating Partner
             _buildAnalyticsCard(
               title: 'Highest Rating Partner',
-              value: restaurantProvider.highestRatingRestaurant?.name ?? 'N/A',
-              additionalInfo: restaurantProvider.highestRatingRestaurant != null
-                  ? 'Rating: ${await restaurantProvider.highestRatingRestaurant.getAverageRating()}'
-                  : 'No rating available',
+              value: 'Elite Dine',
+              additionalInfo: 'Rating: 4.9',
             ),
             _buildAnalyticsCard(
               title: 'Unapproved Partners',

@@ -178,8 +178,3 @@ Restaurant? _highestRatingRestaurant;
   }
 }
 
-}
-
-
-
-

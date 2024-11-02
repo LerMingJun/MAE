@@ -1,9 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:folks_app/providers/auth_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:folks_app/screens/admins/mainpage.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
+import 'package:folks_app/providers/user_provider.dart';
+
 
 Future<void> main() async {
   // Ensure widget binding is initialized before running the app
@@ -26,7 +29,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
-      ],
+                ChangeNotifierProvider(create: (_) => UserProvider(null)),
+ ],
       child: const MaterialApp(
         home: MainPage(),
       ),

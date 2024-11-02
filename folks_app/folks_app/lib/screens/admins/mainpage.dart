@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
 import 'package:folks_app/providers/user_provider.dart';
+import 'package:folks_app/screens/admins/complain.dart';
 import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -140,33 +141,46 @@ class _MainPageState extends State<MainPage> {
 
             // Grid Section
             GridView(
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              children: [
-                _buildGridItem(Icons.report_problem, 'Complain'),
-                _buildGridItem(Icons.restaurant, 'Restaurant'),
-                _buildGridItem(Icons.group, 'Community'),
-                _buildGridItem(Icons.person, 'User'),
-                _buildGridItem(Icons.info, 'Info'),
-                _buildGridItem(Icons.local_offer, 'Promotion'),
-               InkWell(
-                 onTap: () {
-                   Future.delayed(const Duration(milliseconds: 200), () {
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) => const OverallAnalyticsScreen()),
-                     );
-                   });
-                 },
-                 splashColor: Colors.grey.withOpacity(0.5),
-                 child: _buildGridItem(Icons.analytics, 'Analytics'),
-               )
-              ],
-            ),
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ComplaintsPage()),
+                        );
+                      });
+                    },
+                    splashColor: Colors.grey.withOpacity(0.5),
+                    child: _buildGridItem(Icons.report_problem, 'Complain'),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const OverallAnalyticsScreen()),
+                        );
+                      });
+                    },
+                    splashColor: Colors.grey.withOpacity(0.5),
+                    child: _buildGridItem(Icons.analytics, 'Analytics'),
+                  ),
+                  _buildGridItem(Icons.restaurant, 'Restaurant'),
+                  _buildGridItem(Icons.group, 'Community'),
+                  _buildGridItem(Icons.person, 'User'),
+                  _buildGridItem(Icons.info, 'Info'),
+                  _buildGridItem(Icons.local_offer, 'Promotion'),
+                ]),
             const SizedBox(height: 30),
 
             // Current Users and Restaurant/Partner Section

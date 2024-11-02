@@ -16,4 +16,5 @@ const postSubCollection = 'posts';
 const eventSubCollection = 'events';
 const speechSubCollection = 'speeches';
 const reviewSubCollection = 'reviews';
+const complainSubCollection = 'complain';
 
