@@ -155,9 +155,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            CustomNumberText(
-                                number: '${userProvider.userData?.impoints ?? 0}',
-                                text: 'Impoints'),
+                            // CustomNumberText(
+                            //     number: '${userProvider.userData?.impoints ?? 0}',
+                            //     text: 'Impoints'),
                             CustomNumberText(
                                 number: '${userProvider.postCount ?? 0}',
                                 text: 'Posts'),

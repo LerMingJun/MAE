@@ -2,7 +2,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primary = Color(0xFF674188);
+  // static const Color primary = Color.fromARGB(255, 131, 121, 193);
+  // Use color code 455045
+  static const Color primary = Color(0xFFE69045);
   static const Color secondary = Color(0xFFC8A1E0);
   static const Color tertiary = Color(0xFFF7EFE5);
   static const Color placeholder = Color.fromARGB(255, 104, 104, 104);

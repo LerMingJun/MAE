@@ -15,7 +15,7 @@ class AuthRepository {
   
 
   // Sign up with email and password and save user info in Firestore
-  Future<auth.User?> signUpWithEmail(String email, String password, String fullName, String username) async {
+  Future<auth.User?> signUpWithEmail(String email, String password, String fullName, String username, List<String> dietaryPreferences) async {
     try {
       final auth.UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -30,9 +30,7 @@ class AuthRepository {
           username: username,
           email: email,
           profileImage: "userPlaceholder", 
-          impoints: 0,
-          introduction: "",
-          signinMethod: "Email",
+          dietaryPreferences: dietaryPreferences,
           createdAt: Timestamp.now(),
         );
 
@@ -61,50 +59,6 @@ class AuthRepository {
     }
   }
 
-  // Sign in with Google
-  Future<auth.User?> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-      return null;  
-      }
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final auth.AuthCredential credential = auth.GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-        final auth.UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
-        final auth.User? user = userCredential.user;
-
-        // Check if the user is new or already exists in Firestore
-        if (user != null) {
-          final DocumentReference userDocRef = userCollection.doc(user.uid);
-          final DocumentSnapshot userDoc = await userDocRef.get();
-
-          if (!userDoc.exists) {
-
-            User newUser = User(
-              userID: user.uid,
-              fullName: user.displayName ?? 'Google Full Name',
-              username: user.displayName ?? 'Google Full Name',
-              email: user.email ?? "Google Email",
-              profileImage: user.photoURL ?? "userPlaceholder", 
-              impoints: 0,
-              introduction: "",
-              signinMethod: "Google",
-              createdAt: Timestamp.now(),
-            );
-            // Create a new document for the user
-            await userDocRef.set(newUser.toJson());
-          }
-        }
-        return user;
-    
-    } catch (e) {
-      print('Error signing in with Google: $e');
-      return null;
-    }
-  }
 
   // Sign out
   Future<void> logout() async {

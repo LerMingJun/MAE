@@ -33,8 +33,7 @@ class CustomTextField extends StatelessWidget {
           labelStyle: const TextStyle(color: Colors.black),
           border: const OutlineInputBorder(),
           focusedBorder: const OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: AppColors.secondary, width: 2.0))),
+              borderSide: BorderSide(color: AppColors.secondary, width: 2.0))),
       obscureText: obscureText,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
@@ -77,8 +76,7 @@ class CustomTextFormField extends StatelessWidget {
           labelStyle: const TextStyle(color: Colors.black),
           border: const UnderlineInputBorder(),
           focusedBorder: const UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: Colors.grey, width: 2.0))),
+              borderSide: BorderSide(color: Colors.grey, width: 2.0))),
       obscureText: obscureText,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
@@ -191,6 +189,103 @@ class CustomNumberText extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class CustomDropdown extends StatefulWidget {
+  final List<String> options;
+  final List<String> selectedOptions;
+  final ValueChanged<List<String>> onChanged;
+
+  const CustomDropdown({
+    Key? key,
+    required this.options,
+    required this.selectedOptions,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  _CustomDropdownState createState() => _CustomDropdownState();
+}
+
+class _CustomDropdownState extends State<CustomDropdown> {
+  final ScrollController _scrollController = ScrollController();
+  
+  void _showOptionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Select Preferences', style: GoogleFonts.poppins()),
+          content: Container(
+            height: 400, // Set a fixed height for the dialog
+            width: double.maxFinite,
+            child: Scrollbar(
+            controller: _scrollController,
+            //Always show scrollbar
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+               controller: _scrollController,
+              child: ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: widget.options.map((option) {
+                  final isSelected = widget.selectedOptions.contains(option);
+                  return CheckboxListTile(
+                    title: Text(option, style: GoogleFonts.poppins()),
+                    value: isSelected,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        if (value == true) {
+                          widget.selectedOptions.add(option);
+                        } else {
+                          widget.selectedOptions.remove(option);
+                        }
+                        widget.onChanged(widget.selectedOptions);
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close', style: GoogleFonts.poppins()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showOptionsDialog(context),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.secondary),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.selectedOptions.isNotEmpty
+                  ? widget.selectedOptions.join(', ')
+                  : 'Select Cuisine / Restriction',
+              style: GoogleFonts.poppins(color: Colors.black),
+            ),
+            Icon(Icons.arrow_drop_down),
+          ],
+        ),
+      ),
     );
   }
 }

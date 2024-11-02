@@ -7,11 +7,8 @@ class User {
   final String username;
   final String email;
   final String profileImage;
-  final int impoints;
-  final String introduction;
-  final String signinMethod;
+  final List<String> dietaryPreferences;
   final Timestamp createdAt;
-
 
   User({
     required this.userID,
@@ -19,11 +16,9 @@ class User {
     required this.username,
     required this.email,
     this.profileImage = "",
-    required this.impoints,
-    required this.introduction,
-    required this.signinMethod,
+    List<String>? dietaryPreferences, // Make optional
     required this.createdAt,
-  });
+  }) : dietaryPreferences = dietaryPreferences ?? []; // Initialize to empty list if null
 
   factory User.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -33,14 +28,11 @@ class User {
       username: data['username'],
       email: data['email'],
       profileImage: data['profileImage'] != "userPlaceholder" ? data['profileImage'] : userPlaceholder,
-      impoints: data['impoints'],
-      introduction: data['introduction'],
-      signinMethod: data['signinMethod'],
+      dietaryPreferences: List<String>.from(data['dietaryPreferences'] ?? []), // Safely handle null
       createdAt: data['createdAt'],
     );
   }
 
-  // Method to convert a User instance to JSON for Firestore
   Map<String, dynamic> toJson() {
     return {
       'userID': userID,
@@ -48,10 +40,20 @@ class User {
       'username': username,
       'email': email,
       'profileImage': profileImage,
-      'impoints': impoints,
-      'introduction': introduction,
-      'signinMethod': signinMethod,
+      'dietaryPreferences': dietaryPreferences,
       'createdAt': createdAt,
     };
+  }
+  
+  // Example method to add a dietary preference
+  void addDietaryPreference(String preference) {
+    if (!dietaryPreferences.contains(preference)) {
+      dietaryPreferences.add(preference);
+    }
+  }
+  
+  @override
+  String toString() {
+    return 'User(userID: $userID, fullName: $fullName, username: $username, email: $email)';
   }
 }

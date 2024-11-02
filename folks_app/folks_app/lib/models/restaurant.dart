@@ -2,17 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:folks_app/models/activity.dart';
 
 class Restaurant {
-  String id;
-  String name;
-  GeoPoint location;
-  List<String> cuisineType;
-  Map<String, List<String>> menu;
-  Map<String, OperatingHours> operatingHours;
-  String intro;
-  String image;
-  List<String> tags;
-  bool isApprove;
-  String commentByAdmin;
+  final String id;
+  final String name;
+  final GeoPoint location;
+  final List<String> cuisineType;
+  final List<String> menu;
+  final Map<String, OperatingHours> operatingHours;
+  final String intro;
+  final String image;
+  final List<String> tags;
+  final bool isApprove;
+  final String commentByAdmin;
 
   Restaurant({
     required this.id,
@@ -27,55 +27,43 @@ class Restaurant {
     required this.isApprove,
     required this.commentByAdmin,
   });
-  
+
   factory Restaurant.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
     // Debugging: Print entire document data
     print('Restaurant document data: $data');
 
-    // Handle the cuisineType field
+    // Handle cuisineType field
     List<String> cuisineType = [];
     if (data['cuisineType'] is String) {
       cuisineType.add(data['cuisineType']);
-    } else if (data['cuisineType'] is List<dynamic>) {
-      cuisineType = List<String>.from(data['cuisineType'].map((item) {
-        print('Cuisine type item: $item'); // Debugging
-        return item.toString();
-      }));
+    } else if (data['cuisineType'] is List) {
+      cuisineType =
+          List<String>.from(data['cuisineType'].map((item) => item.toString()));
     }
 
-    // Handle tags
+    // Handle tags field
     List<String> tags = [];
-    if (data['tags'] is List<dynamic>) {
-      tags = List<String>.from(data['tags'].map((item) {
-        print('Tag item: $item'); // Debugging
-        return item.toString();
-      }));
+    if (data['tags'] is List) {
+      tags = List<String>.from(data['tags'].map((item) => item.toString()));
     }
 
-    // Handle menu
-    Map<String, List<String>> menu = {};
-    if (data['menu'] is Map<String, dynamic>) {
-      menu = (data['menu'] as Map<String, dynamic>).map((key, value) {
-        // Ensure each list is of type List<String>
-        if (value is List<dynamic>) {
-          return MapEntry(
-              key, List<String>.from(value.map((item) => item.toString())));
-        }
-        return MapEntry(key, []);
-      });
+    // Handle menu field as List<String>
+    List<String> menu = [];
+    if (data['menu'] is List) {
+      menu = List<String>.from(data['menu'].map((item) => item.toString()));
     }
 
-    // Handle operatingHours
+    // Handle operatingHours field
     Map<String, OperatingHours> operatingHours = {};
     if (data['operatingHours'] is Map<String, dynamic>) {
       operatingHours =
           (data['operatingHours'] as Map<String, dynamic>).map((day, hours) {
-        return MapEntry(
-          day,
-          OperatingHours.fromMap(hours),
-        );
+        if (hours is Map<String, dynamic>) {
+          return MapEntry(day, OperatingHours.fromMap(hours));
+        }
+        return MapEntry(day, OperatingHours(open: '', close: ''));
       });
     }
 
@@ -104,14 +92,16 @@ class Restaurant {
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
-      'location': location,
+      'location': location, // Ensure this is a GeoPoint
       'cuisineType': cuisineType,
-      'menu': menu,
+      'menu': menu, // List of Strings for image URLs
       'operatingHours':
           operatingHours.map((day, hours) => MapEntry(day, hours.toMap())),
       'intro': intro,
-      'image': image, // Updated to save a single image
+      'image': image, // Single image URL
       'tags': tags,
+      'isApprove': isApprove, // Add isApprove field
+      'commentByAdmin': commentByAdmin, // Add commentByAdmin field
     };
   }
 }

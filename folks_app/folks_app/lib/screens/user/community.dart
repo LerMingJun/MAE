@@ -100,7 +100,7 @@ class _CommunityState extends State<Community> {
                           postID: post.postID,
                           profileImage: post.user!.profileImage,
                           name: post.user!.username,
-                          bio: post.user!.introduction,
+                          bio: "hihi",
                           date: post.createdAt,
                           postImage: post.postImage,
                           postTitle: post.title,

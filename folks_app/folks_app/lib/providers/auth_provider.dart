@@ -26,19 +26,9 @@ class AuthProvider with ChangeNotifier {
     _setLoadingState(false);
   }
 
-  // Sign in with Google and notify listeners
-  Future<void> signInWithGoogle() async {
+  Future<void> signUpWithEmail(String email, String password, String fullname, String username,List<String> dietaryPreferences) async {
     _setLoadingState(true);
-    _firebaseUser = await _authRepository.signInWithGoogle();
-    if (_firebaseUser != null) {
-      await fetchUserData(_firebaseUser!.uid);
-    }
-    _setLoadingState(false);
-  }
-
-  Future<void> signUpWithEmail(String email, String password, String fullname, String username) async {
-    _setLoadingState(true);
-    _firebaseUser = await _authRepository.signUpWithEmail(email, password, fullname, username);
+    _firebaseUser = await _authRepository.signUpWithEmail(email, password, fullname, username,dietaryPreferences);
     if (_firebaseUser != null) {
       await fetchUserData(_firebaseUser!.uid);
     }

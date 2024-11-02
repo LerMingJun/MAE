@@ -9,6 +9,7 @@ import 'package:folks_app/providers/post_provider.dart';
 import 'package:folks_app/providers/speech_provider.dart';
 import 'package:folks_app/providers/user_provider.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
+import 'package:folks_app/providers/review_provider.dart';
 import 'package:folks_app/screens/onboarding/onboarding_screen.dart';
 import 'package:folks_app/screens/user/addPost.dart';
 import 'package:folks_app/screens/user/bookmark.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ParticipationProvider()),
         ChangeNotifierProvider(create: (_) => PostProvider()),
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {

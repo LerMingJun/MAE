@@ -38,7 +38,7 @@ class _EditProfileState extends State<EditProfile> {
       _fullNameController.text = user.fullName;
       _usernameController.text = user.username;
       _emailController.text = user.email;
-      _introductionController.text = user.introduction;
+      _introductionController.text = "hihi";
     }
   }
 
@@ -122,7 +122,7 @@ class _EditProfileState extends State<EditProfile> {
               CustomTextFormField(
                 controller: _emailController,
                 placeholderText: 'Email Address',
-                enabled: userProvider.userData?.signinMethod == "Email",
+                // enabled: userProvider.userData?.signinMethod == "Email",
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (value) {
                   // Handle text field changes
