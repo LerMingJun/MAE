@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:folks_app/models/help_item.dart';
+import 'package:folks_app/providers/helpitem_provider.dart';
+import 'package:provider/provider.dart';
 
 class HelpCenterScreen extends StatefulWidget {
   @override
@@ -7,35 +10,18 @@ class HelpCenterScreen extends StatefulWidget {
 }
 
 class _HelpCenterScreenState extends State<HelpCenterScreen> {
-   List<HelpItem> helpItems = [
-    HelpItem(title: 'How to update item photos', subtitle: 'Menu and Catalogue'),
-    HelpItem(title: 'Request to update outlet address', subtitle: 'Account'),
-    HelpItem(title: 'How to cancel a GrabFood or GrabMart order', subtitle: 'Orders and Transactions'),
-    HelpItem(title: 'How to update menu item/price', subtitle: 'Menu and Catalogue'),
-    HelpItem(title: 'Request to update banking details', subtitle: 'Account'),
-    HelpItem(title: 'Report other issues as a merchant', subtitle: 'Orders and Transactions'),
-    HelpItem(title: 'How to create and manage items/categories for my GrabFood menu', subtitle: 'Menu and Catalogue'),
-    HelpItem(title: 'I have an issue regarding a delivery partner', subtitle: 'Feedback to Grab'),
-    HelpItem(title: 'I have an issue regarding a delivery partner', subtitle: 'Feedback to Grab'),
-    HelpItem(title: 'I have an issue regarding a delivery partner', subtitle: 'Feedback to Grab'),
-  ];
-  
-  // Method to add a new item
-  void addItem(HelpItem item) {
-    setState(() {
-      helpItems.add(item);
+   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<HelpItemProvider>(context, listen: false)
+          .fetchAllHelpItems();
     });
   }
-
-  // Method to remove an item
-  void removeItem(int index) {
-    setState(() {
-      helpItems.removeAt(index);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final helpItemsProvider = Provider.of<HelpItemProvider>(context, listen: false).helpItems;
+    List<HelpItem> helpItems = Provider.of<HelpItemProvider>(context, listen: false).helpItems;
     return Scaffold(
       body: Stack(
         children: [
@@ -218,12 +204,3 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 //     );
 //   }
 // }
-
-
-class HelpItem {
-  final String title;
-  final String subtitle;
-
-  HelpItem({required this.title, required this.subtitle});    
-
-}

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:folks_app/models/store.dart';
 import 'package:folks_app/providers/store_provider.dart';
 import 'package:folks_app/screens/admins/edit_store_detail.dart';
-import 'package:folks_app/screens/admins/faq.dart';
+import 'package:folks_app/screens/admins/helpcenter.dart';
 import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
