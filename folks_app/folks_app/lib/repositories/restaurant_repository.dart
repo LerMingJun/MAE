@@ -6,6 +6,8 @@ class RestaurantRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference _restaurantCollection =
       FirebaseFirestore.instance.collection('restaurants');
+final CollectionReference _reviewCollection =       FirebaseFirestore.instance.collection('reviews');
+
 
   // Fetch all restaurants
   Future<List<Restaurant>> fetchAllRestaurants() async {

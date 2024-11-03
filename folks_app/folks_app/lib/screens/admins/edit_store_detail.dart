@@ -1,12 +1,36 @@
 // lib/screens/store_details_page.dart
 import 'package:flutter/material.dart';
+import 'package:folks_app/providers/store_provider.dart';
 import 'package:folks_app/screens/admins/modify_detail.dart';
+import 'package:provider/provider.dart';
 
-class StoreDetailsPage extends StatelessWidget {
+class StoreDetailsPage extends StatefulWidget {
   const StoreDetailsPage({super.key});
 
   @override
+  _StoreDetailsPageState createState() => _StoreDetailsPageState();
+}
+
+class _StoreDetailsPageState extends State<StoreDetailsPage> {
+  @override
+    void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<StoreProvider>(context, listen: false).fetchStore();
+    });
+  }
+
+String formatPhoneNumber(String number) {
+  if (number.length <= 2) return number;
+  if (number.length <= 5) {
+    return '${number.substring(0, 2)} ${number.substring(2)}';
+  }
+  return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
+}
+
+  @override
   Widget build(BuildContext context) {
+        final storeProvider = Provider.of<StoreProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Store"),
@@ -124,7 +148,13 @@ class StoreDetailsPage extends StatelessWidget {
 ListTile(
   leading: const Icon(Icons.contact_phone_outlined),
   title: const Text("Contact Number"),
-  subtitle: const Text("(123) 456-7890"), // sample phone number
+  subtitle: storeProvider.storeNumber != null
+    ? Text(
+        formatPhoneNumber(storeProvider.storeNumber ?? ''),
+      )
+    : const Text(
+        'Not Available',
+      ),
   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
   onTap: () async {
     await Navigator.push(
@@ -135,13 +165,12 @@ ListTile(
     );
   },
 ),
-
 const Divider(),
 
 ListTile(
   leading: const Icon(Icons.email_outlined),
   title: const Text("Email"),
-  subtitle: const Text("example@example.com"), // sample email
+  subtitle: Text(storeProvider.storeEmail ?? 'Not Available'), // sample email
   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
   onTap: () async {
     await Navigator.push(
@@ -158,7 +187,7 @@ const Divider(),
 ListTile(
   leading: const Icon(Icons.location_on),
   title: const Text("Address"),
-  subtitle: const Text("123 Main St, Anytown, USA 12345"), // sample address
+  subtitle: Text(storeProvider.storeAddress ?? 'Not Available'), // sample address
   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
   onTap: () async {
     await Navigator.push(

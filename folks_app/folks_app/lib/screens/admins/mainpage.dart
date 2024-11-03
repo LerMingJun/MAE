@@ -180,7 +180,16 @@ class _MainPageState extends State<MainPage> {
                   _buildGridItem(Icons.restaurant, 'Restaurant'),
                   _buildGridItem(Icons.group, 'Community'),
                   _buildGridItem(Icons.person, 'User'),
-                  _buildGridItem(Icons.info, 'Info'),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const StoreDetailsPage()),
+                      );
+                    },
+                    child: _buildGridItem(Icons.info, 'Info'),
+                  ),
                   _buildGridItem(Icons.local_offer, 'Promotion'),
                 ]),
             const SizedBox(height: 30),
