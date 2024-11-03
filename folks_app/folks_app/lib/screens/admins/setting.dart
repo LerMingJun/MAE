@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:folks_app/screens/admins/edit_store_detail.dart';
+import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 
 class StoreProfilePage extends StatefulWidget {
@@ -34,7 +36,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             children: [
               Text(
                 'PIN #$pinNumber',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const SizedBox(height: 16),
@@ -141,7 +144,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
           Column(
             children: [
               Image.asset(
-                'assets/logo.jpg', // Replace with your image URL
+                'assets/logo.jpg',
                 height: 100,
               ),
               const SizedBox(height: 16),
@@ -154,7 +157,11 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
-                  // Add navigation to edit store profile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StoreDetailsPage()),
+                  );
                 },
                 child: const Text('View and edit store profile'),
               ),
@@ -167,11 +174,22 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             children: [
-              _buildIconButton(Icons.store, 'Store'),
-              _buildIconButton(Icons.people, 'Partner'),
-              _buildIconButton(Icons.show_chart, 'Insights'),
-              _buildIconButton(Icons.phone, 'Store Contact', onTap: _showStoreContactOverlay),
+              _buildIconButton(Icons.people, 'Partners'),
               _buildIconButton(Icons.supervised_user_circle, 'Users'),
+              _buildIconButton(
+                Icons.show_chart,
+                'Insights',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const OverallAnalyticsScreen()), // Navigate to InsightsPage instead
+                  );
+                },
+              ),
+              _buildIconButton(Icons.phone, 'Store Contact',
+                  onTap: _showStoreContactOverlay),
             ],
           ),
           const Divider(height: 40),
@@ -188,9 +206,16 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             },
           ),
           const Divider(height: 40),
-          const ListTile(
-            leading: Icon(Icons.person_outline),
-            title: Text('Personal profile'),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text('Personal profile'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const StoreDetailsPage()),
+              );
+            },
           ),
           const ListTile(
             leading: Icon(Icons.logout, color: Colors.red),

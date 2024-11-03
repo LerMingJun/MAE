@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:folks_app/models/restaurant.dart';
-import 'package:folks_app/models/review.dart'; // Assuming you have a Review model
+import 'package:folks_app/models/review.dart';
 
 class RestaurantRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference _restaurantCollection =
       FirebaseFirestore.instance.collection('restaurants');
-  final CollectionReference _reviewCollection = FirebaseFirestore.instance
-      .collection('reviews'); // Updated collection name
 
   // Fetch all restaurants
   Future<List<Restaurant>> fetchAllRestaurants() async {

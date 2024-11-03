@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:folks_app/providers/restaurant_provider.dart';
 import 'package:folks_app/providers/user_provider.dart';
 import 'package:folks_app/screens/admins/complain.dart';
+import 'package:folks_app/screens/admins/edit_store_detail.dart';
 import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +66,7 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Add this line
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -154,7 +156,7 @@ class _MainPageState extends State<MainPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ComplaintsPage()),
+                              builder: (context) => const ComplaintsPage()),
                         );
                       });
                     },
@@ -277,7 +279,17 @@ class _MainPageState extends State<MainPage> {
               Text(data['time']!,
                   style: const TextStyle(fontSize: 12, color: Colors.black54)),
               const SizedBox(width: 16),
-              const Icon(Icons.info_outline, color: Colors.black54, size: 16),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StoreDetailsPage()),
+                  );
+                },
+                child: const Icon(Icons.info_outline,
+                    color: Colors.black54, size: 16),
+              ),
               const SizedBox(width: 4),
               Text(data['status']!,
                   style: const TextStyle(fontSize: 12, color: Colors.black54)),

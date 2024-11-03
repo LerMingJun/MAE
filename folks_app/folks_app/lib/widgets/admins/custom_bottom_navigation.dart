@@ -1,5 +1,6 @@
 // lib/widget/custom_bottom_navigation.dart
 import 'package:flutter/material.dart';
+import 'package:folks_app/screens/admins/edit_store_detail.dart';
 import 'package:folks_app/screens/admins/mainpage.dart';
 import 'package:folks_app/screens/admins/setting.dart';
 
@@ -24,7 +25,13 @@ class CustomBottomNavigation extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => const MainPage()),
           );
-        } else if (index == 3) {
+        } else if (index == 1) {
+          // Navigate to Settings when the last icon is tapped
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const StoreDetailsPage()),
+          );
+          }else if (index == 3) {
           // Navigate to Settings when the last icon is tapped
           Navigator.push(
             context,
