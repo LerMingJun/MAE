@@ -85,6 +85,13 @@ flutter:
   assets:
     - assets/logo-no-background.png
     - assets/
+    - assets/logo.jpg
+    - assets/food.jpeg
+    - assets/malaysiaflag.png
+    - assets/map.png
+    - assets/email.jpeg
+    - assets/addressPin.png
+    - assets/hand.jpg
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

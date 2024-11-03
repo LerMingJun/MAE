@@ -25,13 +25,13 @@ class RestaurantProvider with ChangeNotifier {
   List<Restaurant> _unapprovedRestaurants = [];
 
   List<Restaurant> get restaurants => _restaurants;
-  List<Review> get reviews => _reviews; // Change from List<Tag> to List<Review>
+  List<Review> get reviews => _reviews;
   Restaurant? get restaurant => _restaurant;
   bool get isLoading => _isLoading;
   LatLng? get center => _center;
   Marker? get marker => _marker;
   List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
-Restaurant? _highestRatingRestaurant;
+  Restaurant? _highestRatingRestaurant;
   Restaurant? _lowestRatingRestaurant;
 
   // Getter methods

@@ -10,6 +10,7 @@ final CollectionReference speechCollection = _firestore.collection('speeches');
 final CollectionReference tagCollection = _firestore.collection('tags');
 final CollectionReference restaurantCollection = _firestore.collection('restaurants');
 final CollectionReference reviewCollection = _firestore.collection('reviews');
+final CollectionReference storeCollection = _firestore.collection('store');
 
 const bookmarkSubCollection = 'bookmarks';
 const participationSubCollection = 'participations';

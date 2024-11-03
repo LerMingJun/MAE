@@ -1,6 +1,12 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:folks_app/models/store.dart';
+import 'package:folks_app/providers/store_provider.dart';
+import 'package:folks_app/screens/admins/edit_store_detail.dart';
+import 'package:folks_app/screens/admins/helpcenter.dart';
+import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
+import 'package:provider/provider.dart';
 
 class StoreProfilePage extends StatefulWidget {
   const StoreProfilePage({super.key});
@@ -11,6 +17,13 @@ class StoreProfilePage extends StatefulWidget {
 
 class _StoreProfilePageState extends State<StoreProfilePage> {
   int _selectedIndex = 3; // Start with "More" tab highlighted
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<StoreProvider>(context, listen: false).fetchStore();
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -34,7 +47,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             children: [
               Text(
                 'PIN #$pinNumber',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const SizedBox(height: 16),
@@ -74,7 +88,16 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
     );
   }
 
+  String formatPhoneNumber(String number) {
+    if (number.length <= 2) return number;
+    if (number.length <= 5) {
+      return '${number.substring(0, 2)} ${number.substring(2)}';
+    }
+    return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
+  }
+
   void _showStoreContactOverlay() {
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -99,13 +122,19 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
                 style: TextStyle(color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
-              const Text(
-                "03 2788 1333",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              if (storeProvider.storeNumber != null)
+                Text(
+                  formatPhoneNumber(storeProvider.storeNumber ?? ''),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              else
+                Text(
+                  'Not Available',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               const SizedBox(height: 8),
               Text(
-                "storecontact@example.com",
+                storeProvider.storeEmail ?? 'Not Available',
                 style: TextStyle(color: Colors.grey[700]),
               ),
               const SizedBox(height: 20),
@@ -141,7 +170,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
           Column(
             children: [
               Image.asset(
-                'assets/logo.jpg', // Replace with your image URL
+                'assets/logo.jpg',
                 height: 100,
               ),
               const SizedBox(height: 16),
@@ -154,7 +183,11 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
-                  // Add navigation to edit store profile
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StoreDetailsPage()),
+                  );
                 },
                 child: const Text('View and edit store profile'),
               ),
@@ -167,17 +200,34 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             children: [
-              _buildIconButton(Icons.store, 'Store'),
-              _buildIconButton(Icons.people, 'Partner'),
-              _buildIconButton(Icons.show_chart, 'Insights'),
-              _buildIconButton(Icons.phone, 'Store Contact', onTap: _showStoreContactOverlay),
+              _buildIconButton(Icons.people, 'Partners'),
               _buildIconButton(Icons.supervised_user_circle, 'Users'),
+              _buildIconButton(
+                Icons.show_chart,
+                'Insights',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const OverallAnalyticsScreen()), // Navigate to InsightsPage instead
+                  );
+                },
+              ),
+              _buildIconButton(Icons.phone, 'Store Contact',
+                  onTap: _showStoreContactOverlay),
             ],
           ),
           const Divider(height: 40),
-          const ListTile(
-            leading: Icon(Icons.help_outline),
-            title: Text('FAQ'),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('FAQ'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelpCenterScreen()),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.contact_support_outlined),
@@ -188,9 +238,16 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             },
           ),
           const Divider(height: 40),
-          const ListTile(
-            leading: Icon(Icons.person_outline),
-            title: Text('Personal profile'),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text('Personal profile'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const StoreDetailsPage()),
+              );
+            },
           ),
           const ListTile(
             leading: Icon(Icons.logout, color: Colors.red),
