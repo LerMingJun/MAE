@@ -27,4 +27,25 @@ Future<Store?> fetchStore() async {
 
 }
 
+Future<void> editStore(
+    String storeID,
+    String address,
+    String email,
+    String phoneNumber,
+  ) async {
+  try {
+    Map<String, dynamic> updatedData = {
+      'address': address,
+      'email': email,
+      'phoneNumber': phoneNumber,
+    };
+
+    // Update the store document in Firestore
+    await _firestore.collection('Store').doc(storeID).update(updatedData);
+  } catch (e) {
+    print('Error updating store: $e');
+    throw Exception('Error updating store: $e');
+  }
+}
+
 }

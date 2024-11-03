@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:folks_app/providers/store_provider.dart';
+import 'package:provider/provider.dart';
 
 class ModifyDetailScreen extends StatefulWidget {
   final String fieldType;
+  final String address;
+  final String email;
+  final String phoneNumber;
 
-  const ModifyDetailScreen({super.key, required this.fieldType});
+  const ModifyDetailScreen({
+    super.key,
+    required this.fieldType,
+    required this.address,
+    required this.email,
+    required this.phoneNumber,
+  });
 
   @override
   _ModifyDetailScreenState createState() => _ModifyDetailScreenState();
@@ -41,14 +52,35 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
               child: Image.asset('assets/malaysiaflag.png'), // Malaysia flag
             ),
             const SizedBox(width: 4),
-            const Text("+03 ", style: TextStyle(color: Colors.black)), // Malaysia code
+            const Text("+03 ",
+                style: TextStyle(color: Colors.black)), // Malaysia code
           ],
         );
       case "email":
-        return const Icon(Icons.email);
-      case "address":
-        return const Icon(Icons.location_on);
-      default:
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Image.asset('assets/email.jpeg'),
+            ),
+          ],
+        );      
+        case "address":
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Image.asset('assets/addressPin.png'),
+            ),
+          ],
+        ); 
+              default:
         return null;
     }
   }
@@ -69,7 +101,8 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
   String? validateInput(String value) {
     switch (widget.fieldType) {
       case "phone":
-        final phone = value.replaceAll(RegExp(r'^\+60|03'), ''); // Remove country code and area code
+        final phone = value.replaceAll(
+            RegExp(r'^\+60|03'), ''); // Remove country code and area code
         if (phone.isEmpty) {
           return "This mobile number is invalid. Please try again.";
         } else if (phone.length < 8 || phone.length > 9) {
@@ -77,7 +110,8 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
         }
         break;
       case "email":
-        final emailPattern = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[com]{3}$');
+        final emailPattern =
+            RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[com]{3}$');
         if (!emailPattern.hasMatch(value)) {
           return "Invalid email format. Please try again.";
         }
@@ -112,15 +146,39 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
     super.dispose();
   }
 
+  Future<void> saveDetail() async {
+    String newValue = _controller.text;
+    String storeID = "oKONUAJLfS8Pxynj2GHG"; // Replace with actual store ID
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    try {
+      if (widget.fieldType == "phone") {
+        String newPhoneValue = '03$newValue';
+        await storeProvider.updateStore(
+            storeID, widget.address, widget.email, newPhoneValue);
+      } else if (widget.fieldType == "email") {
+        await storeProvider.updateStore(
+            storeID, widget.address, newValue, widget.phoneNumber);
+      } else if (widget.fieldType == "address") {
+        await storeProvider.updateStore(
+            storeID, newValue, widget.email, widget.phoneNumber);
+      }
+
+      Navigator.pop(context, newValue);
+    } catch (e) {
+      print('Error saving store detail: $e');
+      setState(() {
+        errorMessage = "Failed to update details. Please try again.";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(getFieldLabel()),
-      
       ),
       body: Form(
-
         key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +190,8 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
                 children: [
                   Text(
                     getFieldLabel(),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -149,43 +208,47 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
                       errorText: errorMessage,
                     ),
                   ),
+                                    const SizedBox(height: 16),
+                  if (widget.fieldType == "address")
+                    Image.asset(
+                      'assets/map.png',
+                      width: double.infinity,
+                      height: 200, // adjust the height as needed
+                      fit: BoxFit.cover,
+                    ),
                 ],
               ),
             ),
-Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-  child: SizedBox(
-    width: double.infinity,
-    height: 60, // Increased height for the Save button
-    child: ElevatedButton(
-      onPressed: isButtonEnabled
-          ? () {
-              Navigator.pop(context, _controller.text);
-            }
-          : null,
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.disabled)) {
-              return Colors.grey; // Gray color when disabled
-            }
-            return Theme.of(context).primaryColor; // Default color when enabled
-          },
-        ),
-        foregroundColor: MaterialStateProperty.resolveWith<Color>(
-          (Set<MaterialState> states) {
-            if (states.contains(MaterialState.disabled)) {
-              return Colors.grey; // Text color matches button background when disabled
-            }
-            return Colors.white; // White text color when enabled
-          },
-        ),
-      ),
-      child: const Text("Save"),
-    ),
-  ),
-),
-
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: isButtonEnabled ? saveDetail : null,
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.disabled)) {
+                          return Colors.grey;
+                        }
+                        return Theme.of(context).primaryColor;
+                      },
+                    ),
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.disabled)) {
+                          return Colors.grey;
+                        }
+                        return Colors.white;
+                      },
+                    ),
+                  ),
+                  child: const Text("Save"),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -160,7 +160,7 @@ ListTile(
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ModifyDetailScreen(fieldType: "phone"),
+        builder: (context) => ModifyDetailScreen(fieldType: "phone",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
       ),
     );
   },
@@ -176,7 +176,7 @@ ListTile(
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ModifyDetailScreen(fieldType: "email"),
+        builder: (context) => ModifyDetailScreen(fieldType: "email",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
       ),
     );
   },
@@ -193,7 +193,7 @@ ListTile(
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ModifyDetailScreen(fieldType: "address"),
+        builder: (context) => ModifyDetailScreen(fieldType: "address",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
       ),
     );
   },

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:folks_app/models/store.dart';
 import 'package:folks_app/providers/store_provider.dart';
 import 'package:folks_app/screens/admins/edit_store_detail.dart';
+import 'package:folks_app/screens/admins/faq.dart';
 import 'package:folks_app/screens/admins/overall_analytics.dart';
 import 'package:folks_app/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -87,13 +88,13 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
     );
   }
 
-String formatPhoneNumber(String number) {
-  if (number.length <= 2) return number;
-  if (number.length <= 5) {
-    return '${number.substring(0, 2)} ${number.substring(2)}';
+  String formatPhoneNumber(String number) {
+    if (number.length <= 2) return number;
+    if (number.length <= 5) {
+      return '${number.substring(0, 2)} ${number.substring(2)}';
+    }
+    return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
   }
-  return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
-}
 
   void _showStoreContactOverlay() {
     final storeProvider = Provider.of<StoreProvider>(context, listen: false);
@@ -218,9 +219,15 @@ String formatPhoneNumber(String number) {
             ],
           ),
           const Divider(height: 40),
-          const ListTile(
-            leading: Icon(Icons.help_outline),
-            title: Text('FAQ'),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('FAQ'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelpCenterScreen()),
+              );
+            },
           ),
           ListTile(
             leading: const Icon(Icons.contact_support_outlined),
