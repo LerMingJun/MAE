@@ -7,6 +7,7 @@ class ReviewRepository {
   // Fetch reviews for a specific restaurant
   Future<List<Review>> fetchReviews(String restaurantId) async {
     try {
+      print('Fetching reviews for restaurant: $restaurantId');
       QuerySnapshot snapshot = await _firestore
           .collection('reviews')
           .where('restaurantId', isEqualTo: restaurantId)

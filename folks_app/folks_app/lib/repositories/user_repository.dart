@@ -17,8 +17,9 @@ class UserRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CollectionReference _userCollection =
-    FirebaseFirestore.instance.collection('users');
-  final CollectionReference _complaintsCollection = FirebaseFirestore.instance.collection('complaint');
+      FirebaseFirestore.instance.collection('users');
+  final CollectionReference _complaintsCollection =
+      FirebaseFirestore.instance.collection('complaint');
 
   // Get the current user
   auth.User? get currentUser => _firebaseAuth.currentUser;
@@ -28,7 +29,6 @@ class UserRepository {
     try {
       final DocumentSnapshot doc = await userCollection.doc(uid).get();
       if (doc.exists) {
-        
         return User.fromFirestore(doc);
       } else {
         return null;
@@ -39,11 +39,24 @@ class UserRepository {
     }
   }
 
+  Future<void> updateUserPreferences(
+      String userId, List<String> preferences) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'preferences': preferences,
+      });
+    } catch (e) {
+      print('Error updating preferences: $e');
+    }
+  }
+  
   // Fetch user data from Firestore
-  Future<void> updateUserData(String uid, Map<String, dynamic> data, XFile? imageFile) async {
+  Future<void> updateUserData(
+      String uid, Map<String, dynamic> data, XFile? imageFile) async {
     try {
       if (imageFile != null) {
-        String fileName = 'users/$uid/profile_${DateTime.now().millisecondsSinceEpoch}.png';
+        String fileName =
+            'users/$uid/profile_${DateTime.now().millisecondsSinceEpoch}.png';
         Reference storageRef = _storage.ref().child(fileName);
         UploadTask uploadTask = storageRef.putFile(File(imageFile.path));
         TaskSnapshot taskSnapshot = await uploadTask;
@@ -65,19 +78,13 @@ class UserRepository {
     String postCount = '0';
 
     try {
-      QuerySnapshot postSnapshot = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .get();
+      QuerySnapshot postSnapshot =
+          await userCollection.doc(userID).collection(postSubCollection).get();
 
       postCount = postSnapshot.size.toString();
-
-    } catch(e) {
-
+    } catch (e) {
       print('Error fetching postCount: $e');
-
     }
-
 
     return postCount;
   }
@@ -87,23 +94,17 @@ class UserRepository {
     int likeCounts = 0;
 
     try {
-      QuerySnapshot postSnapshot = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .get();
+      QuerySnapshot postSnapshot =
+          await userCollection.doc(userID).collection(postSubCollection).get();
 
       for (var doc in postSnapshot.docs) {
-      List<dynamic> likes = doc['likes'];
-      likeCounts += likes.length;
-      likeCount = likeCounts.toString();
-    }
-
-    } catch(e) {
-
+        List<dynamic> likes = doc['likes'];
+        likeCounts += likes.length;
+        likeCount = likeCounts.toString();
+      }
+    } catch (e) {
       print('Error fetching postCount: $e');
-
     }
-
 
     return likeCount;
   }
@@ -118,13 +119,9 @@ class UserRepository {
           .get();
 
       participationCount = participationSnapshot.size.toString();
-
-    } catch(e) {
-
+    } catch (e) {
       print('Error fetching postCount: $e');
-      
     }
-
 
     return participationCount;
   }
@@ -137,7 +134,7 @@ class UserRepository {
           .collection(participationSubCollection)
           .get();
 
-       history = participationSnapshot.docs
+      history = participationSnapshot.docs
           .map((doc) => Participation.fromFirestore(doc))
           .toList();
       return history;
@@ -159,37 +156,37 @@ class UserRepository {
             doc); // Updated to use DocumentSnapshot directly
       }).toList();
     } catch (e) {
-      print(
-          'Error fetching all users: $e'); // This will show the exact error
+      print('Error fetching all users: $e'); // This will show the exact error
       return [];
     }
   }
 
-Future<void> fetchComplaints() async {
-  // Step 1: Get all documents in the 'users' collection
-  QuerySnapshot userSnapshot = await _userCollection.get();
+  Future<void> fetchComplaints() async {
+    // Step 1: Get all documents in the 'users' collection
+    QuerySnapshot userSnapshot = await _userCollection.get();
 
-  // Step 2: Iterate through each user document
-  for (QueryDocumentSnapshot userDoc in userSnapshot.docs) {
-    // Step 3: Access the 'complain' subcollection for each user
-    CollectionReference complainCollection =
-        userDoc.reference.collection('complain');
+    // Step 2: Iterate through each user document
+    for (QueryDocumentSnapshot userDoc in userSnapshot.docs) {
+      // Step 3: Access the 'complain' subcollection for each user
+      CollectionReference complainCollection =
+          userDoc.reference.collection('complain');
 
-    // Step 4: Fetch documents from the 'complain' subcollection
-    QuerySnapshot complainSnapshot = await complainCollection.get();
+      // Step 4: Fetch documents from the 'complain' subcollection
+      QuerySnapshot complainSnapshot = await complainCollection.get();
 
-    // Step 5: Process each complaint document
-    for (QueryDocumentSnapshot complaintDoc in complainSnapshot.docs) {
-      print('Complaint ID: ${complaintDoc.id}');
-      print('Complaint Data: ${complaintDoc.data()}');
+      // Step 5: Process each complaint document
+      for (QueryDocumentSnapshot complaintDoc in complainSnapshot.docs) {
+        print('Complaint ID: ${complaintDoc.id}');
+        print('Complaint Data: ${complaintDoc.data()}');
+      }
     }
   }
-}
 
   Future<List<Complaint>> fetchAllComplaints({bool resolved = false}) async {
     try {
       QuerySnapshot snapshot = await _complaintsCollection
-          .where('feedback', isNotEqualTo: resolved ? null : "").get();
+          .where('feedback', isNotEqualTo: resolved ? null : "")
+          .get();
 
       return snapshot.docs.map((doc) => Complaint.fromFirestore(doc)).toList();
     } catch (e) {
@@ -197,48 +194,54 @@ Future<void> fetchComplaints() async {
       return [];
     }
   }
- Future<Map<String, List<Map<String, dynamic>>>> fetchClassifiedComplaints() async {
-  Map<String, List<Map<String, dynamic>>> classifiedComplaints = {
-    'resolved': [],
-    'unresolved': [],
-  };
 
-  print("Fetching user documents...");
+  Future<Map<String, List<Map<String, dynamic>>>>
+      fetchClassifiedComplaints() async {
+    Map<String, List<Map<String, dynamic>>> classifiedComplaints = {
+      'resolved': [],
+      'unresolved': [],
+    };
 
-  // Step 1: Get all documents in the 'users' collection
-  QuerySnapshot userSnapshot = await _userCollection.get();
-  print("Total users fetched: ${userSnapshot.docs.length}");
+    print("Fetching user documents...");
 
-  // Step 2: Iterate through each user document
-  for (QueryDocumentSnapshot userDoc in userSnapshot.docs) {
-    print("Checking complaints for user ID: ${userDoc.id}");
+    // Step 1: Get all documents in the 'users' collection
+    QuerySnapshot userSnapshot = await _userCollection.get();
+    print("Total users fetched: ${userSnapshot.docs.length}");
 
-    // Step 3: Access the 'complain' subcollection for each user
-    CollectionReference complainCollection = userDoc.reference.collection('complain');
+    // Step 2: Iterate through each user document
+    for (QueryDocumentSnapshot userDoc in userSnapshot.docs) {
+      print("Checking complaints for user ID: ${userDoc.id}");
 
-    // Step 4: Fetch documents from the 'complain' subcollection
-    QuerySnapshot complainSnapshot = await complainCollection.get();
-    print("Total complaints for user ${userDoc.id}: ${complainSnapshot.docs.length}");
+      // Step 3: Access the 'complain' subcollection for each user
+      CollectionReference complainCollection =
+          userDoc.reference.collection('complain');
 
-    // Step 5: Classify each complaint based on 'feedback' attribute
-    for (QueryDocumentSnapshot complaintDoc in complainSnapshot.docs) {
-      Map<String, dynamic> complaintData = complaintDoc.data() as Map<String, dynamic>;
-      
-      if (complaintData['feedback'] != null) {
-        classifiedComplaints['resolved']!.add(complaintData);
-        print("Complaint ${complaintDoc.id} classified as RESOLVED.");
-      } else {
-        classifiedComplaints['unresolved']!.add(complaintData);
-        print("Complaint ${complaintDoc.id} classified as UNRESOLVED.");
+      // Step 4: Fetch documents from the 'complain' subcollection
+      QuerySnapshot complainSnapshot = await complainCollection.get();
+      print(
+          "Total complaints for user ${userDoc.id}: ${complainSnapshot.docs.length}");
+
+      // Step 5: Classify each complaint based on 'feedback' attribute
+      for (QueryDocumentSnapshot complaintDoc in complainSnapshot.docs) {
+        Map<String, dynamic> complaintData =
+            complaintDoc.data() as Map<String, dynamic>;
+
+        if (complaintData['feedback'] != null) {
+          classifiedComplaints['resolved']!.add(complaintData);
+          print("Complaint ${complaintDoc.id} classified as RESOLVED.");
+        } else {
+          classifiedComplaints['unresolved']!.add(complaintData);
+          print("Complaint ${complaintDoc.id} classified as UNRESOLVED.");
+        }
       }
     }
+
+    print("Classification complete.");
+    print(
+        "Total resolved complaints: ${classifiedComplaints['resolved']!.length}");
+    print(
+        "Total unresolved complaints: ${classifiedComplaints['unresolved']!.length}");
+
+    return classifiedComplaints;
   }
-
-  print("Classification complete.");
-  print("Total resolved complaints: ${classifiedComplaints['resolved']!.length}");
-  print("Total unresolved complaints: ${classifiedComplaints['unresolved']!.length}");
-
-  return classifiedComplaints;
-}
-
 }

@@ -9,7 +9,7 @@ import 'package:geocoding/geocoding.dart';
 class RestaurantDetailsScreen extends StatelessWidget {
   final Restaurant restaurant;
 
-  const RestaurantDetailsScreen({Key? key, required this.restaurant})
+  RestaurantDetailsScreen({Key? key, required this.restaurant})
       : super(key: key);
 
   Future<String> getAddressFromCoordinates(
@@ -17,34 +17,35 @@ class RestaurantDetailsScreen extends StatelessWidget {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(latitude, longitude);
     Placemark place = placemarks[0];
-
-    // Construct a formatted address string
     return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
   }
 
+  bool _reviewsFetched = false;
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final String? userId = userProvider.firebaseUser?.uid; // Get user ID
+    final String? userId = userProvider.firebaseUser?.uid;
     final reviewProvider = Provider.of<ReviewProvider>(context);
 
-    // Fetch reviews if not already fetched
-    if (reviewProvider.reviews.isEmpty) {
-      reviewProvider.fetchReviews(restaurant.id);
-    }
+    // Clear reviews when navigating to a new restaurant
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_reviewsFetched) {
+        reviewProvider.clearReviews();
+        reviewProvider.fetchReviews(restaurant.id);
+        _reviewsFetched = true;
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
         title: Text(restaurant.name),
       ),
       body: SingleChildScrollView(
-        // Allows scrolling if content is too long
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Display restaurant image (if any)
               restaurant.image.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(10.0),
@@ -60,41 +61,28 @@ class RestaurantDetailsScreen extends StatelessWidget {
                       color: Colors.grey[300],
                       child: const Center(child: Text('No Image Available')),
                     ),
-
               const SizedBox(height: 16),
-
-              // Restaurant details
-              Text(
-                restaurant.intro,
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(restaurant.intro, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
-              Text(
-                "Cuisine: ${restaurant.cuisineType.join(', ')}",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text("Cuisine: ${restaurant.cuisineType.join(', ')}",
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               
-              // Use FutureBuilder to get the address
+              const SizedBox(height: 8),
               FutureBuilder<String>(
-                future: getAddressFromCoordinates(
-                    restaurant.location.latitude,
+                future: getAddressFromCoordinates(restaurant.location.latitude,
                     restaurant.location.longitude),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(); // Show a loading spinner while fetching the address
+                    return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}"); // Handle errors
+                    return Text("Error: ${snapshot.error}");
                   } else {
-                    return Text(
-                      "Location: ${snapshot.data}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    );
+                    return Text("Location: ${snapshot.data}",
+                        style: const TextStyle(fontWeight: FontWeight.bold));
                   }
                 },
               ),
               const SizedBox(height: 8),
-
-              // Operating hours
               Text("Operating Hours:",
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Column(
@@ -105,10 +93,9 @@ class RestaurantDetailsScreen extends StatelessWidget {
                 }).toList(),
               ),
               const SizedBox(height: 16),
-
-              // Tags
               if (restaurant.tags.isNotEmpty) ...[
-                Text("Tags:", style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text("Tags:",
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 Wrap(
                   spacing: 8.0,
                   children: restaurant.tags.map((tag) {
@@ -117,34 +104,41 @@ class RestaurantDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
               ],
-
-              // Reviews Section
               const SizedBox(height: 16),
               const Text('Reviews:', style: TextStyle(fontSize: 20)),
               const SizedBox(height: 8),
-              reviewProvider.isLoading
-                  ? CircularProgressIndicator()
-                  : Column(
-                      children: reviewProvider.reviews.take(3).map((review) => ListTile(
-                            title: Text(review.feedback),
-                            subtitle: Text('Rating: ${review.rating}'),
-                          )).toList(),
-                    ),
-
-              // Button to view all reviews
+              Consumer<ReviewProvider>(
+                builder: (context, reviewProvider, _) {
+                  return reviewProvider.isLoading
+                      ? CircularProgressIndicator()
+                      : reviewProvider.reviews.isEmpty
+                          ? Text(
+                              'No reviews yet',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey),
+                            )
+                          : Column(
+                              children: reviewProvider.reviews
+                                  .take(3)
+                                  .map((review) => ListTile(
+                                        title: Text(review.feedback),
+                                        subtitle:
+                                            Text('Rating: ${review.rating}'),
+                                      ))
+                                  .toList(),
+                            );
+                },
+              ),
               TextButton(
                 onPressed: () {
-                  // Navigate to the page that shows all reviews
                   Navigator.pushNamed(
                     context,
-                    '/allReviews', // Define this route for your all reviews page
+                    '/allReviews',
                     arguments: restaurant.id,
                   );
                 },
                 child: Text('View All Reviews'),
               ),
-
-              // Action buttons
               ElevatedButton(
                 onPressed: () {
                   // TODO: Navigate to reservation screen
@@ -154,13 +148,12 @@ class RestaurantDetailsScreen extends StatelessWidget {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to Leave Review screen
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => LeaveReviewScreen(
                         restaurantId: restaurant.id,
-                        userId: userId ?? '', // Pass the current user ID here
+                        userId: userId ?? '',
                       ),
                     ),
                   );

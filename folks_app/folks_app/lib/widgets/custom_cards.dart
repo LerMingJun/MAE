@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:folks_app/models/restaurant.dart';
 import 'package:folks_app/screens/user/restaurantDetails.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:folks_app/theming/custom_themes.dart';
 import 'package:folks_app/widgets/custom_loading.dart';
@@ -350,14 +351,14 @@ class CustomEventCard extends StatelessWidget {
   }
 }
 
-class CustomRestaurantCard extends StatelessWidget {
+class CustomRestaurantCard extends StatefulWidget {
   final String imageUrl;
   final String name;
   final GeoPoint location;
   final List<String> cuisineTypes;
   final String restaurantID;
   final String intro;
-  final double rating; // New field for rating
+  final double rating; // Rating field
   final Restaurant restaurant;
 
   const CustomRestaurantCard({
@@ -373,6 +374,38 @@ class CustomRestaurantCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _CustomRestaurantCardState createState() => _CustomRestaurantCardState();
+}
+
+class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
+  String? address;
+
+  @override
+  void initState() {
+    super.initState();
+    _getAddressFromCoordinates();
+  }
+
+  Future<void> _getAddressFromCoordinates() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        widget.location.latitude,
+        widget.location.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        setState(() {
+          address = "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        address = "Address not available";
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -380,7 +413,8 @@ class CustomRestaurantCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => RestaurantDetailsScreen(
-                restaurant: restaurant), // Pass the restaurant object here
+              restaurant: widget.restaurant,
+            ),
           ),
         );
       },
@@ -398,8 +432,8 @@ class CustomRestaurantCard extends StatelessWidget {
                 bottomLeft: Radius.circular(10),
               ),
               child: Image.network(
-                imageUrl,
-                height: 100,
+                widget.imageUrl,
+                height: 120,
                 width: 100,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
@@ -422,7 +456,7 @@ class CustomRestaurantCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      widget.name,
                       style: GoogleFonts.lato(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -433,18 +467,17 @@ class CustomRestaurantCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '${location.latitude}, ${location.longitude}', // Extract latitude and longitude
+                      address ?? 'Fetching address...', // Display the address
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.black54,
                       ),
-
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
                     SizedBox(height: 4),
                     Text(
-                      cuisineTypes.join(', '),
+                      widget.cuisineTypes.join(', '),
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.black45,
@@ -454,7 +487,7 @@ class CustomRestaurantCard extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      intro,
+                      widget.intro,
                       style: GoogleFonts.lato(
                         fontSize: 10,
                         color: Colors.black45,
@@ -473,7 +506,7 @@ class CustomRestaurantCard extends StatelessWidget {
                         ),
                         SizedBox(width: 4),
                         Text(
-                          rating.toString(),
+                          widget.rating.toString(),
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.black45,

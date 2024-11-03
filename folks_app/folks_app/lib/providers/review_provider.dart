@@ -10,13 +10,29 @@ class ReviewProvider with ChangeNotifier {
   List<Review> get reviews => _reviews;
   bool get isLoading => _isLoading;
 
+  void clearReviews() {
+    _reviews = []; // Clear the reviews list
+    notifyListeners(); // Notify listeners of the change
+  }
+
   // Fetch initial reviews for a restaurant
   Future<void> fetchReviews(String restaurantId) async {
-    _isLoading = true;
+    if (_isLoading || _reviews.isNotEmpty)
+      return; // Prevent multiple fetch calls
+    print('Fetching reviews for restaurant: $restaurantId');
+
+    _isLoading = true; // Set loading state
     notifyListeners();
-    _reviews = await _reviewRepository.fetchReviews(restaurantId);
-    _isLoading = false;
-    notifyListeners();
+
+    try {
+      _reviews = await _reviewRepository.fetchReviews(restaurantId);
+      print('Fetched ${_reviews.length} reviews for restaurant: $restaurantId');
+    } catch (e) {
+      print('Error fetching reviews: $e');
+    } finally {
+      _isLoading = false; // Reset loading state
+      notifyListeners();
+    }
   }
 
   // Add a new review

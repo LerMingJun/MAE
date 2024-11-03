@@ -223,32 +223,38 @@ class _HomeState extends State<Home> {
                                         child: Row(
                                           children: [
                                             Container(
-                                              clipBehavior: Clip.antiAlias,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  10),
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                                  10))),
-                                              child: Image.network(
-                                                article.thumbnail,
-                                                height: 130,
-                                                width: 130,
-                                                fit: BoxFit.cover,
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null) {
-                                                    return child;
-                                                  } else {
-                                                    return CustomImageLoading(
-                                                        width: 130);
-                                                  }
-                                                },
-                                              ),
-                                            ),
+                                                clipBehavior: Clip.antiAlias,
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topLeft: Radius
+                                                                .circular(10),
+                                                            bottomLeft:
+                                                                Radius.circular(
+                                                                    10))),
+                                                child: Image.network(
+                                                  article.thumbnail,
+                                                  height: 130,
+                                                  width: 130,
+                                                  fit: BoxFit.cover,
+                                                  loadingBuilder: (context,
+                                                      child, loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child;
+                                                    } else {
+                                                      return CustomImageLoading(
+                                                          width: 130);
+                                                    }
+                                                  },
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                        'assets/logo-no-background.png',
+                                                        width: 130,
+                                                        height: 130);
+                                                  },
+                                                )),
                                             //SizedBox(width: 10),
                                             Expanded(
                                               child: Padding(
@@ -291,13 +297,10 @@ class _HomeState extends State<Home> {
                                                           errorBuilder:
                                                               (context, error,
                                                                   stackTrace) {
-                                                            return Image
-                                                                .network(
-                                                              userPlaceholder,
-                                                              width: 20,
-                                                              height: 20,
-                                                              fit: BoxFit.cover,
-                                                            );
+                                                            return Image.asset(
+                                                                'assets/placeholder_icon.png',
+                                                                width: 20,
+                                                                height: 20);
                                                           },
                                                         ),
                                                         SizedBox(width: 2),

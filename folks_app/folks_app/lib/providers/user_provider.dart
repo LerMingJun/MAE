@@ -9,7 +9,7 @@ import '../repositories/user_repository.dart';
 import '../models/user.dart';
 
 class UserProvider with ChangeNotifier {
-  final UserRepository _userRepository = UserRepository(); 
+  final UserRepository _userRepository = UserRepository();
   final AuthRepository _authRepository = AuthRepository();
   //final AuthRepository _authRepository = AuthRepository();
 
@@ -27,7 +27,7 @@ class UserProvider with ChangeNotifier {
   bool _isComplaintsLoading = false;
   List<Complaint> _allComplaints = [];
   bool _isLoadingComplaints = false;
- List<Map<String, dynamic>> _resolvedComplaints = [];
+  List<Map<String, dynamic>> _resolvedComplaints = [];
   List<Map<String, dynamic>> _unresolvedComplaints = [];
 
   List<Map<String, dynamic>> get resolvedComplaints => _resolvedComplaints;
@@ -67,8 +67,7 @@ class UserProvider with ChangeNotifier {
     try {
       _allUsers = await _userRepository.fetchAllUsers();
       _users = _allUsers ?? [];
-      print(
-          'Number of Users loaded: ${_allUsers!.length}'); // Debugging line
+      print('Number of Users loaded: ${_allUsers!.length}'); // Debugging line
     } catch (e) {
       _users = [];
       print(
@@ -94,8 +93,8 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateUserData(Map<String, dynamic> data, XFile? imageFile) async {
-    
+  Future<void> updateUserData(
+      Map<String, dynamic> data, XFile? imageFile) async {
     if (_firebaseUser != null) {
       await _userRepository.updateUserData(_firebaseUser!.uid, data, imageFile);
       // Fetch the updated user data to reflect changes
@@ -116,40 +115,37 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> _fetchUserHistory() async {
-    
-
     try {
-      _history  = await _userRepository.fetchUserHistory(_authRepository.currentUser!.uid);
-      
-
+      _history = await _userRepository
+          .fetchUserHistory(_authRepository.currentUser!.uid);
     } catch (e) {
       _history = [];
       print('Error in EventProvider: $e');
     }
-
   }
 
   Future<void> _fetchUserStats() async {
-     
-
     try {
-      _postCount = await _userRepository.fetchPostCount(_authRepository.currentUser!.uid);
-      _likeCount = await _userRepository.fetchLikeCount(_authRepository.currentUser!.uid);
-      _participationCount = await _userRepository.fetchParticipationCount(_authRepository.currentUser!.uid);
-
+      _postCount = await _userRepository
+          .fetchPostCount(_authRepository.currentUser!.uid);
+      _likeCount = await _userRepository
+          .fetchLikeCount(_authRepository.currentUser!.uid);
+      _participationCount = await _userRepository
+          .fetchParticipationCount(_authRepository.currentUser!.uid);
     } catch (e) {
       _history = [];
       print('Error in EventProvider: $e');
     }
   }
- // Load and classify complaints
+
+  // Load and classify complaints
   // Method to load and classify complaints
   Future<void> loadClassifiedComplaints() async {
-    final classifiedComplaints = await _userRepository.fetchClassifiedComplaints();
+    final classifiedComplaints =
+        await _userRepository.fetchClassifiedComplaints();
     _resolvedComplaints = classifiedComplaints['resolved']!;
     _unresolvedComplaints = classifiedComplaints['unresolved']!;
     notifyListeners();
   }
 
 }
-
