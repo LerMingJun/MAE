@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
+import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HelpItemProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: const MaterialApp(
         home: MainPage(),
