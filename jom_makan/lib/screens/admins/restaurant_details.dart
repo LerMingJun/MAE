@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/review_provider.dart';
+import 'package:jom_makan/providers/favorite_provider.dart'; // Import the FavoriteProvider
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 
-class RestaurantDetailsScreenAdmin extends StatefulWidget {
+class RestaurantDetailsScreenAdmin extends StatelessWidget {
   final Restaurant restaurant;
 
-  const RestaurantDetailsScreenAdmin({super.key, required this.restaurant});
-
-    @override
-  _RestaurantDetailsScreenState createState() => _RestaurantDetailsScreenState();
-}
+  RestaurantDetailsScreenAdmin({Key? key, required this.restaurant})
+      : super(key: key);
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -22,20 +20,13 @@ class RestaurantDetailsScreenAdmin extends StatefulWidget {
     return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
   }
 
-class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> {
-  late Restaurant restaurant;
   bool _reviewsFetched = false;
-
-    _RestaurantDetailsScreenState() {
-    restaurant = widget.restaurant;
-  }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final String? userId = userProvider.firebaseUser?.uid;
     final reviewProvider = Provider.of<ReviewProvider>(context);
-
 
     // Clear reviews when navigating to a new restaurant
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,6 +39,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(restaurant.name),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -191,6 +183,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
               const SizedBox(height: 16),
 
               // Action buttons arranged in two columns
+              // ...
+
+              // Action buttons arranged in two columns
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true, // Prevent scrolling issues
@@ -205,13 +200,53 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
                       width: 120, // Fixed width for buttons
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Change the color to blue
+                          backgroundColor: Colors.orange, // Change button color
+                          foregroundColor: Colors
+                              .white, // Add this line to change text color to white
                         ),
                         onPressed: () {
-                          // TODO: Navigate to reservation screen
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              String feedbackText = '';
+                              return AlertDialog(
+                                title: const Text("Suspend Restaurant"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                        "Provide feedback for suspension:"),
+                                    const SizedBox(height: 10),
+                                    TextField(
+                                      onChanged: (value) =>
+                                          feedbackText = value,
+                                      maxLines: 3,
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: 'Enter reason...',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Cancel"),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                  TextButton(
+                                    child: const Text("Confirm"),
+                                    onPressed: () {
+                                      print("Feedback: $feedbackText");
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: const Center(
-                          // Center the text within the button
                           child: Text(
                             "Suspend",
                             textAlign: TextAlign.center, // Center the text
@@ -227,16 +262,47 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
                       width: 120, // Fixed width for buttons
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Change the color to red
-                        ),
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors
+                              .white, // Add this line to change text color to white
+                        ), // Change button color
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
+                              String feedbackText = '';
                               return AlertDialog(
-                                title: const Text("Confirm Deletion"),
-                                content: const Text(
-                                    "Are you sure you want to delete this restaurant?"),
+                                title: const Text("Suspend Restaurant"),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                        "Provide feedback for suspending this restaurant:"),
+                                    const SizedBox(height: 10),
+                                    ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxHeight:
+                                            150, // Fixed height for larger input field
+                                        maxWidth: double.infinity, // Full width
+                                      ),
+                                      child: TextField(
+                                        onChanged: (value) {
+                                          feedbackText = value;
+                                        },
+                                        maxLength:
+                                            75, // Set max character count to 75
+                                        maxLines:
+                                            4, // Allows for multiple lines
+                                        decoration: InputDecoration(
+                                          border: const OutlineInputBorder(),
+                                          hintText: 'Enter reason here...',
+                                          counterText:
+                                              "${feedbackText.length}/75", // Character count
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 actions: [
                                   TextButton(
                                     child: const Text("Cancel"),
@@ -245,9 +311,10 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
                                     },
                                   ),
                                   TextButton(
-                                    child: const Text("Delete"),
+                                    child: const Text("Confirm"),
                                     onPressed: () {
-                                      // TODO: Implement deletion logic here
+                                      print(
+                                          "Feedback for suspension: $feedbackText");
                                       Navigator.of(context).pop();
                                     },
                                   ),
@@ -257,7 +324,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreenAdmin> 
                           );
                         },
                         child: const Center(
-                          // Center the text within the button
                           child: Text(
                             "Delete",
                             textAlign: TextAlign.center, // Center the text
