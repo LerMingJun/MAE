@@ -25,21 +25,21 @@
             "flutterMode": "release"
         },
         {
-            "name": "folks_app",
-            "cwd": "folks_app\\folks_app",
+            "name": "jom_makan",
+            "cwd": "jom_makan\\jom_makan",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "folks_app (profile mode)",
-            "cwd": "folks_app\\folks_app",
+            "name": "jom_makan (profile mode)",
+            "cwd": "jom_makan\\jom_makan",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "folks_app (release mode)",
-            "cwd": "folks_app\\folks_app",
+            "name": "jom_makan (release mode)",
+            "cwd": "jom_makan\\jom_makan",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
