@@ -231,4 +231,23 @@ class UserRepository {
 
     return classifiedcomplains;
   }
+
+    Future<void> editUser(User user
+  ) async {
+  try {
+    Map<String, dynamic> updatedData = {
+      'isDelete': user.isDelete,
+      'isSuspend': user.isSuspend,
+      'commentByAdmin': user.commentByAdmin,
+    };
+
+    // Update the store document in Firestore
+    await _firestore.collection('users').doc(user.userID).update(updatedData);
+  } catch (e) {
+    print('Error updating store: $e');
+    throw Exception('Error updating store: $e');
+  }
+}
+
+
 }

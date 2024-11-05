@@ -32,6 +32,9 @@ class AuthRepository {
           profileImage: "userPlaceholder", 
           dietaryPreferences: dietaryPreferences,
           createdAt: Timestamp.now(),
+          isDelete: false,
+          isSuspend: false,
+          commentByAdmin: "",
         );
 
         await userCollection.doc(user.uid).set(newUser.toJson());

@@ -11,10 +11,10 @@ class Restaurant {
   final String intro;
   final String image;
   final List<String> tags;
-  final bool isApprove;
+  late final bool isApprove;
   final String commentByAdmin;
-  final bool isSuspend;
-  final bool isDelete;
+  late final bool isSuspend;
+  late final bool isDelete;
   double averageRating;
 
   Restaurant({
@@ -113,6 +113,56 @@ class Restaurant {
       'commentByAdmin': commentByAdmin, // Add commentByAdmin field
     };
   }
+
+    // Function to determine status
+  String getStatus() {
+    if (isDelete) {
+      return "Deleted";
+    } else if (isSuspend) {
+      return "Suspended";
+    } else if (!isApprove && commentByAdmin.isEmpty) {
+      return "Pending Approval";
+    } else if (!isApprove && commentByAdmin.isNotEmpty) {
+      return "Declined";
+    } else {
+      return "Active";
+    }
+  }
+
+Restaurant copyWith({
+    String? id,
+    String? name,
+    GeoPoint? location,
+    List<String>? cuisineType,
+    List<String>? menu,
+    Map<String, OperatingHours>? operatingHours,
+    String? intro,
+    String? image,
+    List<String>? tags,
+    bool? isApprove,
+    String? commentByAdmin,
+    bool? isSuspend,
+    bool? isDelete,
+    double? averageRating,
+  }) {
+    return Restaurant(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      location: location ?? this.location,
+      cuisineType: cuisineType ?? this.cuisineType,
+      menu: menu ?? this.menu,
+      operatingHours: operatingHours ?? this.operatingHours,
+      intro: intro ?? this.intro,
+      image: image ?? this.image,
+      tags: tags ?? this.tags,
+      isApprove: isApprove ?? this.isApprove,
+      commentByAdmin: commentByAdmin ?? this.commentByAdmin,
+      isSuspend: isSuspend ?? this.isSuspend,
+      isDelete: isDelete ?? this.isDelete,
+      averageRating: averageRating ?? this.averageRating,
+    );
+  }
+
 }
 
 class OperatingHours {

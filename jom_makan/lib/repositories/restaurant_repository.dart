@@ -186,7 +186,7 @@ Restaurant restaurant
     };
 
     // Update the store document in Firestore
-    await _firestore.collection('Store').doc(restaurant.id).update(updatedData);
+    await _firestore.collection('restaurants').doc(restaurant.id).update(updatedData);
   } catch (e) {
     print('Error updating store: $e');
     throw Exception('Error updating store: $e');

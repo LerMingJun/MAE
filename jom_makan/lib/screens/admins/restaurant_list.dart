@@ -152,7 +152,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                   controller: _tabController,
                   children: [
                     _buildRestaurantList(activeRestaurants, restaurantProvider.isLoading),
-                    _buildRestaurantList(inactiveRestaurants, restaurantProvider.isLoading, showStatus: true),
+                    _buildRestaurantList(inactiveRestaurants, restaurantProvider.isLoading),
                   ],
                 ),
               ),
@@ -163,60 +163,48 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     );
   }
 
- Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading, {bool showStatus = false}) {
-  if (isLoading) {
-    return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
-  } else if (restaurants.isEmpty) {
-    return const Center(
-      child: EmptyWidget(
-        text: "No Restaurants Found.\nPlease try again.",
-        image: 'assets/projectEmpty.png',
-      ),
-    );
-  } else {
-    return ListView.builder(
-      itemCount: restaurants.length,
-      itemBuilder: (BuildContext context, int index) {
-        Restaurant restaurant = restaurants[index];
-        String? status;
-
-
-        // Determine status based on priority: isDelete > isApprove (active) > isSuspend
-        if (restaurant.isDelete) {
-          status = "Deleted";
-        } else if (restaurant.isApprove && !restaurant.isSuspend) {
-          status = "Active";
-        } else if (restaurant.isSuspend) {
-          status = "Suspended";
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RestaurantDetailsScreenAdmin(
-                    restaurant: restaurant,
+  Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
+    if (isLoading) {
+      return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
+    } else if (restaurants.isEmpty) {
+      return const Center(
+        child: EmptyWidget(
+          text: "No Restaurants Found.\nPlease try again.",
+          image: 'assets/projectEmpty.png',
+        ),
+      );
+    } else {
+      return ListView.builder(
+        itemCount: restaurants.length,
+        itemBuilder: (BuildContext context, int index) {
+          Restaurant restaurant = restaurants[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RestaurantDetailsScreenAdmin(
+                      restaurant: restaurant,
+                    ),
                   ),
-                ),
-              );
-            },
-            child: CustomRestaurantCard(
-              imageUrl: restaurant.image,
-              name: restaurant.name,
-              location: restaurant.location,
-              cuisineTypes: restaurant.cuisineType,
-              rating: restaurant.averageRating,
-              restaurantID: restaurant.id,
-              intro: restaurant.intro,
-              restaurant: restaurant,
-              status: showStatus ? status : null,  // Show status if in inactive tab
+                );
+              },
+              child: CustomRestaurantCard(
+                imageUrl: restaurant.image,
+                name: restaurant.name,
+                location: restaurant.location,
+                cuisineTypes: restaurant.cuisineType,
+                rating: restaurant.averageRating,
+                restaurantID: restaurant.id,
+                intro: restaurant.intro,
+                restaurant: restaurant,
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
 }

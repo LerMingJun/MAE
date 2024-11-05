@@ -121,6 +121,15 @@ class RestaurantProvider with ChangeNotifier {
     }
   }
 
+Future<Restaurant?> getRestaurantById(String restaurantID) async {
+    try {
+      return await _restaurantRepository.getRestaurantById(restaurantID);
+    } catch (e) {
+      print('Error in RestaurantProvider: $e');
+      throw Exception('Error fetching restaurant');
+    }
+  }
+
   void searchRestaurants(String searchText) {
     if (searchText.isEmpty) {
       _restaurants = _allRestaurants!;
@@ -216,7 +225,7 @@ class RestaurantProvider with ChangeNotifier {
     await fetchAllRestaurants();
   }
 
-Future<void> updateStore(Restaurant restaurant) async {
+Future<void> updateRestaurant(Restaurant restaurant) async {
   _isLoading = true;
   notifyListeners();
 
@@ -235,6 +244,5 @@ Future<void> updateStore(Restaurant restaurant) async {
     throw Exception('Error updating store');
   }
 }
-
 
 }
