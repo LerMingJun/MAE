@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/user_provider.dart';
-// import 'package:jom_makan/screens/admins/user_details_screen.dart';
+import 'package:jom_makan/screens/admins/user_detail.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({super.key});
@@ -16,17 +15,28 @@ class UsersPage extends StatefulWidget {
   State<UsersPage> createState() => _UsersPageState();
 }
 
-class _UsersPageState extends State<UsersPage> {
-  String searchText = '';
+class _UsersPageState extends State<UsersPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      userProvider.fetchAllUsers();
+      userProvider
+          .fetchAllUsers(); // Fetch all users when the page is initialized
     });
+    _tabController = TabController(length: 2, vsync: this);
   }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  String searchText = '';
 
   void _searchUsers(String text) {
     setState(() {
@@ -38,6 +48,14 @@ class _UsersPageState extends State<UsersPage> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
+
+    final activeUsers = userProvider.users
+        .where((user) => !user.isDelete && !user.isSuspend)
+        .toList();
+    final inactiveUsers = userProvider.users
+        .where((user) => user.isDelete || user.isSuspend)
+        .toList();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Padding(
@@ -67,7 +85,7 @@ class _UsersPageState extends State<UsersPage> {
                             },
                           ),
                           Text(
-                            'All Users',
+                            'Manage Users',
                             style: GoogleFonts.lato(
                               fontSize: 24,
                               color: AppColors.primary,
@@ -84,30 +102,31 @@ class _UsersPageState extends State<UsersPage> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      Expanded(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 40),
-                          child: TextField(
-                            onChanged: (text) {
-                              _searchUsers(text);
-                            },
-                            decoration: InputDecoration(
-                              hintText: 'Search Users',
-                              hintStyle: GoogleFonts.poppins(fontSize: 12),
-                              suffixIcon: const Icon(Icons.search, size: 20),
-                              filled: true,
-                              isDense: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 8.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: AppColors.primary),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 40),
+                        child: TextField(
+                          onChanged: (text) {
+                            _searchUsers(text);
+                          },
+                          onTapOutside: (event) {
+                            FocusScope.of(context).unfocus();
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Search Users',
+                            hintStyle: GoogleFonts.poppins(fontSize: 12),
+                            suffixIcon: const Icon(Icons.search, size: 20),
+                            filled: true,
+                            isDense: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 10.0, vertical: 8.0),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  const BorderSide(color: AppColors.primary),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                           ),
                         ),
@@ -116,133 +135,216 @@ class _UsersPageState extends State<UsersPage> {
                   ),
                 ),
                 expandedHeight: 130,
-              ),
-              if (userProvider.isLoading)
-                const SliverFillRemaining(
-                  child: CustomLoading(text: 'Fetching Users...'),
-                )
-              else if (userProvider.users.isEmpty)
-                const SliverFillRemaining(
-                  child: Center(
-                    child: EmptyWidget(
-                      text: "No Users Found.\nPlease try again.",
-                      image: 'assets/projectEmpty.png',
-                    ),
-                  ),
-                )
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                      User user = userProvider.users[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        child: GestureDetector(
-                          onTap: () {
-                          //   // Navigate directly to UserDetailsScreen
-                          //   Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => UserDetailsScreen(
-                          //           user: user), // Pass the user object here
-                          //     ),
-                          //   );
-                          },
-                          child: CustomUserCard(user: user),
-                        ),
-                      );
-                    },
-                    childCount: userProvider.users.length,
-                  ),
+                pinned: true,
+                bottom: TabBar(
+                  controller: _tabController,
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: AppColors.primary,
+                  tabs: const [
+                    Tab(text: 'Active'),
+                    Tab(text: 'Inactive'),
+                  ],
                 ),
+              ),
+              SliverFillRemaining(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildUserList(activeUsers, userProvider.isLoading),
+                    _buildUserList(inactiveUsers, userProvider.isLoading),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildUserList(List<User> users, bool isLoading) {
+    if (isLoading) {
+      return const Center(child: CustomLoading(text: 'Fetching Users...'));
+    } else if (users.isEmpty) {
+      return const Center(
+        child: EmptyWidget(
+          text: "No Users Found.\nPlease try again.",
+          image: 'assets/projectEmpty.png',
+        ),
+      );
+    } else {
+      return ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (BuildContext context, int index) {
+          User user = users[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserDetailsScreen(
+                      user: user,
+                    ),
+                  ),
+                );
+              },
+              child: CustomUserCard(
+                profileImage: user.profileImage,
+                fullName: user.fullName,
+                username: user.username,
+                email: user.email,
+                dietaryPreferences: user.dietaryPreferences,
+                createdAt: user.createdAt.toDate(),
+                userID: user.userID,
+                isDelete: user.isDelete,
+                isSuspend: user.isSuspend,
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
 }
 
-// class User {
-//   final DateTime createdAt;
-//   final String email;
-//   final String fullName;
-//   final int impoints;
-//   final String introduction;
-//   final String profileImage;
-//   final String signinMethod;
-//   final String userID;
-//   final String username;
-
-//   User({
-//     required this.createdAt,
-//     required this.email,
-//     required this.fullName,
-//     required this.impoints,
-//     required this.introduction,
-//     required this.profileImage,
-//     required this.signinMethod,
-//     required this.userID,
-//     required this.username,
-//   });
-// }
-
 class CustomUserCard extends StatelessWidget {
-  final User user;
+  final String profileImage;
+  final String fullName;
+  final String username;
+  final String email;
+  final List<String> dietaryPreferences;
+  final DateTime createdAt;
+  final String userID; // Include userID if needed
+  final bool isDelete; // Include isDelete status
+  final bool isSuspend; // Include isSuspend status
 
-  const CustomUserCard({super.key, required this.user});
+  const CustomUserCard({
+    required this.profileImage,
+    required this.fullName,
+    required this.username,
+    required this.email,
+    required this.dietaryPreferences,
+    required this.createdAt,
+    required this.userID,
+    required this.isDelete,
+    required this.isSuspend,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Format the createdAt date
-    final formattedDate = DateFormat('dd MMMM yyyy').format(user.createdAt.toDate());
+    bool isDeleteValue = isDelete;
+    bool isSuspendValue = isSuspend;
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return GestureDetector(
+      onTap: () {
+        // Handle user card tap if needed (e.g., navigate to user details)
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 3,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile image section
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: user.profileImage.isNotEmpty
-                  ? NetworkImage(user.profileImage)
-                  : const AssetImage('assets/placeholder.png') as ImageProvider,
-              backgroundColor: Colors.grey[200],
+            // User profile image
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+              child: Image.network(
+                profileImage,
+                height: 120,
+                width: 100,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error, size: 100);
+                },
+              ),
             ),
-            const SizedBox(width: 16), // Spacing between image and text
-            // User info section
+            // User details
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user.fullName,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      fullName,
+                      style: GoogleFonts.lato(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Joined on: $formattedDate',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
+                    const SizedBox(height: 4),
+                    Text(
+                      '@$username',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    user.email,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[800],
+                    const SizedBox(height: 4),
+                    Text(
+                      email,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      dietaryPreferences.join(', '),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black45,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Created at: $createdAt', // Format the creation date
+                      style: GoogleFonts.lato(
+                        fontSize: 10,
+                        color: Colors.black45,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 4),
+                    // Displaying status
+                    Text(
+                      isDeleteValue
+                          ? 'Account Deleted'
+                          : (isSuspendValue ? 'Account Suspended' : 'Active'),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: isDeleteValue
+                            ? Colors.red
+                            : (isSuspendValue ? Colors.orange : Colors.green),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

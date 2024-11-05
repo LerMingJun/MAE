@@ -9,6 +9,9 @@ class User {
   final String profileImage;
   final List<String> dietaryPreferences;
   final Timestamp createdAt;
+  final bool isDelete;
+  final bool isSuspend;
+  final String commentByAdmin;
 
   User({
     required this.userID,
@@ -18,6 +21,10 @@ class User {
     this.profileImage = "",
     List<String>? dietaryPreferences, // Make optional
     required this.createdAt,
+    required this.isDelete,
+    required this.isSuspend,
+    required this.commentByAdmin
+    
   }) : dietaryPreferences = dietaryPreferences ?? []; // Initialize to empty list if null
 
   factory User.fromFirestore(DocumentSnapshot doc) {
@@ -30,6 +37,9 @@ class User {
       profileImage: data['profileImage'] != "userPlaceholder" ? data['profileImage'] : userPlaceholder,
       dietaryPreferences: List<String>.from(data['dietaryPreferences'] ?? []), // Safely handle null
       createdAt: data['createdAt'],
+      isDelete: data['isDelete'],
+      isSuspend: data['isSuspend'],
+      commentByAdmin: data['commentByAdmin'],
     );
   }
 
@@ -42,6 +52,9 @@ class User {
       'profileImage': profileImage,
       'dietaryPreferences': dietaryPreferences,
       'createdAt': createdAt,
+      'isDelete': isDelete,
+      'isSuspend': isSuspend,
+      'commentByAdmin': commentByAdmin  
     };
   }
   
@@ -56,4 +69,33 @@ class User {
   String toString() {
     return 'User(userID: $userID, fullName: $fullName, username: $username, email: $email)';
   }
+
+
+
+  User copyWith({
+    String? userID,
+    String? fullName,
+    String? username,
+    String? email,
+    String? profileImage,
+    List<String>? dietaryPreferences,
+    Timestamp? createdAt,
+    bool? isDelete,
+    bool? isSuspend,
+    String? commentByAdmin,
+  }) {
+    return User(
+      userID: userID ?? this.userID,
+      fullName: fullName ?? this.fullName,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      profileImage: profileImage ?? this.profileImage,
+      dietaryPreferences: dietaryPreferences ?? this.dietaryPreferences,
+      createdAt: createdAt ?? this.createdAt,
+      isDelete: isDelete ?? this.isDelete,
+      isSuspend: isSuspend ?? this.isSuspend,
+      commentByAdmin: commentByAdmin ?? this.commentByAdmin,
+    );
+  }
+
 }

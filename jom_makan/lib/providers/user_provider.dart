@@ -163,6 +163,26 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
  
+  Future<void> updateUser(User user) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    await _userRepository.editUser(user);
+
+    // Fetch updated store details to ensure local data is up-to-date
+    await fetchAllUsers();
+
+    _isLoading = false;
+    notifyListeners();
+  } catch (e) {
+    _isLoading = false;
+    notifyListeners();
+    print('Error in StoreProvider: $e');
+    throw Exception('Error updating store');
+  }
+}
+
 }
  
  

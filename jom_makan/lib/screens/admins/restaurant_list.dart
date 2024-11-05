@@ -161,11 +161,8 @@ class _RestaurantsPageState extends State<RestaurantsPage>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildRestaurantList(
-                        activeRestaurants, restaurantProvider.isLoading),
-                    _buildRestaurantList(
-                        inactiveRestaurants, restaurantProvider.isLoading,
-                        showStatus: true),
+                    _buildRestaurantList(activeRestaurants, restaurantProvider.isLoading),
+                    _buildRestaurantList(inactiveRestaurants, restaurantProvider.isLoading),
                   ],
                 ),
               ),
@@ -176,11 +173,9 @@ class _RestaurantsPageState extends State<RestaurantsPage>
     );
   }
 
-  Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading,
-      {bool showStatus = false}) {
+  Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
     if (isLoading) {
-      return const Center(
-          child: CustomLoading(text: 'Fetching Restaurants...'));
+      return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
     } else if (restaurants.isEmpty) {
       return const Center(
         child: EmptyWidget(
@@ -193,17 +188,6 @@ class _RestaurantsPageState extends State<RestaurantsPage>
         itemCount: restaurants.length,
         itemBuilder: (BuildContext context, int index) {
           Restaurant restaurant = restaurants[index];
-          String? status;
-
-          // Determine status based on priority: isDelete > isApprove (active) > isSuspend
-          if (restaurant.isDelete) {
-            status = "Deleted";
-          } else if (restaurant.isApprove && !restaurant.isSuspend) {
-            status = "Active";
-          } else if (restaurant.isSuspend) {
-            status = "Suspended";
-          }
-
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: GestureDetector(
@@ -226,9 +210,6 @@ class _RestaurantsPageState extends State<RestaurantsPage>
                 restaurantID: restaurant.id,
                 intro: restaurant.intro,
                 restaurant: restaurant,
-                status: showStatus
-                    ? status
-                    : null, // Show status if in inactive tab
               ),
             ),
           );
