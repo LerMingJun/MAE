@@ -360,6 +360,7 @@ class CustomRestaurantCard extends StatefulWidget {
   final String intro;
   final double rating; // Rating field
   final Restaurant restaurant;
+  final String status;
 
   const CustomRestaurantCard({
     required this.imageUrl,
@@ -370,6 +371,7 @@ class CustomRestaurantCard extends StatefulWidget {
     required this.intro,
     required this.rating, // Include rating in constructor
     required this.restaurant, // Include restaurant in constructor
+    required this.status,
     super.key,
   });
 

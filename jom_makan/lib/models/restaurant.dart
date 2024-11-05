@@ -13,6 +13,8 @@ class Restaurant {
   final List<String> tags;
   final bool isApprove;
   final String commentByAdmin;
+  final bool isSuspend;
+  final bool isDelete;
   double averageRating;
 
   Restaurant({
@@ -27,6 +29,8 @@ class Restaurant {
     required this.tags,
     required this.isApprove,
     required this.commentByAdmin,
+    required this.isSuspend,
+    required this.isDelete, 
     this.averageRating = 0.0,
   });
 
@@ -88,6 +92,8 @@ class Restaurant {
       isApprove: data['isApprove'] ?? false,
       commentByAdmin: data['commentByAdmin'] ?? '',
       averageRating: averageRating,
+      isSuspend: data['isSuspend'] ?? false,
+      isDelete: data['isDelete'] ?? false,
     );
   }
 
