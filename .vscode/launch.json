@@ -28,7 +28,7 @@
             "name": "jom_makan",
             "cwd": "jom_makan\\jom_makan",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
         },
         {
             "name": "jom_makan (profile mode)",

@@ -7,6 +7,7 @@ import 'package:jom_makan/screens/user/addRestaurant.dart';
 import 'package:jom_makan/screens/user/restaurantList.dart';
 import 'package:jom_makan/screens/user/home.dart';
 import 'package:jom_makan/screens/user/profile.dart';
+import 'package:jom_makan/screens/user/restaurantManage.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'events.dart'; 
 
@@ -26,9 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pages = [
       Home(),
-      Events(),
-      AddRestaurantScreen(),
       RestaurantsPage(),
+      RestaurantManagementPage(),
+      Community(),
       Profile(),
     ];
   }

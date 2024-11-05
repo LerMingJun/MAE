@@ -15,7 +15,7 @@ class PostRepository {
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> addPost(String userID, XFile? image, String title,
-      String description, String activityID, String activityName) async {
+      String description, List<String> tags) async {
     DocumentReference docRef;
     try {
       String? downloadUrl;
@@ -30,11 +30,10 @@ class PostRepository {
         // Get download URL
         downloadUrl = await taskSnapshot.ref.getDownloadURL();
       }
+
       // Create a new document in the posts collection
-      docRef = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .doc();
+      docRef =
+          await userCollection.doc(userID).collection(postSubCollection).doc();
 
       await docRef.set({
         'postID': docRef.id,
@@ -42,8 +41,7 @@ class PostRepository {
         'userID': userID,
         'title': title,
         'description': description,
-        'activityID': activityID,
-        'activityName': activityName,
+        'tags': tags, // Include tags
         'likes': [],
         'createdAt': Timestamp.now(),
       });
@@ -52,20 +50,13 @@ class PostRepository {
     }
   }
 
-  Future<void> editPost(
-      String postID,
-      XFile? image,
-      String title,
-      String description,
-      String activityID,
-      String activityName,
-      String userID) async {
+  Future<void> editPost(String postID, XFile? image, String title,
+      String description, List<String> tags, String userID) async {
     try {
       Map<String, dynamic> updatedData = {
         'title': title,
         'description': description,
-        'activityID': activityID,
-        'activityName': activityName,
+        'tags': tags, // Include tags
       };
 
       if (image != null) {
@@ -94,7 +85,8 @@ class PostRepository {
   Future<List<Post>> fetchAllPosts() async {
     try {
       // Query all posts subcollections across all users
-      QuerySnapshot snapshot = await _firestore.collectionGroup(postSubCollection).get();
+      QuerySnapshot snapshot =
+          await _firestore.collectionGroup(postSubCollection).get();
 
       // Process each post document
       List<Post> posts = await Future.wait(snapshot.docs.map((doc) async {
@@ -117,13 +109,10 @@ class PostRepository {
   Future<List<Post>> fetchAllPostsByUserID(String userID) async {
     try {
       // Fetch posts from the user's posts subcollection
-      QuerySnapshot snapshot = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .get();
+      QuerySnapshot snapshot =
+          await userCollection.doc(userID).collection(postSubCollection).get();
 
-      DocumentSnapshot userDoc =
-          await userCollection.doc(userID).get();
+      DocumentSnapshot userDoc = await userCollection.doc(userID).get();
 
       // Convert the user document to a User object
       User user = User.fromFirestore(userDoc);
@@ -154,8 +143,7 @@ class PostRepository {
         Post post = Post.fromFirestore(postDoc);
 
         // Fetch the user document
-        DocumentSnapshot userDoc =
-            await userCollection.doc(userID).get();
+        DocumentSnapshot userDoc = await userCollection.doc(userID).get();
         post.user = User.fromFirestore(userDoc);
 
         return post;

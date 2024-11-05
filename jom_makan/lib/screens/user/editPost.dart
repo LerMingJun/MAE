@@ -321,12 +321,12 @@ class _EditPostState extends State<EditPost> {
       activityID = selectedActivity!.split('|')[0];
       activityName = selectedActivity!.split('|')[1];
     }
-    await postProvider.updatePost(
-        args['postID'],
-        _image,
-        _titleController.text.trim(),
-        _descriptionController.text,
-        activityID, activityName);
+    // await postProvider.updatePost(
+    //     args['postID'],
+    //     _image,
+    //     _titleController.text.trim(),
+    //     _descriptionController.text,
+    //     activityID, activityName);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

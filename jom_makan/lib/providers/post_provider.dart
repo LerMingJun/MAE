@@ -20,15 +20,13 @@ class PostProvider with ChangeNotifier {
   List<Post>? get postsByUserID => _postsByUserID;
   bool get isLoading => _isLoading;
 
-  Future<void> addPost(XFile? imageFile, String title, String description,
-      String activityID, String activityName) async {
+Future<void> addPost(XFile? imageFile, String title, String description, List<String> tags) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _postRepository.addPost(_authRepository.currentUser!.uid, imageFile,
-          title, description, activityID, activityName);
-      //await fetchBookmarksAndProjects(); // Refresh the bookmarks list
+      await _postRepository.addPost(
+          _authRepository.currentUser!.uid, imageFile, title, description, tags);
       await fetchAllPosts();
 
       _isLoading = false;
@@ -41,15 +39,13 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updatePost(String postID, XFile? imageFile, String title, String description,
-      String activityID, String activityName) async {
+  Future<void> updatePost(String postID, XFile? imageFile, String title,
+      String description, List<String> tags) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _postRepository.editPost(postID, imageFile,
-          title, description, activityID, activityName, _authRepository.currentUser!.uid);
-
+      await _postRepository.editPost(postID, imageFile, title, description, tags, _authRepository.currentUser!.uid);
       await fetchAllPosts();
       await fetchAllPostsByUserID();
 
@@ -82,8 +78,7 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _postsByUserID = await _postRepository
-          .fetchAllPostsByUserID(_authRepository.currentUser!.uid);
+      _postsByUserID = await _postRepository.fetchAllPostsByUserID(_authRepository.currentUser!.uid);
     } catch (e) {
       _postsByUserID = [];
       print('Error in PostProvider: $e');
@@ -93,27 +88,23 @@ class PostProvider with ChangeNotifier {
   }
 
   Future<Post?> fetchPostByPostID(String postID) async {
-    
     try {
       _userPost = await _postRepository.fetchPostByPostID(_authRepository.currentUser!.uid, postID);
       return _userPost;
     } catch (e) {
       _userPost = null;
-
       print('Error in PostProvider: $e');
     }
     return null;
   }
 
   Future<void> deletePost(String postID) async {
-    
     try {
       await _postRepository.deletePost(_authRepository.currentUser!.uid, postID);
       await fetchAllPostsByUserID();
     } catch (e) {
       print('Error in PostProvider: $e');
     }
-
   }
 
   Future<void> likePost(String postID) async {
@@ -139,6 +130,4 @@ class PostProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  
 }

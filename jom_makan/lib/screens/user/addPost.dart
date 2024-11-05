@@ -1,12 +1,14 @@
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:jom_makan/models/community.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
+import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
@@ -21,20 +23,12 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ParticipationProvider>(context, listen: false)
-          .fetchPastParticipatedActivities();
-    });
-  }
-
   final ImagePicker _picker = ImagePicker();
-
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _tagsController =
+      TextEditingController(); // Added for tags
   String? selectedActivity;
   XFile? _image;
 
@@ -42,6 +36,7 @@ class _AddPostState extends State<AddPost> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _tagsController.dispose(); // Dispose tags controller
     super.dispose();
   }
 
@@ -49,19 +44,18 @@ class _AddPostState extends State<AddPost> {
   Widget build(BuildContext context) {
     final participationProvider = Provider.of<ParticipationProvider>(context);
 
-    // Create a map of titles and IDs
     List<String> activities = [];
-      for (var activity in participationProvider.pastActivities) {
+    for (var activity in participationProvider.pastActivities) {
       activities.add("${activity.activityID}|${activity.title}");
     }
-  
-    // Create the list of dropdown items
+
     List<DropdownMenuItem<String>> dropdownItems =
-        activities.map((String item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item.split("|")[1]),
-                ))
-            .toList();
+        activities.map((String item) {
+      return DropdownMenuItem<String>(
+        value: item,
+        child: Text(item.split("|")[1]),
+      );
+    }).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -77,9 +71,10 @@ class _AddPostState extends State<AddPost> {
               TextSpan(
                 text: 'Thoughts!',
                 style: GoogleFonts.lato(
-                    fontSize: 24,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold),
+                  fontSize: 24,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -97,17 +92,15 @@ class _AddPostState extends State<AddPost> {
                 _image == null
                     ? const Text('No image selected.')
                     : Image.file(
+                        File(_image!.path),
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
-                        File(_image!.path),
                       ),
                 Row(
                   children: [
                     TextButton.icon(
-                      onPressed: () {
-                        getImage();
-                      },
+                      onPressed: getImage,
                       icon:
                           Icon(Icons.image_outlined, color: AppColors.primary),
                       label: Text(
@@ -121,9 +114,7 @@ class _AddPostState extends State<AddPost> {
                       style: GoogleFonts.poppins(fontSize: 12),
                     ),
                     TextButton.icon(
-                      onPressed: () {
-                        getImageFromCamera();
-                      },
+                      onPressed: getImageFromCamera,
                       icon: Icon(Icons.camera_alt_outlined,
                           color: AppColors.primary),
                       label: Text(
@@ -134,64 +125,10 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10), // Add some space before the separator
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
-                participationProvider.isLoading
-                    ? Padding(
-                        padding: EdgeInsets.fromLTRB(15, 15, 0, 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.event,
-                                  size: 20,
-                                  color: AppColors.primary,
-                                ),
-                                SizedBox(width: 3),
-                                Text(
-                                  'Project / Speech Participated',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.placeholder,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ],
-                            ),
-                            SpinKitCircle(size: 20, color: AppColors.primary)
-                          ],
-                        ))
-                    : DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: CustomIconText(
-                            text: 'Project / Speech Participated',
-                            icon: Icons.event,
-                            size: 14,
-                            color: AppColors.primary,
-                          ),
-                          items: dropdownItems,
-                          value: selectedActivity,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedActivity = value!;
-                            });
-                          },
-                        ),
-                      ),
-
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
+                SizedBox(height: 10),
+                Divider(color: Colors.black, thickness: 1),
                 Container(
-                  height: 200,
+                  height: 50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: TextFormField(
@@ -214,10 +151,7 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ),
                 ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
+                Divider(color: Colors.black, thickness: 1),
                 Container(
                   height: 200,
                   child: TextFormField(
@@ -229,7 +163,7 @@ class _AddPostState extends State<AddPost> {
                     ),
                     style: GoogleFonts.poppins(
                         fontSize: 12, color: AppColors.placeholder),
-                    maxLines: null, // Makes the TextField multiline
+                    maxLines: null,
                     expands: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -239,28 +173,43 @@ class _AddPostState extends State<AddPost> {
                     },
                   ),
                 ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
+                Divider(color: Colors.black, thickness: 1),
+                Container(
+                  height: 50,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: TextFormField(
+                      controller: _tagsController,
+                      decoration: InputDecoration(
+                        hintText: 'Tags (comma separated)...',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      style: GoogleFonts.poppins(
+                          fontSize: 12, color: AppColors.placeholder),
+                      maxLines: null,
+                      expands: true,
+                    ),
+                  ),
                 ),
+                Divider(color: Colors.black, thickness: 1),
                 SizedBox(height: 10),
                 CustomPrimaryButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate() &&
-                          _image != null) {
-                            selectedActivity = "abc|def";
-                        _addPost();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Please fill out all fields and select an image'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    text: "Share")
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() && _image != null) {
+                      _addPost();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Please fill out all fields and select an image'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  text: "Share",
+                ),
               ],
             ),
           ),
@@ -270,10 +219,7 @@ class _AddPostState extends State<AddPost> {
   }
 
   Future getImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-    );
-
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _image = image;
     });
@@ -281,7 +227,6 @@ class _AddPostState extends State<AddPost> {
 
   Future getImageFromCamera() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-
     setState(() {
       _image = image;
     });
@@ -290,14 +235,38 @@ class _AddPostState extends State<AddPost> {
   Future<void> _addPost() async {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
 
-    await postProvider.addPost(_image, _titleController.text.trim(),
-        _descriptionController.text, selectedActivity!.split("|")[0], selectedActivity!.split("|")[1]);
+    // Prepare the post data
+    List<String> tags =
+        _tagsController.text.split(',').map((tag) => tag.trim()).toList();
+
+    // Fetch the userId and userRole from your user provider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    String userId = userProvider
+        .userData!.userID; // Assuming you have a currentUser property
+    String userRole = "User"; // Assuming the user model has a role property
+
+    CommunityPost newPost = CommunityPost(
+      postId: '', // This will be generated by Firestore
+      userId: userId,
+      userRole: userRole,
+      title: _titleController.text.trim(),
+      content: _descriptionController.text,
+      likes: 0, // Start with 0 likes
+      tags: tags,
+      timestamp: Timestamp.now(),
+    );
+
+    // Call your postProvider method to add the post
+    await postProvider.addPost(
+        _image, newPost.title, newPost.content, newPost.tags);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Posts Shared!'),
+        content: Text('Post Shared!'),
         backgroundColor: Colors.green,
       ),
     );
+
     Navigator.pop(context);
   }
 }

@@ -182,17 +182,17 @@ class _EventsState extends State<Events> {
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         Activity activity = eventProvider.activities![index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: CustomEventCard(
-                            imageUrl: activity.image,
-                            title: activity.title,
-                            location: activity.location,
-                            hostDate: activity.hostDate,
-                            eventID: activity.id,
-                            type: activity.type,
-                          ),
-                        );
+                        // return Padding(
+                        //   padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        //   child: CustomEventCard(
+                        //     imageUrl: activity.image,
+                        //     title: activity.title,
+                        //     location: activity.location,
+                        //     hostDate: activity.hostDate,
+                        //     eventID: activity.id,
+                        //     type: activity.type,
+                        //   ),
+                        // );
                       },
                       childCount: eventProvider.activities!.length,
                     ),

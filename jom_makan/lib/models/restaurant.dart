@@ -33,9 +33,6 @@ class Restaurant {
   factory Restaurant.fromFirestore(DocumentSnapshot doc,{double averageRating = 0.0}) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    // Debugging: Print entire document data
-    print('Restaurant document data: $data');
-
     // Handle cuisineType field
     List<String> cuisineType = [];
     if (data['cuisineType'] is String) {
@@ -68,12 +65,6 @@ class Restaurant {
         return MapEntry(day, OperatingHours(open: '', close: ''));
       });
     }
-
-    // Debugging: Check final values before creating Restaurant
-    print('Final cuisineType: $cuisineType');
-    print('Final tags: $tags');
-    print('Final menu: $menu');
-    print('Final operating hours: $operatingHours');
 
     return Restaurant(
       id: doc.id,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,6 +34,9 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<RestaurantProvider>(context, listen: false)
           .fetchAllRestaurants();
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final String? userId = userProvider.firebaseUser?.uid;
+      Provider.of<FavoriteProvider>(context, listen: false).fetchFavorites(userId!);
     });
   }
 
@@ -72,6 +76,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -207,9 +212,12 @@ class _HomeState extends State<Home> {
                                 children: restaurantProvider.restaurants
                                     .where((restaurant) =>
                                         _isNearby(restaurant.location) &&
-                                        _matchesUserPreferences(restaurant, userProvider))
+                                        _matchesUserPreferences(
+                                            restaurant, userProvider))
                                     .take(5)
                                     .map((restaurant) {
+                                  bool isFavourited = favoriteProvider
+                                      .isFavorited(restaurant.id);
                                   return CustomRestaurantCard(
                                     imageUrl: restaurant.image,
                                     name: restaurant.name,
@@ -219,6 +227,7 @@ class _HomeState extends State<Home> {
                                     restaurantID: restaurant.id,
                                     intro: restaurant.intro,
                                     restaurant: restaurant,
+                                    isFavourited: isFavourited,
                                   );
                                 }).toList(),
                               ),
@@ -241,8 +250,10 @@ class _HomeState extends State<Home> {
     return distance <= 10.0;
   }
 }
+
 bool _matchesUserPreferences(Restaurant restaurant, dynamic userProvider) {
   // Assuming restaurant.cuisineType is a List<String> or a single String
   return userProvider.userData?.dietaryPreferences
-      .any((preference) => restaurant.cuisineType.contains(preference)) ?? false;
+          .any((preference) => restaurant.cuisineType.contains(preference)) ??
+      false;
 }
