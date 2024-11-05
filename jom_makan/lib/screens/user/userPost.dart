@@ -86,41 +86,41 @@ class _UserPostState extends State<UserPost> {
         ),
         backgroundColor: AppColors.background,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: FutureBuilder<Post?>(
-            future: postProvider.fetchPostByPostID(postID),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                    child: CustomLoading(text: 'Fetching your post...'));
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData) {
-                return Center(child: Text('Post not found'));
-              } else {
-                Post post = snapshot.data!;
-                return CommunityPost(
-                  postID: post.postID,
-                  profileImage: post.user!.profileImage,
-                  name: post.user!.username,
-                  bio: "hihi",
-                  date: post.createdAt,
-                  postImage: post.postImage,
-                  postTitle: post.title,
-                  postDescription: post.description,
-                  activity: post.activityName,
-                  activityID: post.activityID,
-                  likes: post.likes,
-                  userID: userProvider.userData!.userID,
-                  edit: true,
-                );
-              }
-            },
-          ),
-        ),
-      ),
+      // body: SafeArea(
+      //   child: Padding(
+      //     padding: const EdgeInsets.all(20),
+      //     child: FutureBuilder<Post?>(
+      //       future: postProvider.fetchPostByPostID(postID),
+      //       builder: (context, snapshot) {
+      //         if (snapshot.connectionState == ConnectionState.waiting) {
+      //           return Center(
+      //               child: CustomLoading(text: 'Fetching your post...'));
+      //         } else if (snapshot.hasError) {
+      //           return Center(child: Text('Error: ${snapshot.error}'));
+      //         } else if (!snapshot.hasData) {
+      //           return Center(child: Text('Post not found'));
+      //         } else {
+      //           Post post = snapshot.data!;
+      //           return CommunityPost(
+      //             postID: post.postID,
+      //             profileImage: post.user!.profileImage,
+      //             name: post.user!.username,
+      //             bio: "hihi",
+      //             date: post.createdAt,
+      //             postImage: post.postImage,
+      //             postTitle: post.title,
+      //             postDescription: post.description,
+      //             activity: post.activityName,
+      //             activityID: post.activityID,
+      //             likes: post.likes,
+      //             userID: userProvider.userData!.userID,
+      //             edit: true,
+      //           );
+      //         }
+      //       },
+      //     ),
+      //   ),
+      // ),
     );
   }
 }

@@ -256,27 +256,27 @@ class PostContent extends StatelessWidget {
           itemCount: postProvider.postsByUserID?.length ?? 0,
           itemBuilder: (context, index) {
             final post = postProvider.postsByUserID![index];
-            return InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, '/userPost',
-                    arguments: post.postID);
-              },
-              // child: Ink.image(
-              //   fit: BoxFit.cover,
-              //   image: NetworkImage(post.postImage),
-              // ),
-              child: Image.network(
-                post.postImage,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  } else {
-                    return CustomImageLoading(width: 30);
-                  }
-                },
-              ),
-            );
+            // return InkWell(
+            //   onTap: () {
+            //     Navigator.pushNamed(context, '/userPost',
+            //         arguments: post.postID);
+            //   },
+            //   // child: Ink.image(
+            //   //   fit: BoxFit.cover,
+            //   //   image: NetworkImage(post.postImage),
+            //   // ),
+            //   child: Image.network(
+            //     post.postImage,
+            //     fit: BoxFit.cover,
+            //     loadingBuilder: (context, child, loadingProgress) {
+            //       if (loadingProgress == null) {
+            //         return child;
+            //       } else {
+            //         return CustomImageLoading(width: 30);
+            //       }
+            //     },
+            //   ),
+            // );
             // );
           },
         ),

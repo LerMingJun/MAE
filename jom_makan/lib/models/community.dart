@@ -26,7 +26,7 @@ class CommunityPost {
 
     return CommunityPost(
       postId: doc.id,
-      userId: data['userId'],
+      userId: data['userID'],
       userRole: data['userRole'],
       content: data['content'] ?? '',
       title: data['title'] ?? '',

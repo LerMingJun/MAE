@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/constants/placeholderURL.dart';
@@ -20,25 +19,41 @@ class _EditProfileState extends State<EditProfile> {
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
   final TextEditingController _fullNameController = TextEditingController();
-
   final TextEditingController _usernameController = TextEditingController();
-
   final TextEditingController _emailController = TextEditingController();
-
-  final TextEditingController _introductionController = TextEditingController();
+  List<String> _selectedPreferences = [];
+  final List<String> _preferencesOptions = [
+    'Italian',
+    'Chinese',
+    'Indian',
+    'Mexican',
+    'Thai',
+    'French',
+    'Japanese',
+    'Korean',
+    'Vietnamese',
+    'Vegetarian',
+    'Vegan',
+    'Gluten-free',
+    'Prawn Allergy',
+    'Egg Allergy',
+    'Fish Allergy',
+    'Shellfish Allergy',
+    'Dairy Allergy',
+    'Soy Allergy',
+  ];
 
   @override
   void initState() {
     super.initState();
-    // Fetch user data and set it to the text controllers
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-
     final user = userProvider.userData;
     if (user != null) {
       _fullNameController.text = user.fullName;
       _usernameController.text = user.username;
-      _emailController.text = user.email;
-      _introductionController.text = "hihi";
+      _emailController.text = user.email; // Set email for display
+      _selectedPreferences =
+          user.dietaryPreferences; // Assuming user has a preferences field
     }
   }
 
@@ -71,31 +86,29 @@ class _EditProfileState extends State<EditProfile> {
                               ? NetworkImage(
                                   userProvider.userData?.profileImage ??
                                       userPlaceholder) as ImageProvider
-                              : FileImage(
-                                  File(_image!.path),
-                                ),
+                              : FileImage(File(_image!.path)),
                         ),
                       ),
                       Positioned(
                         bottom: -3,
                         right: -12,
                         child: Container(
-                            child: ElevatedButton(
-                          onPressed: () {
-                            getImage();
-                          },
-                          child: Icon(
-                            Icons.edit_outlined,
-                            color: Colors.white,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              getImage();
+                            },
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: Colors.white,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              shape: CircleBorder(),
+                              backgroundColor: AppColors.secondary,
+                              foregroundColor: AppColors.primary,
+                            ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            shape: CircleBorder(),
-                            backgroundColor: AppColors.secondary,
-                            foregroundColor: AppColors.primary,
-                          ),
-                        )),
+                        ),
                       ),
-                      //),
                     ],
                   ),
                 ),
@@ -105,50 +118,69 @@ class _EditProfileState extends State<EditProfile> {
                 controller: _fullNameController,
                 placeholderText: 'Full Name',
                 keyboardType: TextInputType.name,
-                onChanged: (value) {
-                  // Handle text field changes
-                },
+                onChanged: (value) {},
               ),
               SizedBox(height: 20),
               CustomTextFormField(
                 controller: _usernameController,
                 placeholderText: 'Username',
                 keyboardType: TextInputType.name,
-                onChanged: (value) {
-                  // Handle text field changes
-                },
+                onChanged: (value) {},
               ),
               SizedBox(height: 20),
+              // Displaying email without allowing changes
               CustomTextFormField(
                 controller: _emailController,
-                placeholderText: 'Email Address',
-                // enabled: userProvider.userData?.signinMethod == "Email",
-                keyboardType: TextInputType.emailAddress,
-                onChanged: (value) {
-                  // Handle text field changes
-                },
+                placeholderText: 'Email',
+                enabled: false, // Disable editing
+                onChanged: (value) {}, // Keep the onChanged for compatibility
               ),
               SizedBox(height: 20),
-              CustomTextFormField(
-                controller: _introductionController,
-                placeholderText: 'Brief Introduction',
-                keyboardType: TextInputType.multiline,
-                onChanged: (value) {
-                  // Handle text field changes
+              // Preferences Selection
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Select Your Preferences:",
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+              ),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: _selectedPreferences.map((preference) {
+                  return Chip(
+                    label: Text(preference),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedPreferences.remove(preference);
+                      });
+                    },
+                    backgroundColor: AppColors.primary.withOpacity(0.2),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 10),
+
+              // Custom Scrollable Dropdown for preferences
+              CustomDropdown(
+                options: _preferencesOptions,
+                selectedOptions: _selectedPreferences,
+                onChanged: (List<String> selected) {
+                  setState(() {
+                    _selectedPreferences = selected;
+                  });
                 },
               ),
               SizedBox(height: 50),
               CustomPrimaryButton(
                   onPressed: () {
                     if (_fullNameController.text.isNotEmpty &&
-                        _usernameController.text.isNotEmpty &&
-                        _emailController.text.isNotEmpty) {
+                        _usernameController.text.isNotEmpty) {
                       _updateProfile();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                              'Please fill in all fields. (Introduction is Optional)'),
+                          content: Text('Please fill in all fields.'),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -177,8 +209,7 @@ class _EditProfileState extends State<EditProfile> {
     final data = {
       'fullName': _fullNameController.text.trim(),
       'username': _usernameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'introduction': _introductionController.text.trim(),
+      'dietaryPreferences': _selectedPreferences,
     };
     await userProvider.updateUserData(data, _image);
     ScaffoldMessenger.of(context).showSnackBar(

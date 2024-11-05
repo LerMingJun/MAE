@@ -1,11 +1,10 @@
 import 'dart:io';
-
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:jom_makan/models/community.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,7 +14,7 @@ import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {
-  EditPost();
+  const EditPost({super.key});
 
   @override
   State<EditPost> createState() => _EditPostState();
@@ -24,25 +23,21 @@ class EditPost extends StatefulWidget {
 class _EditPostState extends State<EditPost> {
   final ImagePicker _picker = ImagePicker();
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _titleController = TextEditingController();
-  late TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _tagsController = TextEditingController();
   String? selectedActivity;
   XFile? _image;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      _titleController = TextEditingController(text: args['currentTitle']);
-      _descriptionController =
-          TextEditingController(text: args['currentDescription']);
-
-      Provider.of<ParticipationProvider>(context, listen: false)
-          .fetchPastParticipatedActivities();
-      
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      _titleController.text = args['currentTitle'];
+      _descriptionController.text = args['currentDescription'];
+      _tagsController.text = args['currentTags'].join(', ');
+      Provider.of<ParticipationProvider>(context, listen: false).fetchPastParticipatedActivities();
       selectedActivity = "${args['activityID']}|${args['activityName']}";
     });
   }
@@ -51,28 +46,26 @@ class _EditPostState extends State<EditPost> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final participationProvider = Provider.of<ParticipationProvider>(context);
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+// final Map<String, dynamic>? args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
 
-    // Create a map of titles and IDs
-    List<String> activities = [];
-      for (var activity in participationProvider.pastActivities) {
-      activities.add("${activity.activityID}|${activity.title}");
-    }
+    List<String> activities = participationProvider.pastActivities
+        .map((activity) => "${activity.activityID}|${activity.title}")
+        .toList();
 
-    // Create the list of dropdown items
-    List<DropdownMenuItem<String>> dropdownItems =
-        activities.map((String item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item.split("|")[1]),
-                ))
-            .toList();
+    List<DropdownMenuItem<String>> dropdownItems = activities.map((String item) {
+      return DropdownMenuItem<String>(
+        value: item,
+        child: Text(item.split("|")[1]),
+      );
+    }).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -81,16 +74,10 @@ class _EditPostState extends State<EditPost> {
         title: Text.rich(
           TextSpan(
             children: [
+              TextSpan(text: 'Edit your ', style: GoogleFonts.lato(fontSize: 24)),
               TextSpan(
-                text: 'Share your ',
-                style: GoogleFonts.lato(fontSize: 24),
-              ),
-              TextSpan(
-                text: 'Thoughts!',
-                style: GoogleFonts.lato(
-                    fontSize: 24,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold),
+                text: 'Post!',
+                style: GoogleFonts.lato(fontSize: 24, color: AppColors.primary, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -107,180 +94,98 @@ class _EditPostState extends State<EditPost> {
               children: [
                 _image == null
                     ? Image.network(
-                        args['postImage'],
+                        args?['postImage'] ?? 'defaultImageURL' , 
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return CustomImageLoading(width: 300);
-                          }
+                          if (loadingProgress == null) return child;
+                          return CustomImageLoading(width: 300);
                         },
                       )
                     : Image.file(
+                        File(_image!.path),
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
-                        File(_image!.path),
                       ),
                 Row(
                   children: [
                     TextButton.icon(
-                      onPressed: () {
-                        getImage();
-                      },
-                      icon:
-                          Icon(Icons.image_outlined, color: AppColors.primary),
+                      onPressed: getImage,
+                      icon: Icon(Icons.image_outlined, color: AppColors.primary),
                       label: Text(
                         'Pick an Image',
-                        style: GoogleFonts.poppins(
-                            fontSize: 12, color: AppColors.primary),
+                        style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
                       ),
                     ),
-                    Text(
-                      ' or ',
-                      style: GoogleFonts.poppins(fontSize: 12),
-                    ),
+                    Text(' or ', style: GoogleFonts.poppins(fontSize: 12)),
                     TextButton.icon(
-                      onPressed: () {
-                        getImageFromCamera();
-                      },
-                      icon: Icon(Icons.camera_alt_outlined,
-                          color: AppColors.primary),
+                      onPressed: getImageFromCamera,
+                      icon: Icon(Icons.camera_alt_outlined, color: AppColors.primary),
                       label: Text(
                         'Take A Picture',
-                        style: GoogleFonts.poppins(
-                            fontSize: 12, color: AppColors.primary),
+                        style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 10), // Add some space before the separator
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
-                participationProvider.isLoading
-                    ? Padding(
-                        padding: EdgeInsets.fromLTRB(15, 15, 0, 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.event,
-                                  size: 20,
-                                  color: AppColors.primary,
-                                ),
-                                SizedBox(width: 3),
-                                Text(
-                                  'Project / Speech Participated',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    color: AppColors.placeholder,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ],
-                            ),
-                            SpinKitCircle(size: 20, color: AppColors.primary)
-                          ],
-                        ))
-                    : DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          hint: CustomIconText(
-                            text: 'Project / Speech Participated',
-                            icon: Icons.event,
-                            size: 14,
-                            color: AppColors.primary,
-                          ),
-                          items: dropdownItems,
-                          value: selectedActivity,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedActivity = value;
-                            });
-                          },
-                        ),
-                      ),
-
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
-                Container(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: TextFormField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        hintText: 'Your Title Here...',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: GoogleFonts.poppins(
-                          fontSize: 12, color: AppColors.placeholder),
-                      maxLines: null,
-                      expands: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a title';
-                        }
-                        return null;
-                      },
-                    ),
+                Divider(color: Colors.black, thickness: 1),
+                TextFormField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    hintText: 'Your Title Here...',
+                    border: InputBorder.none,
                   ),
+                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a title';
+                    }
+                    return null;
+                  },
                 ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
-                Container(
-                  height: 200,
-                  child: TextFormField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      hintText: 'Description here...',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    style: GoogleFonts.poppins(
-                        fontSize: 12, color: AppColors.placeholder),
-                    maxLines: null, // Makes the TextField multiline
-                    expands: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
-                      }
-                      return null;
-                    },
+                Divider(color: Colors.black, thickness: 1),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    hintText: 'Description here...',
+                    border: InputBorder.none,
                   ),
+                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
+                  maxLines: null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description';
+                    }
+                    return null;
+                  },
                 ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
+                Divider(color: Colors.black, thickness: 1),
+                TextFormField(
+                  controller: _tagsController,
+                  decoration: InputDecoration(
+                    hintText: 'Tags (comma separated)...',
+                    border: InputBorder.none,
+                  ),
+                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
                 ),
-                SizedBox(height: 10),
+                Divider(color: Colors.black, thickness: 1),
                 CustomPrimaryButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _updatePost();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Please fill out all fields.'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    text: "Edit Post")
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _updatePost();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please fill out all fields.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  text: "Edit Post",
+                ),
               ],
             ),
           ),
@@ -290,10 +195,7 @@ class _EditPostState extends State<EditPost> {
   }
 
   Future getImage() async {
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-    );
-
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _image = image;
     });
@@ -301,7 +203,6 @@ class _EditPostState extends State<EditPost> {
 
   Future getImageFromCamera() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-
     setState(() {
       _image = image;
     });
@@ -309,30 +210,19 @@ class _EditPostState extends State<EditPost> {
 
   void _updatePost() async {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final String activityID;
-  final String activityName;
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    List<String> tags = _tagsController.text.split(',').map((tag) => tag.trim()).toList();
 
-    if (selectedActivity == null) {
-      activityID = args['activityID'];
-      activityName = args['activityName'];
-    } else {
-      activityID = selectedActivity!.split('|')[0];
-      activityName = selectedActivity!.split('|')[1];
-    }
-    // await postProvider.updatePost(
-    //     args['postID'],
-    //     _image,
-    //     _titleController.text.trim(),
-    //     _descriptionController.text,
-    //     activityID, activityName);
+    await postProvider.updatePost(
+      args['postID'],
+      _image,
+      _titleController.text.trim(),
+      _descriptionController.text,
+      tags,
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Post updated successfully!'),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text('Post updated successfully!'), backgroundColor: Colors.green),
     );
     Navigator.pop(context);
   }

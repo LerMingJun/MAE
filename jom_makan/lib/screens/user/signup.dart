@@ -42,7 +42,6 @@ class _SignUpState extends State<SignUp> {
     'Soy Allergy',
     // Add more options as needed
   ];
-   String _selectedOption = '';
 
   @override
   Widget build(BuildContext context) {

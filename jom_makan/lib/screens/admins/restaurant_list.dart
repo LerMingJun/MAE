@@ -16,14 +16,16 @@ class RestaurantsPage extends StatefulWidget {
   State<RestaurantsPage> createState() => _RestaurantsPageState();
 }
 
-class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProviderStateMixin {
+class _RestaurantsPageState extends State<RestaurantsPage>
+    with SingleTickerProviderStateMixin {
   bool nearMe = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    final restaurantProvider = Provider.of<RestaurantProvider>(context, listen: false);
+    final restaurantProvider =
+        Provider.of<RestaurantProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       restaurantProvider.fetchAllRestaurants();
     });
@@ -42,7 +44,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     setState(() {
       searchText = text;
     });
-    Provider.of<RestaurantProvider>(context, listen: false).searchRestaurants(text);
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .searchRestaurants(text);
   }
 
   @override
@@ -50,12 +53,18 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
     final activeRestaurants = restaurantProvider.restaurants
-        .where((restaurant) => restaurant.isApprove && !restaurant.isDelete && !restaurant.isSuspend)
+        .where((restaurant) =>
+            restaurant.isApprove &&
+            !restaurant.isDelete &&
+            !restaurant.isSuspend)
         .toList();
-        
-    final inactiveRestaurants = restaurantProvider.restaurants.where(
-      (restaurant) => restaurant.isDelete || restaurant.isSuspend || !restaurant.isApprove
-    ).toList();
+
+    final inactiveRestaurants = restaurantProvider.restaurants
+        .where((restaurant) =>
+            restaurant.isDelete ||
+            restaurant.isSuspend ||
+            !restaurant.isApprove)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -125,7 +134,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                               borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: AppColors.primary),
+                              borderSide:
+                                  const BorderSide(color: AppColors.primary),
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
@@ -151,8 +161,11 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildRestaurantList(activeRestaurants, restaurantProvider.isLoading),
-                    _buildRestaurantList(inactiveRestaurants, restaurantProvider.isLoading, showStatus: true),
+                    _buildRestaurantList(
+                        activeRestaurants, restaurantProvider.isLoading),
+                    _buildRestaurantList(
+                        inactiveRestaurants, restaurantProvider.isLoading,
+                        showStatus: true),
                   ],
                 ),
               ),
@@ -163,60 +176,64 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     );
   }
 
- Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading, {bool showStatus = false}) {
-  if (isLoading) {
-    return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
-  } else if (restaurants.isEmpty) {
-    return const Center(
-      child: EmptyWidget(
-        text: "No Restaurants Found.\nPlease try again.",
-        image: 'assets/projectEmpty.png',
-      ),
-    );
-  } else {
-    return ListView.builder(
-      itemCount: restaurants.length,
-      itemBuilder: (BuildContext context, int index) {
-        Restaurant restaurant = restaurants[index];
-        String? status;
+  Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading,
+      {bool showStatus = false}) {
+    if (isLoading) {
+      return const Center(
+          child: CustomLoading(text: 'Fetching Restaurants...'));
+    } else if (restaurants.isEmpty) {
+      return const Center(
+        child: EmptyWidget(
+          text: "No Restaurants Found.\nPlease try again.",
+          image: 'assets/projectEmpty.png',
+        ),
+      );
+    } else {
+      return ListView.builder(
+        itemCount: restaurants.length,
+        itemBuilder: (BuildContext context, int index) {
+          Restaurant restaurant = restaurants[index];
+          String? status;
 
+          // Determine status based on priority: isDelete > isApprove (active) > isSuspend
+          if (restaurant.isDelete) {
+            status = "Deleted";
+          } else if (restaurant.isApprove && !restaurant.isSuspend) {
+            status = "Active";
+          } else if (restaurant.isSuspend) {
+            status = "Suspended";
+          }
 
-        // Determine status based on priority: isDelete > isApprove (active) > isSuspend
-        if (restaurant.isDelete) {
-          status = "Deleted";
-        } else if (restaurant.isApprove && !restaurant.isSuspend) {
-          status = "Active";
-        } else if (restaurant.isSuspend) {
-          status = "Suspended";
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RestaurantDetailsScreenAdmin(
-                    restaurant: restaurant,
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RestaurantDetailsScreenAdmin(
+                      restaurant: restaurant,
+                    ),
                   ),
-                ),
-              );
-            },
-            child: CustomRestaurantCard(
-              imageUrl: restaurant.image,
-              name: restaurant.name,
-              location: restaurant.location,
-              cuisineTypes: restaurant.cuisineType,
-              rating: restaurant.averageRating,
-              restaurantID: restaurant.id,
-              intro: restaurant.intro,
-              restaurant: restaurant,
-              status: showStatus ? status : null,  // Show status if in inactive tab
+                );
+              },
+              child: CustomRestaurantCard(
+                imageUrl: restaurant.image,
+                name: restaurant.name,
+                location: restaurant.location,
+                cuisineTypes: restaurant.cuisineType,
+                rating: restaurant.averageRating,
+                restaurantID: restaurant.id,
+                intro: restaurant.intro,
+                restaurant: restaurant,
+                status: showStatus
+                    ? status
+                    : null, // Show status if in inactive tab
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
 }

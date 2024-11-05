@@ -360,7 +360,7 @@ class CustomRestaurantCard extends StatefulWidget {
   final String intro;
   final double rating; // Rating field
   final Restaurant restaurant;
-  final String status;
+  final String? status;
 
   const CustomRestaurantCard({
     required this.imageUrl,
