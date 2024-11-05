@@ -23,6 +23,9 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? _center;
   Marker? _marker;
   List<Restaurant> _unapprovedRestaurants = [];
+    List<Restaurant> _activeRestaurants = [];
+  List<Restaurant> _suspendedRestaurants = [];
+  List<Restaurant> _deletedRestaurants = [];
 
   List<Restaurant> get restaurants => _restaurants;
   List<Review> get reviews => _reviews;
@@ -33,6 +36,9 @@ class RestaurantProvider with ChangeNotifier {
   List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
   Restaurant? _highestRatingRestaurant;
   Restaurant? _lowestRatingRestaurant;
+    List<Restaurant> get activeRestaurants => _activeRestaurants;
+  List<Restaurant> get suspendedRestaurants => _suspendedRestaurants;
+  List<Restaurant> get deletedRestaurants => _deletedRestaurants;
 
   // Getter methods
   Restaurant? get highestRatingRestaurant => _highestRatingRestaurant;
@@ -183,4 +189,51 @@ class RestaurantProvider with ChangeNotifier {
       }
     }
   }
+
+    // Method to categorize restaurants into active, suspended, and deleted
+  void _categorizeRestaurants() {
+    _activeRestaurants = [];
+    _suspendedRestaurants = [];
+    _deletedRestaurants = [];
+
+    for (var restaurant in _allRestaurants!) {
+      if (restaurant.isDelete) {
+        _deletedRestaurants.add(restaurant);
+      } else if (restaurant.isSuspend) {
+        _suspendedRestaurants.add(restaurant);
+      } else {
+        _activeRestaurants.add(restaurant);
+      }
+    }
+
+    // Notify listeners to update the UI
+    notifyListeners();
+  }
+  
+  // Optional: Method to re-fetch and categorize when there's a status change
+  Future<void> refreshRestaurants() async {
+    await fetchAllRestaurants();
+  }
+
+Future<void> updateStore(Restaurant restaurant) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    await _restaurantRepository.editRestaurant(restaurant);
+
+    // Fetch updated store details to ensure local data is up-to-date
+    await fetchAllRestaurants();
+
+    _isLoading = false;
+    notifyListeners();
+  } catch (e) {
+    _isLoading = false;
+    notifyListeners();
+    print('Error in StoreProvider: $e');
+    throw Exception('Error updating store');
+  }
+}
+
+
 }

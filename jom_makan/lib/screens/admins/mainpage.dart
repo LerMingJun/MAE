@@ -5,6 +5,8 @@ import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/complain.dart';
 import 'package:jom_makan/screens/admins/edit_store_detail.dart';
 import 'package:jom_makan/screens/admins/overall_analytics.dart';
+import 'package:jom_makan/screens/admins/restaurant_list.dart';
+import 'package:jom_makan/screens/admins/users_list.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
@@ -177,9 +179,27 @@ class _MainPageState extends State<MainPage> {
                     splashColor: Colors.grey.withOpacity(0.5),
                     child: _buildGridItem(Icons.analytics, 'Analytics'),
                   ),
-                  _buildGridItem(Icons.restaurant, 'Restaurant'),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const RestaurantsPage()),
+                      );
+                    },
+                    child: _buildGridItem(Icons.restaurant, 'Restaurant'),
+                  ),
                   _buildGridItem(Icons.group, 'Community'),
-                  _buildGridItem(Icons.person, 'User'),
+                                    InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UsersPage()),
+                      );
+                    },
+                    child: _buildGridItem(Icons.person, 'User'),
+                  ),
                   InkWell(
                     onTap: () {
                       Navigator.push(

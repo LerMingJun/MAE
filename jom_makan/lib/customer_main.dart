@@ -12,6 +12,7 @@ import 'package:jom_makan/providers/speech_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
+import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:jom_makan/screens/onboarding/onboarding_screen.dart';
 import 'package:jom_makan/screens/user/addPost.dart';
 import 'package:jom_makan/screens/user/bookmark.dart';
@@ -32,6 +33,7 @@ import 'package:jom_makan/screens/user/userPost.dart';
 import 'package:jom_makan/screens/user/addRestaurant.dart';
 import 'package:jom_makan/screens/user/restaurantList.dart';
 import 'package:jom_makan/screens/user/restaurantDetails.dart';
+import 'package:jom_makan/screens/user/restaurantManage.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
@@ -67,7 +69,7 @@ class MyApp extends StatelessWidget {
             userProvider?.initialize(authProvider.user);
             return userProvider!;
           }),
-        ChangeNotifierProvider(create: (context) => EventProvider()), 
+        // ChangeNotifierProvider(create: (context) => EventProvider()), 
         ChangeNotifierProvider(create: (_) => BookmarkProvider()),
         // ChangeNotifierProvider(create: (_) => SpeechProvider()),
         ChangeNotifierProvider(create: (_) => ParticipationProvider()),
@@ -75,6 +77,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RestaurantProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -90,7 +93,7 @@ class MyApp extends StatelessWidget {
               '/signup': (context) => SignUp(), // Signup screen
               '/home': (context) => Home(), // Home screen
               '/events': (context) => Events(), // Events screen
-              '/eventDetail': (context) => EventDetail(), // Event details screen
+              // '/eventDetail': (context) => EventDetail(), // Event details screen
               '/addPost': (context) => AddPost(), // Add post screen
               '/community': (context) => Community(), // Community screen
               '/editProfile': (context) => EditProfile(), // Edit profile screen
@@ -98,19 +101,20 @@ class MyApp extends StatelessWidget {
               '/profile': (context) => Profile(), // User profile screen
               '/bookmark': (context) => Bookmark(), // Bookmarked items screen
               '/addRestaurant': (context) => AddRestaurantScreen(), // Add Restaurant screen
-              '/speechDetail': (context) => SpeechDetail(), // Speech details screen
-              '/recording': (context) => Recording(), // Recording screen
+              // '/speechDetail': (context) => SpeechDetail(), // Speech details screen
+              // '/recording': (context) => Recording(), // Recording screen
               '/userPost': (context) => UserPost(), // User's posts screen
               '/editPost': (context) => EditPost(), // Edit post screen
               '/schedule': (context) => Schedule(), // User schedule screen
               '/restaurantList': (context) => RestaurantsPage(), // Restaurant list screen
+              '/restaurantManagement': (context) => RestaurantManagementPage(), // Restaurant management screen
             },
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/restaurantDetails') {
                 final Restaurant restaurant = settings.arguments as Restaurant;
                 return MaterialPageRoute(
                   builder: (context) => RestaurantDetailsScreen(restaurant: restaurant),
-                );
+                ); 
               }
               return null; // If no matching route found
             },

@@ -16,7 +16,7 @@ class UserProvider with ChangeNotifier {
   auth.User? _firebaseUser;
   User? _userData;
   bool? _isHistoryLoading;
-  bool? _isLoading;
+  bool _isLoading = false;
   String? _postCount;
   String? _likeCount;
   String? _participationCount;
@@ -29,7 +29,8 @@ class UserProvider with ChangeNotifier {
   bool _isLoadingComplains = false;
   List<Map<String, dynamic>> _resolvedComplains = [];
   List<Map<String, dynamic>> _unresolvedComplains = [];
- 
+
+ List<User> get users => _users;
   List<Map<String, dynamic>> get resolvedComplains => _resolvedComplains;
   List<Map<String, dynamic>> get unresolvedComplains => _unresolvedComplains;
   List<Complain> get allComplains => _allComplains;
@@ -38,12 +39,13 @@ class UserProvider with ChangeNotifier {
   auth.User? get firebaseUser => _firebaseUser;
   User? get userData => _userData;
   bool? get isHistoryLoading => _isHistoryLoading;
-  bool? get isLoading => _isLoading;
+  bool get isLoading => _isLoading;
   String? get postCount => _postCount;
   String? get likeCount => _likeCount;
   String? get participationCount => _participationCount;
   List<Participation>? get history => _history;
- 
+
+
   UserProvider(auth.User? firebaseUser) {
     _firebaseUser = firebaseUser;
     print("CURRENT: " + _firebaseUser.toString());
@@ -104,6 +106,18 @@ class UserProvider with ChangeNotifier {
     }
   }
  
+  void searchUsers(String searchText) {
+    if (searchText.isEmpty) {
+      _users = _allUsers!;
+    } else {
+      _users = _allUsers!.where((user) {
+        return user.fullName.toLowerCase().contains(searchText.toLowerCase());
+      }).toList();
+    }
+    notifyListeners();
+  }
+
+
   Future<void> _fetchUserData(String uid) async {
     _userData = await _userRepository.getUserData(uid);
     notifyListeners(); // Notify listeners after fetching user data

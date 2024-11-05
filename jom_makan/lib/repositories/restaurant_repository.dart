@@ -13,7 +13,7 @@ class RestaurantRepository {
   Future<List<Restaurant>> fetchAllRestaurants() async {
     try {
       QuerySnapshot snapshot = await _restaurantCollection.get();
-      print('Fetched ${snapshot.docs.length} restaurants'); // Debugging line
+      // print('Fetched ${snapshot.docs.length} restaurants'); // Debugging line
 
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
@@ -173,4 +173,25 @@ class RestaurantRepository {
 
     return totalRating / reviewSnapshot.docs.length; // Calculate average
   }
+
+  Future<void> editRestaurant(
+Restaurant restaurant
+  ) async {
+  try {
+    Map<String, dynamic> updatedData = {
+      'isApprove': restaurant.isApprove,
+      'isDelete': restaurant.isDelete,
+      'isSuspend': restaurant.isSuspend,
+      'commentByAdmin': restaurant.commentByAdmin,
+    };
+
+    // Update the store document in Firestore
+    await _firestore.collection('Store').doc(restaurant.id).update(updatedData);
+  } catch (e) {
+    print('Error updating store: $e');
+    throw Exception('Error updating store: $e');
+  }
+}
+
+
 }
