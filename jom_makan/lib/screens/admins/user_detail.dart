@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
-class UserDetailsScreen extends StatelessWidget {
+class UserDetailsScreen extends StatefulWidget {
   final User user;
 
-  UserDetailsScreen({Key? key, required this.user}) : super(key: key);
+  const UserDetailsScreen({super.key, required this.user});
 
   @override
-  Widget build(BuildContext context) {
-    // Accessing user status
-    String status = _getStatus(user.isDelete, user.isSuspend);
+  _UserDetailsScreenState createState() => _UserDetailsScreenState();
+}
 
+class _UserDetailsScreenState extends State<UserDetailsScreen> {
+  late User userDetails;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<UserProvider>(context, listen: false)
+          .fetchUserInfo(widget.user.userID);
+
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    User user = widget.user;
+    final userProvider = Provider.of<UserProvider>(context);
     // Status banner properties
     Color statusColor;
     String statusText;
+String? postCount = userProvider.postCount;
+String? reviewCount = userProvider.reviewCount; 
 
-    switch (status) {
-      case 'Suspended':
+    switch (user.status) {
+      case 'suspend':
         statusColor = Colors.orange;
         statusText = 'Suspended';
         break;
-      case 'Deleted':
+      case 'delete':
         statusColor = Colors.red;
         statusText = 'Deleted';
         break;
-      case 'Active':
+      case 'active':
         statusColor = Colors.blue;
         statusText = 'Active';
         break;
@@ -77,39 +97,50 @@ class UserDetailsScreen extends StatelessWidget {
                       : Container(
                           height: 200,
                           color: Colors.grey[300],
-                          child: const Center(child: Text('No Image Available')),
+                          child:
+                              const Center(child: Text('No Image Available')),
                         ),
                   const SizedBox(height: 16),
-                  Text(user.fullName, style: const TextStyle(fontSize: 20)),
+                  Text("Full Name: ${user.fullName}",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text("Username: ${user.username}",
+                      style: const TextStyle(fontSize: 16)),
                   const SizedBox(height: 8),
                   Text("Email: ${user.email}",
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text(
+                      "Created At: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(user.createdAt.toDate())}",
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text("Number of Post: $postCount",
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text("Number of Review: $reviewCount",
+                      style: const TextStyle(fontSize: 16)),
                   const SizedBox(height: 8),
                   const Text("Dietary Preferences:",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Wrap(
-                    spacing: 8.0,
-                    children: user.dietaryPreferences.map((preference) {
-                      return Chip(label: Text(preference));
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  if (user.commentByAdmin.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Admin Comment:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(user.commentByAdmin),
-                      ],
-                    ),
-                  const SizedBox(height: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  user.dietaryPreferences.isEmpty
+                      ? const Text("No preference",
+                          style: TextStyle(fontSize: 16, color: Colors.grey))
+                      : Wrap(
+                          spacing: 8.0,
+                          children: user.dietaryPreferences.map((preference) {
+                            return Chip(label: Text(preference));
+                          }).toList(),
+                        ),
+                  const SizedBox(height: 32),
+                  // Action Buttons Section
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     childAspectRatio: 3,
-                    children: _buildActionButtons(context, status),
+                    children: _buildActionButtons(context, user.status),
                   ),
                 ],
               ),
@@ -123,7 +154,7 @@ class UserDetailsScreen extends StatelessWidget {
   List<Widget> _buildActionButtons(BuildContext context, String status) {
     List<Widget> actionButtons = [];
 
-    if (status == 'Suspended') {
+    if (status == 'suspend') {
       actionButtons.addAll([
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -133,7 +164,7 @@ class UserDetailsScreen extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Active') {
+    } else if (status == 'active') {
       actionButtons.addAll([
         _buildButton(context, 'Suspend', Colors.orange, () {
           _showDialogWithTextField(context, 'Suspend', 'Leave Some Comments.');
@@ -142,7 +173,7 @@ class UserDetailsScreen extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Deleted') {
+    } else if (status == 'delete') {
       actionButtons.add(
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -195,9 +226,7 @@ class UserDetailsScreen extends StatelessWidget {
                   filled: true,
                   fillColor: Colors.grey[200],
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 8.0,
-                  ),
+                      horizontal: 10.0, vertical: 8.0),
                 ),
                 style: const TextStyle(height: 1.5),
               ),
@@ -224,15 +253,11 @@ class UserDetailsScreen extends StatelessWidget {
                   return;
                 }
                 if (title == 'Delete') {
-                  provider.updateUser(user.copyWith(
-                    isDelete: true,
-                    commentByAdmin: userInput,
-                  ));
+                  provider.updateUser(widget.user.copyWith(
+                      status: "delete", commentByAdmin: userInput));
                 } else if (title == 'Suspend') {
-                  provider.updateUser(user.copyWith(
-                    isSuspend: true,
-                    commentByAdmin: userInput,
-                  ));
+                  provider.updateUser(widget.user.copyWith(
+                      status: "suspend", commentByAdmin: userInput));
                 }
                 Navigator.of(context).pop();
               },
@@ -263,10 +288,8 @@ class UserDetailsScreen extends StatelessWidget {
             TextButton(
               onPressed: () {
                 if (title == 'Recover') {
-                  provider.updateUser(user.copyWith(
-                    isSuspend: false,
-                    commentByAdmin: '',
-                  ));
+                  provider.updateUser(
+                      widget.user.copyWith(status: 'active', commentByAdmin: ''));
                 }
                 Navigator.of(context).pop();
               },
@@ -276,15 +299,5 @@ class UserDetailsScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _getStatus(bool isDelete, bool isSuspend) {
-    if (isDelete) {
-      return 'Deleted';
-    } else if (isSuspend) {
-      return 'Suspended';
-    } else {
-      return 'Active';
-    }
   }
 }

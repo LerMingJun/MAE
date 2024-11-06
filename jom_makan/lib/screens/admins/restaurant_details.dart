@@ -29,31 +29,28 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
     final String? userId = userProvider.firebaseUser?.uid;
     final reviewProvider = Provider.of<ReviewProvider>(context);
 
-    // Accessing the status
-    String status = restaurant.getStatus();
-
     // Status banner properties
     Color statusColor;
     String statusText;
 
-    switch (status) {
-      case 'Suspended':
+    switch (restaurant.status) {
+      case 'suspend':
         statusColor = Colors.orange;
         statusText = 'Suspended';
         break;
-      case 'Deleted':
+      case 'delete':
         statusColor = Colors.red;
         statusText = 'Deleted';
         break;
-      case 'Active':
+      case 'active':
         statusColor = Colors.blue;
         statusText = 'Active';
         break;
-      case 'Pending Approval':
+      case 'pending':
         statusColor = Colors.orange;
         statusText = 'Pending Approval';
         break;
-      case 'Declined':
+      case 'decline':
         statusColor = Colors.orange;
         statusText = 'Declined';
         break;
@@ -249,7 +246,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     childAspectRatio: 3,
-                    children: _buildActionButtons(context, status),
+                    children: _buildActionButtons(context, restaurant.status),
                   ),
                 ],
               ),
@@ -263,7 +260,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
   List<Widget> _buildActionButtons(BuildContext context, String status) {
     List<Widget> actionButtons = [];
 
-    if (status == 'Suspended') {
+    if (status == 'suspend') {
       actionButtons.addAll([
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -273,7 +270,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Active') {
+    } else if (status == 'active') {
       actionButtons.addAll([
         _buildButton(context, 'Suspend', Colors.orange, () {
           _showDialogWithTextField(context, 'Suspend', 'Leave Some Comments.');
@@ -282,7 +279,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Pending Approval') {
+    } else if (status == 'pending') {
       actionButtons.addAll([
         _buildButton(context, 'Approve', Colors.green, () {
           _showConfirmationDialog(context, 'Approve',
@@ -292,7 +289,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Decline', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Declined') {
+    } else if (status == 'decline') {
       actionButtons.addAll([
         _buildButton(context, 'Approve', Colors.green, () {
           _showConfirmationDialog(context, 'Approve',
@@ -302,7 +299,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'Deleted') {
+    } else if (status == 'delete') {
       actionButtons.add(
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -373,55 +370,56 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
               },
               child: const Text('Cancel'),
             ),
-          TextButton(
-            onPressed: () {
-              String userInput = textController.text.trim(); // trim the text to remove whitespace
-              if (userInput.isEmpty) {
-                // show an error message to the user
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Please enter a comment'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
-              if (title == 'Delete') {
-                // Update isApprove field
-                provider.updateRestaurant(
-                  restaurant.copyWith(
-                    isDelete: true,
-                    commentByAdmin: userInput,
-                  ),
-                );
-              } else if (title == 'Decline') {
-                // Update isDecline field
-                provider.updateRestaurant(
-                  restaurant.copyWith(
-                    isApprove: false,
-                    commentByAdmin: userInput,
-                  ),
-                );
-              } else if (title == 'Suspend') {
-                // Update isSuspend field
-                provider.updateRestaurant(
-                  restaurant.copyWith(
-                    isSuspend: true,
-                    commentByAdmin: userInput,
-                  ),
-                );
-              }
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context)
-                  .push(
-                    MaterialPageRoute(
-                      builder: (context) => const RestaurantsPage(),
+            TextButton(
+              onPressed: () {
+                String userInput = textController.text
+                    .trim(); // trim the text to remove whitespace
+                if (userInput.isEmpty) {
+                  // show an error message to the user
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a comment'),
+                      backgroundColor: Colors.red,
                     ),
-                  )
-                  .then((_) => Navigator.of(context).pop());
-            },
-            child: Text(title),
-          ),
+                  );
+                  return;
+                }
+                if (title == 'Delete') {
+                  // Update isApprove field
+                  provider.updateRestaurant(
+                    restaurant.copyWith(
+                      status: 'delete',
+                      commentByAdmin: userInput,
+                    ),
+                  );
+                } else if (title == 'Decline') {
+                  // Update isDecline field
+                  provider.updateRestaurant(
+                    restaurant.copyWith(
+                      status: 'decline',
+                      commentByAdmin: userInput,
+                    ),
+                  );
+                } else if (title == 'Suspend') {
+                  // Update isSuspend field
+                  provider.updateRestaurant(
+                    restaurant.copyWith(
+                      status: 'suspend',
+                      commentByAdmin: userInput,
+                    ),
+                  );
+                }
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(
+                        builder: (context) => const RestaurantsPage(),
+                      ),
+                    )
+                    .then((_) => Navigator.of(context).pop());
+              },
+              child: Text(title),
+            ),
           ],
         );
       },
@@ -446,29 +444,17 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                if (title == 'Approve') {
-                  // Update isApprove field
-                  provider.updateRestaurant(
-                    restaurant.copyWith(
-                      isApprove: true,
-                      commentByAdmin: '',
-                    ),
-                  );
-                } else if (title == 'Recover') {
-                  // Update isSuspend field
-                  provider.updateRestaurant(
-                    restaurant.copyWith(
-                      isSuspend: false,
-                      commentByAdmin: '',
-                    ),
-                  );
-                }
+                provider.updateRestaurant(
+                  restaurant.copyWith(
+                    status: 'active',
+                    commentByAdmin: '',
+                  ),
+                );
                 Navigator.of(context).pop(); // Close the dialog
                 Navigator.of(context)
                     .push(
                       MaterialPageRoute(
-                          builder: (context) => const RestaurantsPage(
-                              )),
+                          builder: (context) => const RestaurantsPage()),
                     )
                     .then((_) => Navigator.of(context).pop());
               },

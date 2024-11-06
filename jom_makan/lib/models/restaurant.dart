@@ -11,10 +11,8 @@ class Restaurant {
   final String intro;
   final String image;
   final List<String> tags;
-  late final bool isApprove;
+  final String status;
   final String commentByAdmin;
-  late final bool isSuspend;
-  late final bool isDelete;
   double averageRating;
 
   Restaurant({
@@ -27,10 +25,8 @@ class Restaurant {
     required this.intro,
     required this.image, // Updated constructor
     required this.tags,
-    required this.isApprove,
+    required this.status,
     required this.commentByAdmin,
-    required this.isSuspend,
-    required this.isDelete, 
     this.averageRating = 0.0,
   });
 
@@ -89,11 +85,9 @@ class Restaurant {
       intro: data['intro'] ?? '',
       image: data['image'] ?? '',
       tags: tags,
-      isApprove: data['isApprove'] ?? false,
       commentByAdmin: data['commentByAdmin'] ?? '',
       averageRating: averageRating,
-      isSuspend: data['isSuspend'] ?? false,
-      isDelete: data['isDelete'] ?? false,
+      status: data['status'] ?? 'active',
     );
   }
 
@@ -109,24 +103,9 @@ class Restaurant {
       'intro': intro,
       'image': image, // Single image URL
       'tags': tags,
-      'isApprove': isApprove, // Add isApprove field
+      'status': status,
       'commentByAdmin': commentByAdmin, // Add commentByAdmin field
     };
-  }
-
-    // Function to determine status
-  String getStatus() {
-    if (isDelete) {
-      return "Deleted";
-    } else if (isSuspend) {
-      return "Suspended";
-    } else if (!isApprove && commentByAdmin.isEmpty) {
-      return "Pending Approval";
-    } else if (!isApprove && commentByAdmin.isNotEmpty) {
-      return "Declined";
-    } else {
-      return "Active";
-    }
   }
 
 Restaurant copyWith({
@@ -139,10 +118,8 @@ Restaurant copyWith({
     String? intro,
     String? image,
     List<String>? tags,
-    bool? isApprove,
     String? commentByAdmin,
-    bool? isSuspend,
-    bool? isDelete,
+    String? status,
     double? averageRating,
   }) {
     return Restaurant(
@@ -155,10 +132,8 @@ Restaurant copyWith({
       intro: intro ?? this.intro,
       image: image ?? this.image,
       tags: tags ?? this.tags,
-      isApprove: isApprove ?? this.isApprove,
       commentByAdmin: commentByAdmin ?? this.commentByAdmin,
-      isSuspend: isSuspend ?? this.isSuspend,
-      isDelete: isDelete ?? this.isDelete,
+      status: status ?? this.status,
       averageRating: averageRating ?? this.averageRating,
     );
   }

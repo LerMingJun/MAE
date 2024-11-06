@@ -90,7 +90,7 @@ class RestaurantRepository {
   Future<List<Restaurant>> fetchUnapprovedRestaurants() async {
     try {
       QuerySnapshot snapshot = await _restaurantCollection
-          .where('isApprove', isEqualTo: false)
+          .where("status", isEqualTo:  "pending")
           .get();
 
       print(
@@ -155,6 +155,7 @@ class RestaurantRepository {
     return restaurantsWithRatings;
   }
 
+
   Future<double> calculateAverageRating(String restaurantId) async {
     QuerySnapshot reviewSnapshot = await FirebaseFirestore.instance
         .collection('reviews')
@@ -179,9 +180,7 @@ Restaurant restaurant
   ) async {
   try {
     Map<String, dynamic> updatedData = {
-      'isApprove': restaurant.isApprove,
-      'isDelete': restaurant.isDelete,
-      'isSuspend': restaurant.isSuspend,
+      'status': restaurant.status,
       'commentByAdmin': restaurant.commentByAdmin,
     };
 

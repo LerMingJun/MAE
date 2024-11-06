@@ -6,6 +6,7 @@ import 'package:jom_makan/screens/admins/complain.dart';
 import 'package:jom_makan/screens/admins/edit_store_detail.dart';
 import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
+import 'package:jom_makan/screens/admins/unapproved_restaurant_list.dart';
 import 'package:jom_makan/screens/admins/users_list.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +118,19 @@ class _MainPageState extends State<MainPage> {
                   });
                 },
                 itemBuilder: (context, index) {
-                  return _buildCarouselCard(pendingApprovals[index]);
+                  return InkWell(
+                    onTap: () {
+                      if (index == 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const UnapprovedRestaurantList()),
+                        );
+                      }
+                    },
+                    child: _buildCarouselCard(pendingApprovals[index]),
+                  );
                 },
               ),
             ),
@@ -190,7 +203,7 @@ class _MainPageState extends State<MainPage> {
                     child: _buildGridItem(Icons.restaurant, 'Restaurant'),
                   ),
                   _buildGridItem(Icons.group, 'Community'),
-                                    InkWell(
+                  InkWell(
                     onTap: () {
                       Navigator.push(
                         context,

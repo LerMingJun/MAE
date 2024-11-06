@@ -38,6 +38,10 @@ class ReviewProvider with ChangeNotifier {
     }
   }
  
+int countUserReviews(String userId) {
+  return _reviews.where((review) => review.userId == userId).length;
+}
+
   // Add a new review
   Future<void> addReview(Review review) async {
     await _reviewRepository.addReview(review);

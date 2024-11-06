@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
+import 'package:jom_makan/screens/admins/mainpage.dart';
 import 'package:jom_makan/screens/admins/restaurant_details.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_restaurant_card.dart';
@@ -16,14 +17,16 @@ class RestaurantsPage extends StatefulWidget {
   State<RestaurantsPage> createState() => _RestaurantsPageState();
 }
 
-class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProviderStateMixin {
+class _RestaurantsPageState extends State<RestaurantsPage>
+    with SingleTickerProviderStateMixin {
   bool nearMe = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    final restaurantProvider = Provider.of<RestaurantProvider>(context, listen: false);
+    final restaurantProvider =
+        Provider.of<RestaurantProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       restaurantProvider.fetchAllRestaurants();
     });
@@ -42,7 +45,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     setState(() {
       searchText = text;
     });
-    Provider.of<RestaurantProvider>(context, listen: false).searchRestaurants(text);
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .searchRestaurants(text);
   }
 
   @override
@@ -50,12 +54,12 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
     final activeRestaurants = restaurantProvider.restaurants
-        .where((restaurant) => restaurant.isApprove && !restaurant.isDelete && !restaurant.isSuspend)
+        .where((restaurant) => restaurant.status == 'active')
         .toList();
-        
-    final inactiveRestaurants = restaurantProvider.restaurants.where(
-      (restaurant) => restaurant.isDelete || restaurant.isSuspend || !restaurant.isApprove
-    ).toList();
+
+    final inactiveRestaurants = restaurantProvider.restaurants
+        .where((restaurant) => restaurant.status != 'active')
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -82,11 +86,14 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                           IconButton(
                             icon: const Icon(Icons.arrow_back),
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MainPage()));
                             },
                           ),
                           Text(
-                            'Discover Restaurants',
+                            'Manage Restaurants',
                             style: GoogleFonts.lato(
                               fontSize: 24,
                               color: AppColors.primary,
@@ -125,7 +132,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                               borderRadius: BorderRadius.circular(30),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: AppColors.primary),
+                              borderSide:
+                                  const BorderSide(color: AppColors.primary),
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
@@ -151,8 +159,10 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildRestaurantList(activeRestaurants, restaurantProvider.isLoading),
-                    _buildRestaurantList(inactiveRestaurants, restaurantProvider.isLoading),
+                    _buildRestaurantList(
+                        activeRestaurants, restaurantProvider.isLoading),
+                    _buildRestaurantList(
+                        inactiveRestaurants, restaurantProvider.isLoading),
                   ],
                 ),
               ),
@@ -165,7 +175,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> with SingleTickerProv
 
   Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
     if (isLoading) {
-      return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
+      return const Center(
+          child: CustomLoading(text: 'Fetching Restaurants...'));
     } else if (restaurants.isEmpty) {
       return const Center(
         child: EmptyWidget(

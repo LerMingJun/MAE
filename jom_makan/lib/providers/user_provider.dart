@@ -3,21 +3,22 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/participation.dart';
+import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import '../repositories/user_repository.dart';
 import '../models/user.dart';
- 
+
 class UserProvider with ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
   final AuthRepository _authRepository = AuthRepository();
   //final AuthRepository _authRepository = AuthRepository();
- 
+
   auth.User? _firebaseUser;
   User? _userData;
   bool? _isHistoryLoading;
   bool _isLoading = false;
-  String? _postCount;
+  String _postCount = "0";
   String? _likeCount;
   String? _participationCount;
   List<Participation>? _history = [];
@@ -29,8 +30,10 @@ class UserProvider with ChangeNotifier {
   bool _isLoadingComplains = false;
   List<Map<String, dynamic>> _resolvedComplains = [];
   List<Map<String, dynamic>> _unresolvedComplains = [];
+  List<Review> _reviews = [];
+  String _reviewCount = "0";
 
- List<User> get users => _users;
+  List<User> get users => _users;
   List<Map<String, dynamic>> get resolvedComplains => _resolvedComplains;
   List<Map<String, dynamic>> get unresolvedComplains => _unresolvedComplains;
   List<Complain> get allComplains => _allComplains;
@@ -44,7 +47,8 @@ class UserProvider with ChangeNotifier {
   String? get likeCount => _likeCount;
   String? get participationCount => _participationCount;
   List<Participation>? get history => _history;
-
+  List<Review> get reviews => _reviews;
+  String? get reviewCount => _reviewCount;
 
   UserProvider(auth.User? firebaseUser) {
     _firebaseUser = firebaseUser;
@@ -53,7 +57,7 @@ class UserProvider with ChangeNotifier {
       _fetchUserData(_firebaseUser!.uid);
     }
   }
- 
+
   Future<void> initialize(auth.User? firebaseUser) async {
     _firebaseUser = firebaseUser;
     if (_firebaseUser != null) {
@@ -61,11 +65,11 @@ class UserProvider with ChangeNotifier {
     }
     notifyListeners();
   }
- 
+
   Future<void> fetchAllUsers() async {
     _isLoading = true;
     notifyListeners();
- 
+
     try {
       _allUsers = await _userRepository.fetchAllUsers();
       _users = _allUsers ?? [];
@@ -78,23 +82,23 @@ class UserProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
- 
+
   int get totalUserCount {
     return _allUsers?.length ?? 0;
   }
- 
+
   Future<void> fetchUserData() async {
     _isLoading = true;
     notifyListeners();
- 
+
     await _fetchUserData(_authRepository.currentUser!.uid);
     await _fetchUserHistory();
     await _fetchUserStats();
- 
+
     _isLoading = false;
     notifyListeners();
   }
- 
+
   Future<void> updateUserData(
       Map<String, dynamic> data, XFile? imageFile) async {
     if (_firebaseUser != null) {
@@ -105,7 +109,7 @@ class UserProvider with ChangeNotifier {
       print('No user is signed in.');
     }
   }
- 
+
   void searchUsers(String searchText) {
     if (searchText.isEmpty) {
       _users = _allUsers!;
@@ -117,18 +121,18 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> _fetchUserData(String uid) async {
     _userData = await _userRepository.getUserData(uid);
     notifyListeners(); // Notify listeners after fetching user data
   }
-///   uid (String): The unique identifier of the user whose data is to be fetched.
- 
+
+  ///   uid (String): The unique identifier of the user whose data is to be fetched.
+
   void clearUserData() {
     _userData = null;
     notifyListeners();
   }
- 
+
   Future<void> _fetchUserHistory() async {
     try {
       _history = await _userRepository
@@ -138,7 +142,7 @@ class UserProvider with ChangeNotifier {
       print('Error in EventProvider: $e');
     }
   }
- 
+
   Future<void> _fetchUserStats() async {
     try {
       _postCount = await _userRepository
@@ -152,7 +156,29 @@ class UserProvider with ChangeNotifier {
       print('Error in EventProvider: $e');
     }
   }
- 
+
+  Future<void> fetchAllReviews(String userId) async {
+    notifyListeners();
+    try {
+      _reviews = await _userRepository.fetchAllReviews();
+    } catch (e) {
+      _reviews = [];
+      print('Error in UserProvider: $e');
+    }
+    notifyListeners();
+  }
+
+  Future<void> fetchUserInfo(String userId) async {
+    try {
+      _postCount = await _userRepository.fetchPostCount(userId);
+      _reviewCount = await _userRepository.fetchReviewCount(userId);
+    } catch (e) {
+      _reviews = [];
+      _postCount = '0';
+      print('Error in EventProvider: $e');
+    }
+  }
+
   // Load and classify complains
   // Method to load and classify complains
   Future<void> loadClassifiedComplains() async {
@@ -162,27 +188,24 @@ class UserProvider with ChangeNotifier {
     _unresolvedComplains = classifiedComplains['unresolved']!;
     notifyListeners();
   }
- 
+
   Future<void> updateUser(User user) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    await _userRepository.editUser(user);
-
-    // Fetch updated store details to ensure local data is up-to-date
-    await fetchAllUsers();
-
-    _isLoading = false;
+    _isLoading = true;
     notifyListeners();
-  } catch (e) {
-    _isLoading = false;
-    notifyListeners();
-    print('Error in StoreProvider: $e');
-    throw Exception('Error updating store');
+
+    try {
+      await _userRepository.editUser(user);
+
+      // Fetch updated store details to ensure local data is up-to-date
+      await fetchAllUsers();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error in StoreProvider: $e');
+      throw Exception('Error updating store');
+    }
   }
 }
-
-}
- 
- 

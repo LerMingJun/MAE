@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/user_detail.dart';
@@ -49,12 +51,10 @@ class _UsersPageState extends State<UsersPage>
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
 
-    final activeUsers = userProvider.users
-        .where((user) => !user.isDelete && !user.isSuspend)
-        .toList();
-    final inactiveUsers = userProvider.users
-        .where((user) => user.isDelete || user.isSuspend)
-        .toList();
+    final activeUsers =
+        userProvider.users.where((user) => user.status == 'active').toList();
+    final inactiveUsers =
+        userProvider.users.where((user) => user.status != 'active').toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -199,8 +199,8 @@ class _UsersPageState extends State<UsersPage>
                 dietaryPreferences: user.dietaryPreferences,
                 createdAt: user.createdAt.toDate(),
                 userID: user.userID,
-                isDelete: user.isDelete,
-                isSuspend: user.isSuspend,
+                status: user.status,
+                commentByAdmin: user.commentByAdmin,
               ),
             ),
           );
@@ -218,8 +218,8 @@ class CustomUserCard extends StatelessWidget {
   final List<String> dietaryPreferences;
   final DateTime createdAt;
   final String userID; // Include userID if needed
-  final bool isDelete; // Include isDelete status
-  final bool isSuspend; // Include isSuspend status
+  final String status;
+  final String commentByAdmin;
 
   const CustomUserCard({
     required this.profileImage,
@@ -229,19 +229,33 @@ class CustomUserCard extends StatelessWidget {
     required this.dietaryPreferences,
     required this.createdAt,
     required this.userID,
-    required this.isDelete,
-    required this.isSuspend,
+    required this.status,
+    required this.commentByAdmin,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    bool isDeleteValue = isDelete;
-    bool isSuspendValue = isSuspend;
-
     return GestureDetector(
       onTap: () {
-        // Handle user card tap if needed (e.g., navigate to user details)
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserDetailsScreen(
+              user: User(
+                userID: userID,
+                fullName: fullName,
+                username: username,
+                email: email,
+                profileImage: profileImage,
+                dietaryPreferences: dietaryPreferences,
+                createdAt: Timestamp.fromDate(createdAt),
+                status: status,
+                commentByAdmin: commentByAdmin,
+              ),
+            ),
+          ),
+        );
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -250,7 +264,6 @@ class CustomUserCard extends StatelessWidget {
         elevation: 3,
         child: Row(
           children: [
-            // User profile image
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -273,7 +286,6 @@ class CustomUserCard extends StatelessWidget {
                 },
               ),
             ),
-            // User details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -322,7 +334,7 @@ class CustomUserCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Created at: $createdAt', // Format the creation date
+                      'Created at: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(createdAt)}',
                       style: GoogleFonts.lato(
                         fontSize: 10,
                         color: Colors.black45,
@@ -331,16 +343,19 @@ class CustomUserCard extends StatelessWidget {
                       maxLines: 1,
                     ),
                     const SizedBox(height: 4),
-                    // Displaying status
                     Text(
-                      isDeleteValue
+                      status == 'delete'
                           ? 'Account Deleted'
-                          : (isSuspendValue ? 'Account Suspended' : 'Active'),
+                          : (status == 'suspend'
+                              ? 'Account Suspended'
+                              : 'Active'),
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: isDeleteValue
+                        color: status == 'delete'
                             ? Colors.red
-                            : (isSuspendValue ? Colors.orange : Colors.green),
+                            : (status == 'suspend'
+                                ? Colors.orange
+                                : Colors.green),
                       ),
                     ),
                   ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
+import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:provider/provider.dart';
 
 class ComplainsPage extends StatefulWidget {
@@ -32,6 +33,7 @@ class _ComplainsPageState extends State<ComplainsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text('Complains'),
         leading: BackButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -40,13 +42,6 @@ class _ComplainsPageState extends State<ComplainsPage>
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'complains',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
           Container(
             color: Colors.white,
             child: TabBar(
@@ -66,8 +61,8 @@ class _ComplainsPageState extends State<ComplainsPage>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildResolvedTab(context),
-                _buildUnresolvedTab(context),
+                _buildComplainTab(context, isResolved: true),
+                _buildComplainTab(context, isResolved: false),
               ],
             ),
           ),
@@ -76,79 +71,68 @@ class _ComplainsPageState extends State<ComplainsPage>
     );
   }
 
-  // Widget to display resolved complains
-  Widget _buildResolvedTab(BuildContext context) {
+  // Generalized method for both resolved and unresolved tabs
+  Widget _buildComplainTab(BuildContext context, {required bool isResolved}) {
     return Consumer<ComplainProvider>(
       builder: (context, provider, child) {
-        if (provider.resolvedComplains.isEmpty) {
+        final complains = isResolved
+            ? provider.resolvedComplains
+            : provider.unresolvedComplains;
+
+        if (complains.isEmpty) {
           return const Center(
-            child: Text('No resolved complains'),
+            child: EmptyWidget(
+              text: "No Complains Found.\nPlease try again.",
+              image: 'assets/projectEmpty.png', // Adjust the image path as needed
+            ),
           );
         }
+        
         return ListView.builder(
-          itemCount: provider.resolvedComplains.length,
+          padding: const EdgeInsets.all(16.0),
+          itemCount: complains.length,
           itemBuilder: (context, index) {
-            final complain = provider.resolvedComplains[index];
-            return _buildRoundedBox(
-              child: ListTile(
-                title: Text(complain.description ?? '' ),
-                subtitle: Text(
-                  'Type: ${complain.userType}\nID: ${complain.id}',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-            );
+            final complain = complains[index];
+            return _buildComplainCard(complain);
           },
         );
       },
     );
   }
 
-  // Widget to display unresolved complains
-  Widget _buildUnresolvedTab(BuildContext context) {
-    return Consumer<ComplainProvider>(
-      builder: (context, provider, child) {
-        if (provider.unresolvedComplains.isEmpty) {
-          return const Center(
-            child: Text('No unresolved complains'),
-          );
-        }
-        return ListView.builder(
-          itemCount: provider.unresolvedComplains.length,
-          itemBuilder: (context, index) {
-            final complain = provider.unresolvedComplains[index];
-            return _buildRoundedBox(
-              child: ListTile(
-                title: Text(complain.description ?? ''),
-                subtitle: Text(
-                  'Type: ${complain.userType}\nID: ${complain.id}',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // Helper method to create a rounded box
-  Widget _buildRoundedBox({required Widget child}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
+  // Helper method to create a complain card with consistent UI
+  Widget _buildComplainCard(Complain complain) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 4.0,
-            spreadRadius: 2.0,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: child,
+      elevation: 4.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              complain.name ?? 'No Name',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Text(
+              'Type: ${complain.userType}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              'ID: ${complain.id}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

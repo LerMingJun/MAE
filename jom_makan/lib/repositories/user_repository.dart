@@ -9,6 +9,7 @@ import 'package:jom_makan/models/participation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/project.dart';
+import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/models/user.dart';
 
@@ -20,9 +21,11 @@ class UserRepository {
       FirebaseFirestore.instance.collection('users');
   final CollectionReference _complainsCollection =
       FirebaseFirestore.instance.collection('complain');
-
+  final CollectionReference _reviewCollection =
+      FirebaseFirestore.instance.collection('reviews');
   // Get the current user
   auth.User? get currentUser => _firebaseAuth.currentUser;
+
 
   // Fetch user data from Firestore
   Future<User?> getUserData(String uid) async {
@@ -36,6 +39,19 @@ class UserRepository {
     } catch (e) {
       print('Error fetching user data: $e');
       return null;
+    }
+  }
+
+  Future<List<Review>> fetchAllReviews() async {
+    try {
+      QuerySnapshot snapshot = await _reviewCollection.get();
+      return snapshot.docs.map((doc) {
+        return Review.fromFirestore(
+            doc); // Ensure this line matches the Review.fromFirestore method
+      }).toList();
+    } catch (e) {
+      print('Error fetching reviews: $e');
+      return [];
     }
   }
 
@@ -108,6 +124,22 @@ class UserRepository {
 
     return likeCount;
   }
+
+Future<String> fetchReviewCount(String userID) async {
+  String reviewCount = '0';
+
+  try {
+    QuerySnapshot reviewSnapshot = await reviewCollection
+        .where('userId', isEqualTo: userID)
+        .get();
+
+    reviewCount = reviewSnapshot.size.toString();
+  } catch (e) {
+    print('Error fetching reviewCount: $e');
+  }
+
+  return reviewCount;
+}
 
   Future<String> fetchParticipationCount(String userID) async {
     String participationCount = '0';
@@ -236,8 +268,7 @@ class UserRepository {
   ) async {
   try {
     Map<String, dynamic> updatedData = {
-      'isDelete': user.isDelete,
-      'isSuspend': user.isSuspend,
+      'status': user.status,
       'commentByAdmin': user.commentByAdmin,
     };
 
