@@ -217,39 +217,37 @@ class _CustomDropdownState extends State<CustomDropdown> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Select Preferences', style: GoogleFonts.poppins()),
+          title: Text('Select Options', style: GoogleFonts.poppins()),
           content: Container(
-            height: 400, // Set a fixed height for the dialog
+            height: 400, // Fixed height for the dialog
             width: double.maxFinite,
             child: Scrollbar(
-            controller: _scrollController,
-            //Always show scrollbar
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-               controller: _scrollController,
-              child: ListView(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: widget.options.map((option) {
-                  final isSelected = widget.selectedOptions.contains(option);
-                  return CheckboxListTile(
-                    title: Text(option, style: GoogleFonts.poppins()),
-                    value: isSelected,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          widget.selectedOptions.add(option);
-                        } else {
-                          widget.selectedOptions.remove(option);
-                        }
-                        widget.onChanged(widget.selectedOptions);
-                      });
-                      Navigator.of(context).pop();
-                    },
-                  );
-                }).toList(),
+              controller: _scrollController,
+              thumbVisibility: true, // Always show scrollbar
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // Allow the column to expand as needed
+                  children: widget.options.map((option) {
+                    final isSelected = widget.selectedOptions.contains(option);
+                    return CheckboxListTile(
+                      title: Text(option, style: GoogleFonts.poppins()),
+                      value: isSelected,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            widget.selectedOptions.add(option);
+                          } else {
+                            widget.selectedOptions.remove(option);
+                          }
+                          widget.onChanged(widget.selectedOptions);
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
             ),
           ),
           actions: [
@@ -268,24 +266,19 @@ class _CustomDropdownState extends State<CustomDropdown> {
     return GestureDetector(
       onTap: () => _showOptionsDialog(context),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.secondary),
-          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8.0),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.selectedOptions.isNotEmpty
-                  ? widget.selectedOptions.join(', ')
-                  : 'Select Cuisine / Restriction',
-              style: GoogleFonts.poppins(color: Colors.black),
-            ),
-            Icon(Icons.arrow_drop_down),
-          ],
+        child: Text(
+          widget.selectedOptions.isNotEmpty
+              ? widget.selectedOptions.join(', ') // Join selected options
+              : 'Select an option',
+          style: GoogleFonts.poppins(),
         ),
       ),
     );
   }
 }
+

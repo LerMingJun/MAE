@@ -193,4 +193,37 @@ Restaurant restaurant
 }
 
 
+
+    Future<Restaurant?> getRestaurantData(String uid) async {
+    try {
+      // Access the restaurant document based on user ID
+      DocumentSnapshot doc = await _firestore.collection('restaurants').doc(uid).get();
+
+      if (doc.exists) {
+        // If the document exists, create a Restaurant instance from it
+        return Restaurant.fromFirestore(doc);
+      } else {
+        print('No restaurant found for the given user ID: $uid');
+        return null; // No restaurant found
+      }
+    } catch (e) {
+      print('Error fetching restaurant data: $e');
+      return null; // Handle error and return null
+    }
+  }
+
+  Future<void> updateRestaurantImages({
+      required String restaurantId,
+      required String profileImageUrl,
+      required List<String> menuImageUrls,
+    }) async {
+      try {
+        await _firestore.collection('restaurants').doc(restaurantId).update({
+          'image': profileImageUrl,
+          'menu': menuImageUrls,
+        });
+      } catch (e) {
+        print("Error updating restaurant images: $e");
+      }
+    }
 }

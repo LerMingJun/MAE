@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:jom_makan/models/activity.dart';
+import 'operatingHours.dart';
 
 class Restaurant {
   final String id;
@@ -13,6 +13,7 @@ class Restaurant {
   final List<String> tags;
   final String status;
   final String commentByAdmin;
+  final String email;
   double averageRating;
 
   Restaurant({
@@ -23,14 +24,16 @@ class Restaurant {
     required this.menu,
     required this.operatingHours,
     required this.intro,
-    required this.image, // Updated constructor
+    required this.image,
     required this.tags,
     required this.status,
     required this.commentByAdmin,
+    required this.email,
     this.averageRating = 0.0,
   });
 
-  factory Restaurant.fromFirestore(DocumentSnapshot doc,{double averageRating = 0.0}) {
+  // Factory constructor to create Restaurant from Firestore data
+  factory Restaurant.fromFirestore(DocumentSnapshot doc, {double averageRating = 0.0}) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
     // Handle cuisineType field
@@ -54,22 +57,21 @@ class Restaurant {
       menu = List<String>.from(data['menu'].map((item) => item.toString()));
     }
 
-    // Handle operatingHours field
+    // Handle operatingHours field as nested map of {day: {open: "", close: ""}}
     Map<String, OperatingHours> operatingHours = {};
     if (data['operatingHours'] is Map<String, dynamic>) {
-      operatingHours =
-          (data['operatingHours'] as Map<String, dynamic>).map((day, hours) {
-        if (hours is Map<String, dynamic>) {
-          return MapEntry(day, OperatingHours.fromMap(hours));
+      operatingHours = (data['operatingHours'] as Map<String, dynamic>).map((day, hoursData) {
+        if (hoursData is Map<String, dynamic>) {
+          return MapEntry(day, OperatingHours.fromMap(hoursData));
         }
-        return MapEntry(day, OperatingHours(open: '', close: ''));
+        return MapEntry(day, OperatingHours(openTime: '', closeTime: ''));
       });
     }
 
     return Restaurant(
       id: doc.id,
       name: data['name'] ?? '',
-      location: data['location'], // Assuming this is already a GeoPoint
+      location: data['location'] ?? GeoPoint(0, 0), // Default to (0,0) if missing
       cuisineType: cuisineType,
       menu: menu,
       operatingHours: operatingHours,
@@ -77,23 +79,25 @@ class Restaurant {
       image: data['image'] ?? '',
       tags: tags,
       commentByAdmin: data['commentByAdmin'] ?? '',
+      email: data['email'] ?? '',
       averageRating: averageRating,
       status: data['status'] ?? 'active',
     );
   }
+  
 
-  // Method to convert Restaurant instance into a map for Firestore
+  // Convert Restaurant instance to a map for Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
-      'location': location, // Ensure this is a GeoPoint
+      'location': location,
       'cuisineType': cuisineType,
-      'menu': menu, // List of Strings for image URLs
-      'operatingHours':
-          operatingHours.map((day, hours) => MapEntry(day, hours.toMap())),
+      'menu': menu,
+      'operatingHours': operatingHours.map((day, hours) => MapEntry(day, hours.toMap())),
       'intro': intro,
-      'image': image, // Single image URL
+      'image': image,
       'tags': tags,
+      'email': email,
       'status': status,
       'commentByAdmin': commentByAdmin, // Add commentByAdmin field
     };
@@ -112,6 +116,7 @@ Restaurant copyWith({
     String? commentByAdmin,
     String? status,
     double? averageRating,
+    String? email,
   }) {
     return Restaurant(
       id: id ?? this.id,
@@ -126,33 +131,40 @@ Restaurant copyWith({
       commentByAdmin: commentByAdmin ?? this.commentByAdmin,
       status: status ?? this.status,
       averageRating: averageRating ?? this.averageRating,
+      email: email ?? this.email,
     );
   }
 
 }
 
 class OperatingHours {
-  String open;
-  String close;
+  final String openTime;
+  final String closeTime;
 
   OperatingHours({
-    required this.open,
-    required this.close,
+    required this.openTime,
+    required this.closeTime,
   });
 
   // Factory constructor to create OperatingHours from a map
   factory OperatingHours.fromMap(Map<String, dynamic> data) {
     return OperatingHours(
-      open: data['open'] ?? '',
-      close: data['close'] ?? '',
+      openTime: data['open'] ?? '',
+      closeTime: data['close'] ?? '',
     );
   }
+
+  // Getters for open and close times
+  String get open => openTime;
+  String get close => closeTime;
 
   // Method to convert OperatingHours instance into a map
   Map<String, dynamic> toMap() {
     return {
-      'open': open,
-      'close': close,
+      'open': openTime,
+      'close': closeTime,
     };
   }
 }
+
+
