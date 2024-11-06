@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
               '/login': (context) => Login(), // Login screen
               '/signup': (context) => SignUp(), // Signup screen
               '/home': (context) => Home(), // Home screen
-              '/events': (context) => Events(), // Events screen
+              // '/events': (context) => Events(), // Events screen
               // '/eventDetail': (context) => EventDetail(), // Event details screen
               '/addPost': (context) => AddPost(), // Add post screen
               '/community': (context) => Community(), // Community screen

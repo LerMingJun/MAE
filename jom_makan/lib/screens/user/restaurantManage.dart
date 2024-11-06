@@ -7,6 +7,7 @@ import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/screens/user/bookingDetails.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_cards.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +102,8 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
 
 class BookedRestaurantContent extends StatefulWidget {
   @override
-  _BookedRestaurantContentState createState() => _BookedRestaurantContentState();
+  _BookedRestaurantContentState createState() =>
+      _BookedRestaurantContentState();
 }
 
 class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
@@ -112,7 +114,8 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+      final bookingProvider =
+          Provider.of<BookingProvider>(context, listen: false);
       final userId = userProvider.firebaseUser?.uid;
 
       if (userId != null) {
@@ -125,11 +128,14 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
 
   Future<void> _fetchRestaurantDetails(List<Booking> bookings) async {
     final oneHourLater = DateTime.now().add(Duration(hours: 1));
-    List<Booking> upcomingBookings = bookings.where((booking) => booking.timeSlot.toDate().isAfter(oneHourLater)).toList();
+    List<Booking> upcomingBookings = bookings
+        .where((booking) => booking.timeSlot.toDate().isAfter(oneHourLater))
+        .toList();
 
     for (var booking in upcomingBookings) {
-      var restaurant = await Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchRestaurantByID(booking.restaurantId);
+      var restaurant =
+          await Provider.of<RestaurantProvider>(context, listen: false)
+              .fetchRestaurantByID(booking.restaurantId);
       _restaurants.add(restaurant);
     }
     setState(() {});
@@ -152,16 +158,27 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
                 itemCount: upcomingBookings.length,
                 itemBuilder: (context, index) {
                   final booking = upcomingBookings[index];
-                  final restaurant = _restaurants.isNotEmpty ? _restaurants[index] : null;
+                  final restaurant =
+                      _restaurants.isNotEmpty ? _restaurants[index] : null;
                   return CustomBookingCard(
-                    restaurantName: restaurant?.name ?? 'Fetching Restaurant...',
+                    restaurantName:
+                        restaurant?.name ?? 'Fetching Restaurant...',
                     location: restaurant?.location ?? const GeoPoint(0, 0),
                     bookingDate: booking.timeSlot.toDate(),
-                    imageUrl: restaurant?.image ?? 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+                    imageUrl: restaurant?.image ??
+                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
                     status: booking.status,
                     numberOfPeople: booking.numberOfPeople,
                     onTap: () {
-                      // Handle navigation to booking details
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingDetailsPage(
+                            restaurant: restaurant!,
+                            booking: booking,
+                          ),
+                        ),
+                      );
                     },
                   );
                 },
@@ -183,7 +200,8 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
     // Fetch past bookings for the user after the build phase
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final bookingProvider = Provider.of<BookingProvider>(context, listen: false);
+      final bookingProvider =
+          Provider.of<BookingProvider>(context, listen: false);
       final userId = userProvider.firebaseUser?.uid;
 
       if (userId != null) {
@@ -197,11 +215,14 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
 
   Future<void> _fetchRestaurantDetailsForHistory(List<Booking> bookings) async {
     final oneHourLater = DateTime.now().add(Duration(hours: 1));
-    List<Booking> pastBookings = bookings.where((booking) => booking.timeSlot.toDate().isBefore(oneHourLater)).toList();
+    List<Booking> pastBookings = bookings
+        .where((booking) => booking.timeSlot.toDate().isBefore(oneHourLater))
+        .toList();
 
     for (var booking in pastBookings) {
-      var restaurant = await Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchRestaurantByID(booking.restaurantId);
+      var restaurant =
+          await Provider.of<RestaurantProvider>(context, listen: false)
+              .fetchRestaurantByID(booking.restaurantId);
       _restaurants.add(restaurant);
     }
     setState(() {}); // Update the UI after fetching restaurant details
@@ -224,16 +245,29 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
                 itemCount: pastBookings.length,
                 itemBuilder: (context, index) {
                   final booking = pastBookings[index];
-                  final restaurant = _restaurants.isNotEmpty ? _restaurants[index] : null; // Get the corresponding restaurant
+                  final restaurant = _restaurants.isNotEmpty
+                      ? _restaurants[index]
+                      : null; // Get the corresponding restaurant
                   return CustomBookingCard(
-                    restaurantName: restaurant?.name ?? 'Fetching Restaurant...', // Use restaurant name
-                    location: restaurant?.location ?? const GeoPoint(0, 0), // Adjust to fetch actual location
+                    restaurantName: restaurant?.name ??
+                        'Fetching Restaurant...', // Use restaurant name
+                    location: restaurant?.location ??
+                        const GeoPoint(0, 0), // Adjust to fetch actual location
                     bookingDate: booking.timeSlot.toDate(),
-                    imageUrl: restaurant?.image ?? 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y', // Provide a real image URL
+                    imageUrl: restaurant?.image ??
+                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y', // Provide a real image URL
                     status: booking.status,
                     numberOfPeople: booking.numberOfPeople,
                     onTap: () {
-                      // Handle navigation to booking details
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingDetailsPage(
+                            restaurant: restaurant!,
+                            booking: booking,
+                          ),
+                        ),
+                      );
                     },
                   );
                 },

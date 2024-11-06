@@ -200,7 +200,6 @@ class _HomeState extends State<Home> {
                                   _isNearby(restaurant.location) &&
                                   _matchesUserPreferences(
                                       restaurant, userProvider))
-                              .take(5)
                               .map((restaurant) {
                             bool isFavourited =
                                 favoriteProvider.isFavorited(restaurant.id);
@@ -444,7 +443,7 @@ class _HomeState extends State<Home> {
       _currentLocation!,
       LatLng(location.latitude, location.longitude),
     );
-    return distance <= 10.0;
+    return distance <= 50.0;
   }
 
   bool _matchesUserPreferences(Restaurant restaurant, dynamic userProvider) {

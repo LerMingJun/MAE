@@ -114,7 +114,7 @@ class RestaurantProvider with ChangeNotifier {
     }
   }
 
-Future<Restaurant?> getRestaurantById(String restaurantID) async {
+  Future<Restaurant?> getRestaurantById(String restaurantID) async {
     try {
       return await _restaurantRepository.getRestaurantById(restaurantID);
     } catch (e) {
@@ -192,30 +192,56 @@ Future<Restaurant?> getRestaurantById(String restaurantID) async {
       }
     }
   }
-  
+
   // Optional: Method to re-fetch and categorize when there's a status change
   Future<void> refreshRestaurants() async {
     await fetchAllRestaurants();
   }
 
-Future<void> updateRestaurant(Restaurant restaurant) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    await _restaurantRepository.editRestaurant(restaurant);
-
-    // Fetch updated store details to ensure local data is up-to-date
-    await fetchAllRestaurants();
-
-    _isLoading = false;
+  Future<void> updateRestaurant(Restaurant restaurant) async {
+    _isLoading = true;
     notifyListeners();
-  } catch (e) {
-    _isLoading = false;
-    notifyListeners();
-    print('Error in StoreProvider: $e');
-    throw Exception('Error updating store');
+
+    try {
+      await _restaurantRepository.editRestaurant(restaurant);
+
+      // Fetch updated store details to ensure local data is up-to-date
+      await fetchAllRestaurants();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      print('Error in StoreProvider: $e');
+      throw Exception('Error updating store');
+    }
   }
-}
 
+  Future<void> applyFilters(List<String> selectedFilter,
+      List<String> selectedTags, String sortByRatingDesc) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Fetch filtered restaurants from the repository based on selected criteria
+      _restaurants =
+          await _restaurantRepository.fetchFilteredOrSortedRestaurants(
+              selectedFilter, selectedTags, sortByRatingDesc);
+
+      // Notify listeners that data is updated
+      notifyListeners();
+    } catch (e) {
+      print('Error in applyFilters in RestaurantProvider: $e');
+
+      // You can handle the error here by showing an error message to the user or keeping _restaurants empty
+      _restaurants = [];
+
+      // You can also show a dialog or a snackbar to notify the user of the issue.
+      // Optionally handle navigation if necessary (e.g., if authentication fails)
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
 }

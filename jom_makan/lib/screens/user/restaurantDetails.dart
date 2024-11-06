@@ -7,8 +7,7 @@ import 'package:jom_makan/screens/user/addReview.dart'; // Import the Leave Revi
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
-// import 'package:jom_makan/models/operatingHours.dart'; 
-
+// import 'package:jom_makan/models/operatingHours.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
   final Restaurant restaurant;
@@ -33,11 +32,16 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
 
     // Fetch favorites when the screen is initialized
     if (userId != null && !_favoritesFetched) {
-      Provider.of<FavoriteProvider>(context, listen: false)
-          .fetchFavorites(userId)
-          .then((_) {
-        setState(() {
-          _favoritesFetched = true; // Mark favorites as fetched
+      // Use addPostFrameCallback to call fetchFavorites after the build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<FavoriteProvider>(context, listen: false)
+            .fetchFavorites(userId)
+            .then((_) {
+          if (mounted) {
+            setState(() {
+              _favoritesFetched = true; // Mark favorites as fetched
+            });
+          }
         });
       });
     }
@@ -153,8 +157,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
               ),
               const SizedBox(height: 16),
               if (widget.restaurant.tags.isNotEmpty) ...[
-                Text("Tags:",
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Tags:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 Wrap(
                   spacing: 8.0,
                   children: widget.restaurant.tags.map((tag) {
