@@ -1,13 +1,9 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/models/project.dart';
 import 'package:jom_makan/models/post.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/models/user.dart';
 
 class PostRepository {
@@ -15,7 +11,7 @@ class PostRepository {
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> addPost(String userID, XFile? image, String title,
-      String description, String activityID, String activityName) async {
+      String description, List<String> tags) async {
     DocumentReference docRef;
     try {
       String? downloadUrl;
@@ -30,11 +26,9 @@ class PostRepository {
         // Get download URL
         downloadUrl = await taskSnapshot.ref.getDownloadURL();
       }
-      // Create a new document in the posts collection
-      docRef = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .doc();
+
+      // Create a new document in the top-level posts collection
+      docRef = _firestore.collection('posts').doc();
 
       await docRef.set({
         'postID': docRef.id,
@@ -42,8 +36,7 @@ class PostRepository {
         'userID': userID,
         'title': title,
         'description': description,
-        'activityID': activityID,
-        'activityName': activityName,
+        'tags': tags,
         'likes': [],
         'createdAt': Timestamp.now(),
       });
@@ -52,25 +45,18 @@ class PostRepository {
     }
   }
 
-  Future<void> editPost(
-      String postID,
-      XFile? image,
-      String title,
-      String description,
-      String activityID,
-      String activityName,
-      String userID) async {
+  Future<void> editPost(String postID, XFile? image, String title,
+      String description, List<String> tags) async {
     try {
       Map<String, dynamic> updatedData = {
         'title': title,
         'description': description,
-        'activityID': activityID,
-        'activityName': activityName,
+        'tags': tags,
       };
 
       if (image != null) {
         String fileName =
-            'posts/$userID/post_${DateTime.now().millisecondsSinceEpoch}.png';
+            'posts/post_${DateTime.now().millisecondsSinceEpoch}.png';
         Reference storageRef = _storage.ref().child(fileName);
         UploadTask uploadTask = storageRef.putFile(File(image.path));
         TaskSnapshot taskSnapshot = await uploadTask;
@@ -80,12 +66,8 @@ class PostRepository {
         updatedData['postImage'] = downloadUrl;
       }
 
-      // Update document in the posts collection
-      await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .doc(postID)
-          .update(updatedData);
+      // Update document in the top-level posts collection
+      await _firestore.collection('posts').doc(postID).update(updatedData);
     } catch (e) {
       throw Exception('Error updating post: $e');
     }
@@ -93,16 +75,26 @@ class PostRepository {
 
   Future<List<Post>> fetchAllPosts() async {
     try {
-      // Query all posts subcollections across all users
-      QuerySnapshot snapshot = await _firestore.collectionGroup(postSubCollection).get();
+      QuerySnapshot snapshot = await _firestore.collection('posts').get();
 
       // Process each post document
       List<Post> posts = await Future.wait(snapshot.docs.map((doc) async {
-        // Fetch the parent user document to get the user information
-        DocumentSnapshot userDoc = await doc.reference.parent.parent!.get();
         Post post = Post.fromFirestore(doc);
-        post.user = User.fromFirestore(
-            userDoc); // Use the User model to populate user details
+        // Check if userId is non-empty before fetching user document
+        if (post.userID.isNotEmpty) {
+          DocumentSnapshot userDoc =
+              await userCollection.doc(post.userID).get();
+          if (userDoc.exists) {
+            post.user = User.fromFirestore(userDoc);
+          } else {
+            // Optionally handle missing user data
+            print('User document does not exist for userId: ${post.userID}');
+            post.user = null; // or set a default User object if needed
+          }
+        } else {
+          print('userId is empty or null for post: ${post.postId}');
+          post.user = null; // Handle missing user ID case
+        }
 
         return post;
       }).toList());
@@ -116,22 +108,17 @@ class PostRepository {
 
   Future<List<Post>> fetchAllPostsByUserID(String userID) async {
     try {
-      // Fetch posts from the user's posts subcollection
-      QuerySnapshot snapshot = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
+      QuerySnapshot snapshot = await _firestore
+          .collection('posts')
+          .where('userID', isEqualTo: userID)
           .get();
 
-      DocumentSnapshot userDoc =
-          await userCollection.doc(userID).get();
-
-      // Convert the user document to a User object
+      DocumentSnapshot userDoc = await userCollection.doc(userID).get();
       User user = User.fromFirestore(userDoc);
 
-      // Map each post document to a Post object and assign the user
       List<Post> posts = snapshot.docs.map((doc) {
         Post post = Post.fromFirestore(doc);
-        post.user = user; // Assign the user object to the post
+        post.user = user;
         return post;
       }).toList();
 
@@ -142,25 +129,20 @@ class PostRepository {
     }
   }
 
-  Future<Post?> fetchPostByPostID(String userID, String postID) async {
+  Future<Post?> fetchPostByPostID(String postID) async {
     try {
-      DocumentSnapshot postDoc = await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .doc(postID)
-          .get();
+      DocumentSnapshot postDoc =
+          await _firestore.collection('posts').doc(postID).get();
 
       if (postDoc.exists) {
         Post post = Post.fromFirestore(postDoc);
 
-        // Fetch the user document
-        DocumentSnapshot userDoc =
-            await userCollection.doc(userID).get();
+        DocumentSnapshot userDoc = await userCollection.doc(post.userID).get();
         post.user = User.fromFirestore(userDoc);
 
         return post;
       } else {
-        return null; // No post found with the given postID
+        return null;
       }
     } catch (e) {
       print('Error fetching posts: $e');
@@ -170,24 +152,10 @@ class PostRepository {
 
   Future<void> likePost(String postID, String userID) async {
     try {
-      // Use collectionGroup to find the post by postID across all posts subcollections
-      QuerySnapshot postSnapshot = await _firestore
-          .collectionGroup(postSubCollection)
-          .where('postID', isEqualTo: postID)
-          .get();
-
-      // Check if the post exists
-      if (postSnapshot.docs.isNotEmpty) {
-        // There should be only one document with this postID, but we'll take the first one
-        DocumentReference postRef = postSnapshot.docs.first.reference;
-
-        // Update the likes array
-        await postRef.update({
-          'likes': FieldValue.arrayUnion([userID]),
-        });
-      } else {
-        throw Exception('Post not found');
-      }
+      DocumentReference postRef = _firestore.collection('posts').doc(postID);
+      await postRef.update({
+        'likes': FieldValue.arrayUnion([userID]),
+      });
     } catch (e) {
       print('Error liking post: $e');
       throw e;
@@ -196,38 +164,19 @@ class PostRepository {
 
   Future<void> unlikePost(String postID, String userID) async {
     try {
-      // Use collectionGroup to find the post by postID across all posts subcollections
-      QuerySnapshot postSnapshot = await _firestore
-          .collectionGroup(postSubCollection)
-          .where('postID', isEqualTo: postID)
-          .get();
-
-      // Check if the post exists
-      if (postSnapshot.docs.isNotEmpty) {
-        // There should be only one document with this postID, but we'll take the first one
-        DocumentReference postRef = postSnapshot.docs.first.reference;
-
-        // Update the likes array
-        await postRef.update({
-          'likes': FieldValue.arrayRemove([userID]),
-        });
-      } else {
-        throw Exception('Post not found');
-      }
+      DocumentReference postRef = _firestore.collection('posts').doc(postID);
+      await postRef.update({
+        'likes': FieldValue.arrayRemove([userID]),
+      });
     } catch (e) {
-      print('Error liking post: $e');
+      print('Error unliking post: $e');
       throw e;
     }
   }
 
-  Future<void> deletePost(String userID, String postID) async {
+  Future<void> deletePost(String postID) async {
     try {
-      // Navigate to the user's posts subcollection and delete the post
-      return await userCollection
-          .doc(userID)
-          .collection(postSubCollection)
-          .doc(postID)
-          .delete();
+      await _firestore.collection('posts').doc(postID).delete();
     } catch (e) {
       throw Exception('Error deleting post: $e');
     }

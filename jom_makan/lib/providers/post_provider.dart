@@ -21,14 +21,13 @@ class PostProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> addPost(XFile? imageFile, String title, String description,
-      String activityID, String activityName) async {
+      List<String> tags) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       await _postRepository.addPost(_authRepository.currentUser!.uid, imageFile,
-          title, description, activityID, activityName);
-      //await fetchBookmarksAndProjects(); // Refresh the bookmarks list
+          title, description, tags);
       await fetchAllPosts();
 
       _isLoading = false;
@@ -41,15 +40,14 @@ class PostProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updatePost(String postID, XFile? imageFile, String title, String description,
-      String activityID, String activityName) async {
+  Future<void> updatePost(String postID, XFile? imageFile, String title,
+      String description, List<String> tags) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _postRepository.editPost(postID, imageFile,
-          title, description, activityID, activityName, _authRepository.currentUser!.uid);
-
+      await _postRepository.editPost(
+          postID, imageFile, title, description, tags);
       await fetchAllPosts();
       await fetchAllPostsByUserID();
 
@@ -93,52 +91,52 @@ class PostProvider with ChangeNotifier {
   }
 
   Future<Post?> fetchPostByPostID(String postID) async {
-    
     try {
-      _userPost = await _postRepository.fetchPostByPostID(_authRepository.currentUser!.uid, postID);
+      _userPost = await _postRepository.fetchPostByPostID(postID);
       return _userPost;
     } catch (e) {
       _userPost = null;
-
       print('Error in PostProvider: $e');
     }
     return null;
   }
 
   Future<void> deletePost(String postID) async {
-    
     try {
-      await _postRepository.deletePost(_authRepository.currentUser!.uid, postID);
+      await _postRepository.deletePost(postID);
       await fetchAllPostsByUserID();
     } catch (e) {
       print('Error in PostProvider: $e');
     }
-
   }
 
   Future<void> likePost(String postID) async {
     await _postRepository.likePost(postID, _authRepository.currentUser!.uid);
     await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    _updatePostLikes(postID, _authRepository.currentUser!.uid, true);
+    await fetchAllPosts();
   }
 
   Future<void> unlikePost(String postID) async {
     await _postRepository.unlikePost(postID, _authRepository.currentUser!.uid);
     await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    _updatePostLikes(postID, _authRepository.currentUser!.uid, false);
+    await fetchAllPosts();
   }
 
-  void _updatePostLikes(String postID, String userID, bool liked) {
-    Post? post = _posts?.firstWhere((post) => post.postID == postID);
-    if (post != null) {
-      if (liked) {
-        post.likes.add(userID);
-      } else {
-        post.likes.remove(userID);
-      }
-      notifyListeners();
+  Future<List<Post>> searchPosts(String query) async {
+    // Fetch all posts if not already fetched
+    if (_posts == null) {
+      await fetchAllPosts();
     }
-  }
 
-  
+    if (query.isEmpty) {
+      return _posts ?? []; // Return all posts if the query is empty
+    }
+
+    // Filter posts based on the title or description
+    return _posts?.where((post) {
+          return post.title.toLowerCase().contains(query.toLowerCase()) ||
+              post.description.toLowerCase().contains(query.toLowerCase());
+        }).toList() ??
+        [];
+  }
 }

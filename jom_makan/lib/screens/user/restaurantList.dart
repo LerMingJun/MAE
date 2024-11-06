@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/screens/user/restaurantDetails.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/restaurant.dart';
@@ -7,7 +8,7 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_cards.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
-import 'package:jom_makan/util/filter.dart';
+import 'package:jom_makan/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class RestaurantsPage extends StatefulWidget {
@@ -27,11 +28,15 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
         Provider.of<RestaurantProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       restaurantProvider.fetchAllRestaurants();
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final String? userId = userProvider.firebaseUser?.uid;
+      if (userId != null) {
+        Provider.of<FavoriteProvider>(context, listen: false)
+            .fetchFavorites(userId);
+      }
     });
   }
 
-  String selectedFilter = 'All';
-  List<String> selectedTags = [];
   String searchText = '';
 
   void _searchRestaurants(String text) {
@@ -45,6 +50,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
   @override
   Widget build(BuildContext context) {
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Padding(
@@ -140,6 +147,9 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                     (BuildContext context, int index) {
                       Restaurant restaurant =
                           restaurantProvider.restaurants[index];
+
+                      bool isFavorited = favoriteProvider.isFavorited(restaurant.id);
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
                         child: GestureDetector(
@@ -149,8 +159,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => RestaurantDetailsScreen(
-                                    restaurant:
-                                        restaurant), // Pass the restaurant object here
+                                    restaurant: restaurant),
                               ),
                             );
                           },
@@ -159,11 +168,11 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                             name: restaurant.name,
                             location: restaurant.location,
                             cuisineTypes: restaurant.cuisineType,
-                            rating: restaurant.averageRating, // Assuming you have a way to get the actual rating
+                            rating: restaurant.averageRating,
                             restaurantID: restaurant.id,
                             intro: restaurant.intro,
-                            restaurant:
-                                restaurant, // Pass the restaurant object here
+                            restaurant: restaurant,
+                            isFavourited: isFavorited,
                           ),
                         ),
                       );

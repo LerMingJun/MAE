@@ -9,30 +9,26 @@ import 'package:provider/provider.dart';
 
 class CommunityPost extends StatelessWidget {
   final String postID;
-  final String profileImage;
-  final String name;
-  final String bio;
+  final String? profileImage; // Made nullable to handle potential null cases
+  final String? name; // Made nullable to handle potential null cases
   final Timestamp date;
-  final String postImage;
-  final String postTitle;
-  final String postDescription;
-  final String activity;
-  final String activityID;
+  final String? postImage; // Made nullable to handle potential null cases
+  final String? postTitle; // Made nullable to handle potential null cases
+  final String? postDescription; // Made nullable to handle potential null cases
   final List<String> likes;
+  final List<String> tags;
   final String userID;
   final bool? edit;
 
   const CommunityPost({
     required this.postID,
-    required this.profileImage,
-    required this.name,
-    required this.bio,
+    this.profileImage,
+    this.name,
+    required this.tags,
     required this.date,
-    required this.postImage,
-    required this.postTitle,
-    required this.postDescription,
-    required this.activity,
-    required this.activityID,
+    this.postImage,
+    this.postTitle,
+    this.postDescription,
     required this.likes,
     required this.userID,
     this.edit = false,
@@ -46,6 +42,10 @@ class CommunityPost extends StatelessWidget {
 
     final postProvider = Provider.of<PostProvider>(context);
     final bool isLiked = likes.contains(userID);
+    final TextEditingController commentController = TextEditingController();
+
+    // Get the screen width
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10),
@@ -62,7 +62,9 @@ class CommunityPost extends StatelessWidget {
                 ),
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage(profileImage),
+                  backgroundImage:
+                      profileImage != null ? NetworkImage(profileImage!) : null,
+                  child: profileImage == null ? Icon(Icons.person) : null,
                 ),
               ),
               SizedBox(width: 5),
@@ -72,18 +74,17 @@ class CommunityPost extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        name,
+                        name ?? 'Unknown User', // Fallback for null name
                         style: GoogleFonts.lato(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(width: 8),
-                      
                     ],
                   ),
                   Text(
-                    bio,
+                    formattedDate, // Fallback for null bio
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: AppColors.placeholder,
@@ -92,115 +93,134 @@ class CommunityPost extends StatelessWidget {
                 ],
               ),
               Spacer(),
-              edit!
-                  ? GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/editPost',
-                          arguments: {
-                            'postID': postID,
-                            'currentTitle': postTitle,
-                            'currentDescription': postDescription,
-                            'activityID': activityID,
-                            'activityName': activity,
-                            'postImage': postImage,
-                          },
-                        );
+              if (edit ?? false)
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/editPost',
+                      arguments: {
+                        'postID': postID,
+                        'currentTitle': postTitle,
+                        'currentDescription': postDescription,
+                        'currentTags': tags,
+                        'postImage': postImage,
                       },
-                      child: Icon(
-                        Icons.edit,
-                        color: Colors.blue,
-                        size: 20,
-                      ))
-                  : SizedBox.shrink()
+                    );
+                  },
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.blue,
+                    size: 20,
+                  ),
+                ),
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  child: Text(
-                    formattedDate,
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: AppColors.placeholder,
-                    ),
+              SizedBox(height: 10),
+              if (postImage != null)
+                Container(
+                  width: double.infinity,
+                  height: 250,
+                  child: Image.network(
+                    postImage!,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return CustomImageLoading(width: 250);
+                      }
+                    },
                   ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 250,
-                child: Image.network(
-                  postImage,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else {
-                      return CustomImageLoading(width: 250);
-                    }
-                  },
-                ),
-              ),
             ],
           ),
           SizedBox(height: 10),
           Text(
-            postTitle,
+            postTitle ?? 'No title', // Fallback for null postTitle
             style: GoogleFonts.lato(
               fontSize: 19,
               fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 10),
-          // Post Description
           Text(
-            postDescription,
+            postDescription ??
+                'No description available', // Fallback for null postDescription
             style: GoogleFonts.poppins(
               fontSize: 13,
               color: AppColors.placeholder,
             ),
           ),
           SizedBox(height: 10),
-          // Actions Row
+          // Display tags as a list of chips
+          Wrap(
+            spacing: 6.0, // Space between tags
+            runSpacing: 4.0, // Space between rows if they wrap
+            children: tags.map((tag) {
+              return Chip(
+                label: Text(
+                  tag,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+                backgroundColor:
+                    AppColors.primary, // Customize color as desired
+              );
+            }).toList(),
+          ),
+          SizedBox(height: 10),
           Row(
             children: [
+              // Comment Input Bar
               Container(
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () {
-                  },
-                  child: Text(
-                    activity,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    minimumSize: Size(100, 30),
+                width: screenWidth * 0.68, // Set width to 80% of screen width
+                height: 40, // Adjust the height as needed
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Background color
+                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                ),
+                child: TextField(
+                  controller: commentController,
+                  decoration: InputDecoration(
+                    hintText: 'Add a comment...',
+                    border: InputBorder.none, // Remove the default border
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   ),
                 ),
               ),
+              IconButton(
+                icon: Icon(Icons.send, color: AppColors.primary),
+                onPressed: () {
+                  String comment = commentController.text.trim();
+                  if (comment.isNotEmpty) {
+                    // Add logic to submit the comment
+                    // postProvider.addComment(postID, comment);
+                    commentController
+                        .clear(); // Clear the input after submission
+                  }
+                },
+              ),
               Spacer(),
               Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('${likes.length} ',
+                  Transform.translate(
+                    offset: Offset(0, 2.5), // Move the count down by 4 pixels
+                    child: Text(
+                      '${likes.length} ',
                       style: GoogleFonts.poppins(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15)),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ), // Add some space between the count and the icon
                   InkWell(
                     splashColor: Colors.transparent,
                     child: Icon(
@@ -216,7 +236,7 @@ class CommunityPost extends StatelessWidget {
                     },
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ],

@@ -91,7 +91,7 @@ class RestaurantProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchRestaurantByID(String restaurantID) async {
+  Future<Restaurant?> fetchRestaurantByID(String restaurantID) async {
     try {
       _restaurant = await _restaurantRepository.getRestaurantById(restaurantID);
 
@@ -99,16 +99,15 @@ class RestaurantProvider with ChangeNotifier {
         throw Exception('Location data is empty');
       }
 
-      GeoPoint locationGeoPoint =
-          _restaurant!.location; // Assuming location is stored as GeoPoint
+      GeoPoint locationGeoPoint = _restaurant!.location;
       _center = LatLng(locationGeoPoint.latitude, locationGeoPoint.longitude);
       _marker = Marker(
         markerId: MarkerId(_restaurant!.id),
         position: _center!,
-        infoWindow: InfoWindow(
-          title: _restaurant!.name,
-        ),
+        infoWindow: InfoWindow(title: _restaurant!.name),
       );
+
+      return _restaurant; // Return the fetched restaurant
     } catch (e) {
       print('Error in RestaurantProvider: $e');
       throw Exception('Error fetching restaurant');

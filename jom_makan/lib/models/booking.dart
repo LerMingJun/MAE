@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/restaurant.dart';
 
 class Booking {
   final String bookingId;
@@ -7,6 +8,9 @@ class Booking {
   final int numberOfPeople;
   final Timestamp timeSlot;
   final String specialRequests;
+  final String status;
+  final String approvalComment;
+  Restaurant? restaurantDetails;
 
   Booking({
     required this.bookingId,
@@ -15,6 +19,8 @@ class Booking {
     required this.numberOfPeople,
     required this.timeSlot,
     required this.specialRequests,
+    required this.status, // Default to false
+    this.approvalComment = '', // Default to empty string
   });
 
   factory Booking.fromFirestore(DocumentSnapshot doc) {
@@ -27,6 +33,8 @@ class Booking {
       numberOfPeople: data['numberOfPeople'] ?? 0,
       timeSlot: data['timeSlot'],
       specialRequests: data['specialRequests'] ?? '',
+      status: data['status'] ?? false, // Read approval status
+      approvalComment: data['approvalComment'] ?? '', // Read comment
     );
   }
 
@@ -37,6 +45,8 @@ class Booking {
       'numberOfPeople': numberOfPeople,
       'timeSlot': timeSlot,
       'specialRequests': specialRequests,
+      'status': status, // Save approval status
+      'approvalComment': approvalComment, // Save comment
     };
   }
 }

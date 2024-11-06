@@ -2,57 +2,61 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/user.dart';
 
-
 class Post {
-  final String postID;
-  final String postImage;
+  final String postId;
+  final String userID;
+  final String userRole;
   final String title;
   final String description;
-  final String activityID;
-  final String activityName;
   final List<String> likes;
+  final List<String> tags;
+  final String postImage;
   final Timestamp createdAt;
   User? user;
 
   Post({
-    required this.postID, 
-    required this.postImage,
+    required this.postId,
+    required this.userID,
+    required this.userRole,
     required this.title,
     required this.description,
-    required this.activityID,
-    required this.activityName,
     required this.likes,
+    required this.tags,
     required this.createdAt,
+    required this.postImage,
     this.user,
   });
 
-  // Factory method to create an instance from Firestore data
+  // Method to create an instance from a JSON object
   factory Post.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
+    print(data);
     return Post(
-      postID: doc.id,
-      postImage: data['postImage'] ?? '',
-      title: data['title'] ?? '',
+      postId: doc.id,
+      userID: data['userID'] ?? '', // Default to empty string if null
+      userRole: data['userRole'] ?? '',
       description: data['description'] ?? '',
-      activityID: data['activityID'] ?? '',
-      activityName: data['activityName'] ?? '',
+      title: data['title'] ?? '',
+      // likes: data['likes'] ?? 0,
       likes: List<String>.from(data['likes'] ?? []),
+      tags: List<String>.from(data['tags'] ?? []),
       createdAt: data['createdAt'] ?? Timestamp.now(),
+      postImage: data['postImage'] ?? '',
     );
   }
 
   // Method to convert an instance to a JSON object
   Map<String, dynamic> toJson() {
     return {
-      'postID': postID,
-      'postImage': postImage,
-      'title': title,
+      'userID': userID,
+      'userRole': userRole,
       'description': description,
-      'activityID': activityID,
-      'activityName': activityName,
+      'title': title,
       'likes': likes,
+      'tags': tags,
       'createdAt': createdAt,
+      'postImage': postImage
     };
   }
 }

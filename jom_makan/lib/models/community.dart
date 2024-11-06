@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CommunityPost {
   final String postId;
   final String userId;
-  final String restaurantId;
+  final String userRole;
+  final String title;
   final String content;
   final int likes;
   final List<String> tags;
@@ -12,7 +13,8 @@ class CommunityPost {
   CommunityPost({
     required this.postId,
     required this.userId,
-    required this.restaurantId,
+    required this.userRole,
+    required this.title,
     required this.content,
     required this.likes,
     required this.tags,
@@ -24,9 +26,10 @@ class CommunityPost {
 
     return CommunityPost(
       postId: doc.id,
-      userId: data['userId'],
-      restaurantId: data['restaurantId'],
+      userId: data['userID'],
+      userRole: data['userRole'],
       content: data['content'] ?? '',
+      title: data['title'] ?? '',
       likes: data['likes'] ?? 0,
       tags: List<String>.from(data['tags'] ?? []),
       timestamp: data['timestamp'],
@@ -36,8 +39,9 @@ class CommunityPost {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
-      'restaurantId': restaurantId,
+      'userRole': userRole,
       'content': content,
+      'title': title,
       'likes': likes,
       'tags': tags,
       'timestamp': timestamp,

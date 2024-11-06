@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/providers/favorite_provider.dart';
+import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/user/restaurantDetails.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +10,7 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CustomVerticalCard extends StatelessWidget {
   final String imageUrl;
@@ -213,144 +216,6 @@ class CustomHorizontalCard extends StatelessWidget {
   }
 }
 
-class CustomEventCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final String location;
-  final Timestamp hostDate;
-  final String eventID;
-  final String type;
-
-  const CustomEventCard({
-    required this.imageUrl,
-    required this.title,
-    required this.location,
-    required this.hostDate,
-    required this.eventID,
-    required this.type,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    DateTime date = hostDate.toDate();
-    String formattedDate =
-        DateFormat('MMMM dd, yyyy').format(date).toUpperCase();
-
-    return GestureDetector(
-      onTap: () {
-        type == "project"
-            ? Navigator.pushNamed(
-                context,
-                '/eventDetail',
-                arguments: eventID,
-              )
-            : Navigator.pushNamed(
-                context,
-                '/speechDetail',
-                arguments: eventID,
-              );
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 3,
-        child: Row(
-          children: [
-            // Image on the left side
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10),
-                bottomLeft: Radius.circular(10),
-              ),
-              child: Image.network(
-                imageUrl,
-                height: 100,
-                width: 100,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  } else {
-                    return CustomImageLoading(
-                      width: 100,
-                      height: 100,
-                    );
-                  }
-                },
-              ),
-            ),
-            // Details on the right side
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.lato(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      location,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          formattedDate,
-                          style: GoogleFonts.lato(
-                            fontSize: 10,
-                            color: Colors.black45,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: type == 'project'
-                                ? AppColors.tertiary
-                                : Colors.orange,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Icon(
-                            type == 'project'
-                                ? Icons.diversity_3_outlined
-                                : Icons.campaign_outlined,
-                            size: 15,
-                            color: type == 'project'
-                                ? Colors.blue
-                                : AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class CustomRestaurantCard extends StatefulWidget {
   final String imageUrl;
   final String name;
@@ -358,8 +223,9 @@ class CustomRestaurantCard extends StatefulWidget {
   final List<String> cuisineTypes;
   final String restaurantID;
   final String intro;
-  final double rating; // Rating field
+  final double rating;
   final Restaurant restaurant;
+  final bool isFavourited;
 
   const CustomRestaurantCard({
     required this.imageUrl,
@@ -368,8 +234,9 @@ class CustomRestaurantCard extends StatefulWidget {
     required this.cuisineTypes,
     required this.restaurantID,
     required this.intro,
-    required this.rating, // Include rating in constructor
-    required this.restaurant, // Include restaurant in constructor
+    required this.rating,
+    required this.restaurant,
+    required this.isFavourited,
     Key? key,
   }) : super(key: key);
 
@@ -379,6 +246,7 @@ class CustomRestaurantCard extends StatefulWidget {
 
 class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
   String? address;
+  bool isLoadingAddress = true; // Track address loading state
 
   @override
   void initState() {
@@ -395,18 +263,25 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
         setState(() {
-          address = "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+          address =
+              "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+          isLoadingAddress = false; // Update loading state
         });
       }
     } catch (e) {
       setState(() {
         address = "Address not available";
+        isLoadingAddress = false; // Update loading state
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
+    final String? userId = userProvider.firebaseUser?.uid;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -423,9 +298,232 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
           borderRadius: BorderRadius.circular(10),
         ),
         elevation: 3,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                  ),
+                  child: Image.network(
+                    widget.imageUrl,
+                    height: 130,
+                    width: 100,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return CustomImageLoading(
+                          width: 100,
+                          height: 100,
+                        );
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.name,
+                          style: GoogleFonts.lato(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          isLoadingAddress
+                              ? 'Fetching address...'
+                              : (address ?? 'Address not available'),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          widget.cuisineTypes.join(', '),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.black45,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          widget.intro,
+                          style: GoogleFonts.lato(
+                            fontSize: 10,
+                            color: Colors.black45,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                              size: 14,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              widget.rating.toString(),
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.black45,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: IconButton(
+                icon: Icon(
+                  widget.isFavourited ? Icons.favorite : Icons.favorite_border,
+                  color: widget.isFavourited ? Colors.red : Colors.black54,
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (widget.isFavourited) {
+                      favoriteProvider.removeFavorite(
+                          userId!, widget.restaurantID);
+                    } else {
+                      favoriteProvider.addFavorite(
+                          userId!, widget.restaurantID);
+                    }
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomBookingCard extends StatefulWidget {
+  final String restaurantName;
+  final GeoPoint location;
+  final DateTime bookingDate;
+  final String imageUrl;
+  final VoidCallback onTap;
+  final String status; // Add status property
+  final int numberOfPeople;
+
+  const CustomBookingCard({
+    required this.restaurantName,
+    required this.location,
+    required this.bookingDate,
+    required this.imageUrl,
+    required this.onTap,
+    required this.status, // Initialize status
+    required this.numberOfPeople,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _CustomBookingCardState createState() => _CustomBookingCardState();
+}
+
+class _CustomBookingCardState extends State<CustomBookingCard> {
+  String? address;
+  bool isLoadingAddress = true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.location.latitude != 0.0 && widget.location.longitude != 0.0) {
+      _getAddressFromCoordinates();
+    }
+  }
+
+  @override
+  void didUpdateWidget(CustomBookingCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((widget.location.latitude != 0.0 || widget.location.longitude != 0.0) &&
+        (widget.location != oldWidget.location)) {
+      _getAddressFromCoordinates();
+    }
+  }
+
+  Future<void> _getAddressFromCoordinates() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        widget.location.latitude,
+        widget.location.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        setState(() {
+          address =
+              "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+          isLoadingAddress = false;
+        });
+      } else {
+        setState(() {
+          address = "No address found";
+          isLoadingAddress = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        address = "Address not available";
+        isLoadingAddress = false;
+      });
+    }
+  }
+
+  Color _getStatusColor() {
+    switch (widget.status) {
+      case 'Pending':
+        return Colors.blue;
+      case 'Booked':
+        return Colors.green;
+      case 'Rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String formattedDate =
+        DateFormat('MMMM dd, yyyy – hh:mm a').format(widget.bookingDate);
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Card(
+        color: AppColors.tertiary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 4,
         child: Row(
           children: [
-            // Restaurant image
             ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
@@ -433,41 +531,58 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
               ),
               child: Image.network(
                 widget.imageUrl,
-                height: 120,
                 width: 100,
+                height: 120,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  } else {
-                    return CustomImageLoading(
-                      width: 100,
-                      height: 100,
-                    );
-                  }
+                  if (loadingProgress == null) return child;
+                  return Center(child: CircularProgressIndicator());
                 },
               ),
             ),
-            // Restaurant details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.name,
-                      style: GoogleFonts.lato(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.restaurantName,
+                            style: GoogleFonts.lato(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            widget.status,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 4),
                     Text(
-                      address ?? 'Fetching address...', // Display the address
+                      isLoadingAddress
+                          ? 'Fetching address...'
+                          : (address ?? 'Address not available'),
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.black54,
@@ -477,7 +592,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      widget.cuisineTypes.join(', '),
+                      "${widget.numberOfPeople} people",
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.black45,
@@ -487,32 +602,13 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      widget.intro,
-                      style: GoogleFonts.lato(
-                        fontSize: 10,
+                      formattedDate,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
                         color: Colors.black45,
                       ),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                    SizedBox(height: 4),
-                    // Displaying the rating
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          color: Colors.amber,
-                          size: 14,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          widget.rating.toString(),
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black45,
-                          ),
-                        ),
-                      ],
+                      maxLines: 1,
                     ),
                   ],
                 ),
