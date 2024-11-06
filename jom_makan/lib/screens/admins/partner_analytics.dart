@@ -13,20 +13,22 @@ class PartnerAnalyticsScreen extends StatefulWidget {
 }
 
 class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
-    Future<Map<String, dynamic>>? _analyticsData;
+  Future<Map<String, dynamic>>? _analyticsData;
 
   @override
   void initState() {
     super.initState();
-    Provider.of<RestaurantProvider>(context, listen: false).fetchAllRestaurants();
-    Provider.of<RestaurantProvider>(context, listen: false).fetchUnapprovedRestaurants();
-    _analyticsData = Provider.of<ReviewProvider>(context, listen: false).identifyHighestAndLowestRatedRestaurants();
-
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .fetchAllRestaurants();
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .fetchUnapprovedRestaurants();
+    _analyticsData = Provider.of<ReviewProvider>(context, listen: false)
+        .identifyHighestAndLowestRatedRestaurants();
   }
 
   @override
   Widget build(BuildContext context) {
-        final restaurantProvider = Provider.of<RestaurantProvider>(context);
+    final restaurantProvider = Provider.of<RestaurantProvider>(context);
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -55,7 +57,6 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
             _buildAnalyticsCard(
               title: 'Total Partners',
               value: restaurantProvider.totalRestaurantCount.toString(),
-              change: '▲ 5',
               changeColor: Colors.green,
             ),
             // _buildAnalyticsCard(
@@ -64,7 +65,12 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
             //   change: '▼ 10',
             //   changeColor: Colors.red,
             // ),
-                        // FutureBuilder to fetch and display highest and lowest rating partners
+            // FutureBuilder to fetch and display highest and lowest rating partners
+            _buildAnalyticsCard(
+              title: 'Unapproved Partners',
+              value: restaurantProvider.unapprovedRestaurantCount.toString(),
+              changeColor: Colors.green,
+            ),
             FutureBuilder<Map<String, dynamic>>(
               future: _analyticsData,
               builder: (context, snapshot) {
@@ -73,27 +79,29 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
                 } else if (snapshot.hasError) {
                   return const Text('Error fetching ratings'); // Handle error
                 } else if (snapshot.hasData) {
-                  final highestRatingRestaurant = snapshot.data!['highestRatingRestaurant'];
-                  final lowestRatingRestaurant = snapshot.data!['lowestRatingRestaurant'];
+                  final highestRatingRestaurant =
+                      snapshot.data!['highestRatingRestaurant'];
+                  final lowestRatingRestaurant =
+                      snapshot.data!['lowestRatingRestaurant'];
 
                   return Column(
                     children: [
                       _buildAnalyticsCard(
                         title: 'Lowest Rating Partner',
-                        value: lowestRatingRestaurant != null 
-                            ? lowestRatingRestaurant['name'] 
+                        value: lowestRatingRestaurant != null
+                            ? lowestRatingRestaurant['name']
                             : 'N/A',
-                        additionalInfo: lowestRatingRestaurant != null 
-                            ? 'Rating: ${lowestRatingRestaurant['averageRating']}' 
+                        additionalInfo: lowestRatingRestaurant != null
+                            ? 'Rating: ${lowestRatingRestaurant['averageRating']}'
                             : 'No ratings available',
                       ),
                       _buildAnalyticsCard(
                         title: 'Highest Rating Partner',
-                        value: highestRatingRestaurant != null 
-                            ? highestRatingRestaurant['name'] 
+                        value: highestRatingRestaurant != null
+                            ? highestRatingRestaurant['name']
                             : 'N/A',
-                        additionalInfo: highestRatingRestaurant != null 
-                            ? 'Rating: ${highestRatingRestaurant['averageRating']}' 
+                        additionalInfo: highestRatingRestaurant != null
+                            ? 'Rating: ${highestRatingRestaurant['averageRating']}'
                             : 'No ratings available',
                       ),
                     ],
@@ -101,12 +109,6 @@ class _PartnerAnalyticsScreen extends State<PartnerAnalyticsScreen> {
                 }
                 return const SizedBox(); // Return an empty widget if none of the above
               },
-            ),
-            _buildAnalyticsCard(
-              title: 'Unapproved Partners',
-              value: restaurantProvider.unapprovedRestaurantCount.toString(),
-              change: '▲ 3%',
-              changeColor: Colors.green,
             ),
           ],
         ),

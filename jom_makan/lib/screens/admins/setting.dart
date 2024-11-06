@@ -5,6 +5,8 @@ import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/screens/admins/edit_store_detail.dart';
 import 'package:jom_makan/screens/admins/helpcenter.dart';
 import 'package:jom_makan/screens/admins/overall_analytics.dart';
+import 'package:jom_makan/screens/admins/restaurant_list.dart';
+import 'package:jom_makan/screens/admins/users_list.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
@@ -201,8 +203,22 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             children: [
-              _buildIconButton(Icons.people, 'Partners'),
-              _buildIconButton(Icons.supervised_user_circle, 'Users'),
+              _buildIconButton(Icons.people, 'Partners',onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const RestaurantsPage()), // Navigate to InsightsPage instead
+                  );
+                },),
+              _buildIconButton(Icons.supervised_user_circle, 'Users', onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const UsersPage()), // Navigate to InsightsPage instead
+                  );
+                },),
               _buildIconButton(
                 Icons.show_chart,
                 'Insights',

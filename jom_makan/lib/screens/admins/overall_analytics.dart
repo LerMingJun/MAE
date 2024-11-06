@@ -86,19 +86,16 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
                       _buildAnalyticsCard(
                         title: 'Total Users',
                         value: snapshot.data!['totalUsers'].toString(),
-                        change: '▼ 10',
                         changeColor: Colors.green,
                       ),
                       _buildAnalyticsCard(
                         title: 'Total Partners',
                         value: snapshot.data!['totalPartners'].toString(),
-                        change: '▲ 5',
                         changeColor: Colors.green,
                       ),
                       _buildAnalyticsCard(
                         title: 'Unapproved Partners',
                         value: snapshot.data!['unapprovedPartners'].toString(),
-                        change: '▲ 3%',
                         changeColor: Colors.green,
                       ),
                       _buildAnalyticsCard(

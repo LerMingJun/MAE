@@ -10,10 +10,15 @@ class ComplainProvider with ChangeNotifier {
   final UserProvider _userProvider = UserProvider(null);
   List<Complain> _resolvedComplains = [];
   List<Complain> _unresolvedComplains = [];
- 
+   bool _isLoading = false;
+
+
   List<Complain> get resolvedComplains => _resolvedComplains;
   List<Complain> get unresolvedComplains => _unresolvedComplains;
- 
+   bool get isLoading => _isLoading;
+int get unresolvedComplainCount => _unresolvedComplains.length;
+
+
   Future<void> fetchComplains() async {
     // Fetch user complains
     List<Complain> userComplains = await _complainRepository.fetchUserComplains();
@@ -37,6 +42,25 @@ class ComplainProvider with ChangeNotifier {
     // Notify listeners of the changes
     notifyListeners();
   }
+
+  Future<void> updateComplain(Complain complain) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    await _complainRepository.editComplain(complain);
+
+    _isLoading = false;
+    notifyListeners();
+  } catch (e) {
+    _isLoading = false;
+    notifyListeners();
+    print('Error in StoreProvider: $e');
+    throw Exception('Error updating store');
+  }
+}
+
+
 }
  
  

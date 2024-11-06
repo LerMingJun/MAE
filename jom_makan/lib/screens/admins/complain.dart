@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
+import 'package:jom_makan/screens/admins/specific_complain.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:provider/provider.dart';
 
@@ -101,38 +102,61 @@ class _ComplainsPageState extends State<ComplainsPage>
   }
 
   // Helper method to create a complain card with consistent UI
+
   Widget _buildComplainCard(Complain complain) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      elevation: 4.0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              complain.name ?? 'No Name',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+/// The card is tappable and navigates to the complain detail screen when tapped.
+/// It displays the complain name, type, and ID.
+/// 
+/// The card has a rounded border and elevation for a raised effect. Padding is 
+/// applied to ensure content is not flush against the edges of the card.
+/// 
+/// - Parameter complain: The complain object containing details to be displayed.
+      onTap: () => navigateToComplainDetailScreen(context, complain),
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        elevation: 4.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                complain.name ?? 'No Name',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              'Type: ${complain.userType}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4.0),
-            Text(
-              'ID: ${complain.id}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ],
+              const SizedBox(height: 8.0),
+              Text(
+                'Type: ${complain.userType}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 4.0),
+              Text(
+                'ID: ${complain.id}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+void navigateToComplainDetailScreen(BuildContext context, Complain complain) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ComplainDetailsScreen(
+        complain: complain,
+      ),
+    ),
+  );
+}
+
+
 }

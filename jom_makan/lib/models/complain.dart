@@ -1,28 +1,28 @@
 class Complain {
   final String id;
   final String? name;
-  final String? description;
-  final String? feedback;
+  final String description;
+  String feedback;
   final String userType;
-  final String? restaurantID;
+  final String userID;
 
   Complain({
     required this.id,
     this.name,
-    this.description,
-    this.feedback,
+    required this.description,
+    required this.feedback,
     required this.userType,
-    this.restaurantID,
+    required this.userID,
   });
 
-  factory Complain.fromMap(Map<String, dynamic> data, String id, String restaurantID, String userType, String name) {
+  factory Complain.fromMap(Map<String, dynamic> data, String id, String userID, String userType, String name) {
     return Complain(
       id: id,
-      description: data['description'] as String?,
-      feedback: data['feedback'] as String?,
+      description: data['description'],
+      feedback: data['feedback'] ?? '',
       name: name,
       userType: userType,
-      restaurantID: restaurantID, 
+      userID: userID, 
     );
   }
 }

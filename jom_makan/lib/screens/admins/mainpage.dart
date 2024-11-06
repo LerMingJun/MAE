@@ -1,5 +1,6 @@
 // lib/screens/mainpage.dart
 import 'package:flutter/material.dart';
+import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/complain.dart';
@@ -28,6 +29,7 @@ class _MainPageState extends State<MainPage> {
       Provider.of<RestaurantProvider>(context, listen: false)
           .fetchUnapprovedRestaurants();
       Provider.of<UserProvider>(context, listen: false).fetchAllUsers();
+      Provider.of<ComplainProvider>(context, listen: false).fetchComplains();
     });
   }
 
@@ -44,26 +46,22 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
-
+    final complainProvider = Provider.of<ComplainProvider>(context);
     final List<Map<String, String>> pendingApprovals = [
+          {
+      "title": "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
+      "subtitle": "Please check the application status.",
+      "status": "Approval required"
+    },
+    {
+      "title": "Unresolved Complaint (${complainProvider.unresolvedComplainCount})",
+      "subtitle": "Check for pending resolve complaints.",
+      "status": "Complaints review required"
+    },
       {
-        "title":
-            "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
-        "subtitle": "Please check the application status.",
-        "time": "Submitted: 2 days ago",
-        "status": "Approval required"
-      },
-      {
-        "title": "New Restaurant Application",
-        "subtitle": "Check for initial review.",
-        "time": "Submitted: 3 days ago",
-        "status": "Initial review required"
-      },
-      {
-        "title": "Re-approval Needed",
-        "subtitle": "Previous issues resolved.",
-        "time": "Submitted: 5 days ago",
-        "status": "Final review pending"
+        "title": "Update Store Information",
+        "subtitle": "Keep details accurate for customer trust.",
+        "status": "Review Regurlarly"
       },
     ];
 
@@ -86,14 +84,7 @@ class _MainPageState extends State<MainPage> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Notification action
-            },
-          ),
-        ],
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -108,32 +99,39 @@ class _MainPageState extends State<MainPage> {
             const SizedBox(height: 16),
 
             // Carousel Section
-            SizedBox(
-              height: 130,
-              child: PageView.builder(
-                itemCount: pendingApprovals.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentCarouselIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      if (index == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const UnapprovedRestaurantList()),
-                        );
-                      }
-                    },
-                    child: _buildCarouselCard(pendingApprovals[index]),
-                  );
-                },
-              ),
-            ),
+SizedBox(
+  height: 130,
+  child: PageView.builder(
+    itemCount: pendingApprovals.length,
+    onPageChanged: (index) {
+      setState(() {
+        _currentCarouselIndex = index;
+      });
+    },
+    itemBuilder: (context, index) {
+      return InkWell(
+        onTap: () {
+          if (index == 0) {
+            // Redirect to Unapproved Restaurant List for the first carousel card
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const UnapprovedRestaurantList()),
+            );
+          } else if (index == 1) {
+            // Redirect to Complaints Page for the second carousel card
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ComplainsPage()),
+            );
+          }
+        },
+        child: _buildCarouselCard(pendingApprovals[index]),
+      );
+    },
+  ),
+),
+
 
             // Carousel Indicator
             Row(
@@ -223,7 +221,6 @@ class _MainPageState extends State<MainPage> {
                     },
                     child: _buildGridItem(Icons.info, 'Info'),
                   ),
-                  _buildGridItem(Icons.local_offer, 'Promotion'),
                 ]),
             const SizedBox(height: 30),
 
@@ -316,11 +313,6 @@ class _MainPageState extends State<MainPage> {
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.access_time, color: Colors.black54, size: 16),
-              const SizedBox(width: 4),
-              Text(data['time']!,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
-              const SizedBox(width: 16),
               InkWell(
                 onTap: () {
                   Navigator.push(

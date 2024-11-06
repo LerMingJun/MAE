@@ -72,4 +72,29 @@ class ComplainRepository {
    return complains;
  }
 
+    Future<void> editComplain(
+Complain complain
+  ) async {
+  try {
+    Map<String, dynamic> updatedData = {
+      'feedback': complain.feedback,
+    };
+    if (complain.userType == 'user') {
+      // Update the user document in Firestore
+      await _firestore.collection('users').doc(complain.userID).collection('complain').doc(complain.id).update(updatedData);
+    } else if (complain.userType == 'restaurant') {
+          await _firestore.collection('restaurants').doc(complain.userID).collection('complain').doc(complain.id).update(updatedData);
+
+    } else {
+      throw Exception('Invalid user type');
+    }
+    // Update the store document in Firestore
+    await fetchRestaurantComplains();
+    
+  } catch (e) {
+    print('Error updating store: $e');
+    throw Exception('Error updating store: $e');
+  }
+}
+
 }

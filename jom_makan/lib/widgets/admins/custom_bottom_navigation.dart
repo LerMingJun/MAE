@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/screens/admins/edit_store_detail.dart';
 import 'package:jom_makan/screens/admins/mainpage.dart';
+import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/setting.dart';
 
 class CustomBottomNavigation extends StatelessWidget {
@@ -31,7 +32,12 @@ class CustomBottomNavigation extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => const StoreDetailsPage()),
           );
-          }else if (index == 3) {
+          } else if (index == 2) {
+          // Navigate to Settings when the last icon is tapped
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OverallAnalyticsScreen()),
+          );} else if (index == 3) {
           // Navigate to Settings when the last icon is tapped
           Navigator.push(
             context,
@@ -52,20 +58,8 @@ class CustomBottomNavigation extends StatelessWidget {
           icon: Icon(Icons.edit),
           label: '',
         ),
-        BottomNavigationBarItem(
-          icon: Stack(
-            children: [
-              Icon(Icons.kitchen),
-              Positioned(
-                right: 0,
-                top: 0,
-                child: CircleAvatar(
-                  radius: 5,
-                  backgroundColor: Colors.black,
-                ),
-              ),
-            ],
-          ),
+       BottomNavigationBarItem(
+          icon: Icon(Icons.analytics),
           label: '',
         ),
       BottomNavigationBarItem(

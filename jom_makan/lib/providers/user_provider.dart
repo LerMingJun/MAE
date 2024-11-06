@@ -54,14 +54,14 @@ class UserProvider with ChangeNotifier {
     _firebaseUser = firebaseUser;
     print("CURRENT: " + _firebaseUser.toString());
     if (_firebaseUser != null) {
-      _fetchUserData(_firebaseUser!.uid);
+      fetchUserDatabyUid(_firebaseUser!.uid);
     }
   }
 
   Future<void> initialize(auth.User? firebaseUser) async {
     _firebaseUser = firebaseUser;
     if (_firebaseUser != null) {
-      await _fetchUserData(_firebaseUser!.uid);
+      await fetchUserDatabyUid(_firebaseUser!.uid);
     }
     notifyListeners();
   }
@@ -91,7 +91,7 @@ class UserProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await _fetchUserData(_authRepository.currentUser!.uid);
+    await fetchUserDatabyUid(_authRepository.currentUser!.uid);
     await _fetchUserHistory();
     await _fetchUserStats();
 
@@ -104,7 +104,7 @@ class UserProvider with ChangeNotifier {
     if (_firebaseUser != null) {
       await _userRepository.updateUserData(_firebaseUser!.uid, data, imageFile);
       // Fetch the updated user data to reflect changes
-      await _fetchUserData(_firebaseUser!.uid);
+      await fetchUserDatabyUid(_firebaseUser!.uid);
     } else {
       print('No user is signed in.');
     }
@@ -121,7 +121,7 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserData(String uid) async {
+  Future<void> fetchUserDatabyUid(String uid) async {
     _userData = await _userRepository.getUserData(uid);
     notifyListeners(); // Notify listeners after fetching user data
   }
