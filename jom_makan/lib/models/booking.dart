@@ -8,7 +8,7 @@ class Booking {
   final int numberOfPeople;
   final Timestamp timeSlot;
   final String specialRequests;
-  final String status;
+  final String status; // Changed to String
   final String approvalComment;
   Restaurant? restaurantDetails;
 
@@ -19,8 +19,8 @@ class Booking {
     required this.numberOfPeople,
     required this.timeSlot,
     required this.specialRequests,
-    required this.status, // Default to false
-    this.approvalComment = '', // Default to empty string
+    required this.status,
+    this.approvalComment = '',
   });
 
   factory Booking.fromFirestore(DocumentSnapshot doc) {
@@ -33,8 +33,8 @@ class Booking {
       numberOfPeople: data['numberOfPeople'] ?? 0,
       timeSlot: data['timeSlot'],
       specialRequests: data['specialRequests'] ?? '',
-      status: data['status'] ?? false, // Read approval status
-      approvalComment: data['approvalComment'] ?? '', // Read comment
+      status: data['status'] ?? 'Pending', // Default to "Pending"
+      approvalComment: data['approvalComment'] ?? '',
     );
   }
 
@@ -45,8 +45,9 @@ class Booking {
       'numberOfPeople': numberOfPeople,
       'timeSlot': timeSlot,
       'specialRequests': specialRequests,
-      'status': status, // Save approval status
-      'approvalComment': approvalComment, // Save comment
+      'status': status, // Save status as string
+      'approvalComment': approvalComment,
     };
   }
+  
 }

@@ -81,17 +81,14 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height - 120,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  BookedRestaurantContent(),
-                  BookingHistoryContent(),
-                  FavoriteRestaurantTab(),
-                ],
-              ),
+          SliverFillRemaining(
+            child: TabBarView(
+              controller: _tabController,
+              children: const [
+                BookedRestaurantContent(),
+                BookingHistoryContent(),
+                FavoriteRestaurantTab(),
+              ],
             ),
           ),
         ],
@@ -178,6 +175,7 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
                           builder: (context) => BookingDetailsPage(
                             restaurant: restaurant!,
                             booking: booking,
+                            isPastBooking: false,
                           ),
                         ),
                       );
@@ -269,6 +267,7 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
                           builder: (context) => BookingDetailsPage(
                             restaurant: restaurant!,
                             booking: booking,
+                            isPastBooking: true,
                           ),
                         ),
                       );

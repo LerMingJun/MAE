@@ -15,6 +15,7 @@ import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:jom_makan/screens/onboarding/onboarding_screen.dart';
 import 'package:jom_makan/screens/user/addPost.dart';
+import 'package:jom_makan/screens/user/allReviews.dart';
 import 'package:jom_makan/screens/user/bookmark.dart';
 import 'package:jom_makan/screens/user/community.dart';
 import 'package:jom_makan/screens/user/editPost.dart';
@@ -108,6 +109,7 @@ class MyApp extends StatelessWidget {
               '/schedule': (context) => const Schedule(), // User schedule screen
               '/restaurantList': (context) => const RestaurantsPage(), // Restaurant list screen
               '/restaurantManagement': (context) => const RestaurantManagementPage(), // Restaurant management screen
+              
             },
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/restaurantDetails') {

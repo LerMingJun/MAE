@@ -15,6 +15,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/screens/user/restaurantDetails.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -261,7 +262,7 @@ class _HomeState extends State<Home> {
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
-                  child: Text('Suggest Random Restaurant'),
+                  child: Text('Suggest Random Restaurant', style: TextStyle(fontSize: 14),),
                 ),
               ),
             ),
@@ -309,7 +310,7 @@ class _HomeState extends State<Home> {
                   ),
                   child: Text(
                     'Enter Address Manually',
-                    style: TextStyle(fontSize: 16), // Adjust the font size here
+                    style: TextStyle(fontSize: 14), // Adjust the font size here
                   ),
                 ),
               ),
@@ -329,7 +330,7 @@ class _HomeState extends State<Home> {
                   ),
                   child: Text(
                     'Refresh Location',
-                    style: TextStyle(fontSize: 16), // Adjust the font size here
+                    style: TextStyle(fontSize: 14), // Adjust the font size here
                   ),
                 ),
               ),
@@ -420,13 +421,27 @@ class _HomeState extends State<Home> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(height: 10),
             Image.network(restaurant.image),
             const SizedBox(height: 10),
-            Text(restaurant.intro),
             Text('Rating: ${restaurant.averageRating}'),
           ],
         ),
         actions: [
+          // New button to navigate to the restaurant details page
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RestaurantDetailsScreen(restaurant: restaurant),
+                ),
+              );
+            },
+            child: const Text('View Details'),
+          ),
+          // Close button
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),

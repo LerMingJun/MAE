@@ -4,18 +4,22 @@ import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/booking.dart';
+import 'package:jom_makan/screens/user/restaurantManage.dart';
 import 'package:provider/provider.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 
 class BookingDetailsPage extends StatelessWidget {
   final Restaurant restaurant;
   final Booking booking;
+  final bool isPastBooking;
 
   const BookingDetailsPage({
     super.key,
     required this.restaurant,
     required this.booking,
+    required this.isPastBooking,
   });
+
   // Method to get the address from latitude and longitude
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -33,7 +37,7 @@ class BookingDetailsPage extends StatelessWidget {
     switch (status) {
       case 'Pending':
         return Colors.blue;
-      case 'Booked':
+      case 'Approved':
         return Colors.green;
       case 'Rejected':
         return Colors.red;
@@ -115,7 +119,8 @@ class BookingDetailsPage extends StatelessWidget {
 
               // Tags
               if (restaurant.tags.isNotEmpty) ...[
-                const Text("Tags:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Tags:",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 Wrap(
                   spacing: 8.0,
                   children: restaurant.tags.map((tag) {
@@ -144,7 +149,8 @@ class BookingDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 decoration: BoxDecoration(
                   color: _getStatusColor(booking.status).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -164,20 +170,40 @@ class BookingDetailsPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _showEditBookingDialog(context, booking);
-                    },
-                    child: const Text('Edit Booking'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // _cancelBooking(context, booking.id);
-                    },
-                    child: const Text('Cancel Booking'),
-                  ),
+                  if (isPastBooking == false) ...[
+                    if (booking.status == 'Pending' ||
+                        booking.status == 'pending') ...[
+                      ElevatedButton(
+                        onPressed: () {
+                          _showEditBookingDialog(context, booking);
+                        },
+                        child: const Text('Edit Booking'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _cancelBooking(context, booking.bookingId);
+                        },
+                        child: const Text('Cancel Booking'),
+                      ),
+                    ],
+                    // Show only the Cancel button if the status is Approved
+                    if (booking.status == 'Approved' ||
+                        booking.status == 'approved') ...[
+                      ElevatedButton(
+                        onPressed: () {
+                          _cancelBooking(context, booking.bookingId);
+                        },
+                        child: const Text('Cancel Booking'),
+                      ),
+                    ],
+                    // Do not show any buttons if the status is Cancelled or Completed
+                    if (booking.status == 'Cancelled' ||
+                        booking.status == 'Completed') ...[
+                      // No buttons to display
+                    ],
+                  ]
                 ],
-              ),
+              )
             ],
           ),
         ),
@@ -187,24 +213,92 @@ class BookingDetailsPage extends StatelessWidget {
 
   // Method to show the edit booking dialog
   void _showEditBookingDialog(BuildContext context, Booking booking) {
+    final bookingProvider =
+        Provider.of<BookingProvider>(context, listen: false);
+    // Create controllers for editable fields
+    final TextEditingController peopleController =
+        TextEditingController(text: booking.numberOfPeople.toString());
+    final TextEditingController requestController =
+        TextEditingController(text: booking.specialRequests);
+    DateTime selectedDateTime = booking.timeSlot.toDate();
+
+    // Function to show date and time picker
+    Future<void> _pickDateTime(BuildContext context) async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: selectedDateTime,
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100),
+      );
+
+      if (pickedDate != null) {
+        TimeOfDay? pickedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(selectedDateTime),
+        );
+
+        if (pickedTime != null) {
+          selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        }
+      }
+    }
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Edit Booking'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Add form fields for editing booking if necessary
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Number of People',
-                  hintText: booking.numberOfPeople.toString(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Number of People Field
+                TextField(
+                  controller: peopleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Number of People',
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              // Other fields can be added here as needed
-            ],
+                const SizedBox(height: 10),
+
+                // Special Request Field
+                TextField(
+                  controller: requestController,
+                  decoration: const InputDecoration(
+                    labelText: 'Special Requests',
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Date and Time Picker
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Booking Date:'),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () async {
+                          await _pickDateTime(context);
+                        },
+                        child: Text(
+                          DateFormat('MMMM dd, yyyy – hh:mm a')
+                              .format(selectedDateTime),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -215,8 +309,45 @@ class BookingDetailsPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // Handle the actual booking update here
-                Navigator.pop(context);
+                final updatedPeople = int.tryParse(peopleController.text) ??
+                    booking.numberOfPeople;
+                final updatedRequests = requestController.text;
+                final updatedDateTime = Timestamp.fromDate(selectedDateTime);
+
+                final updatedBooking = Booking(
+                  bookingId: booking.bookingId,
+                  userId: booking.userId,
+                  restaurantId: booking.restaurantId,
+                  timeSlot: updatedDateTime,
+                  numberOfPeople: updatedPeople,
+                  specialRequests: updatedRequests,
+                  status: booking.status,
+                );
+
+                bookingProvider.updateBooking(updatedBooking).then((_) {
+                  // After the update, navigate back and refresh the data
+                  Navigator.pop(context); // Close the edit dialog
+                  // Push the page again with the updated data
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingDetailsPage(
+                        restaurant:
+                            restaurant, // Pass the updated restaurant if needed
+                        booking: updatedBooking,
+                        isPastBooking: false,
+                      ),
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Booking updated successfully')),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to update booking')),
+                  );
+                });
               },
               child: const Text('Save Changes'),
             ),
@@ -226,19 +357,69 @@ class BookingDetailsPage extends StatelessWidget {
     );
   }
 
-  // Method to cancel booking
-  // void _cancelBooking(BuildContext context, String bookingId) {
-  //   final bookingProvider =
-  //       Provider.of<BookingProvider>(context, listen: false);
-  //   bookingProvider.cancelBooking(bookingId).then((_) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Booking Cancelled')),
-  //     );
-  //     Navigator.pop(context); // Close the BookingDetailsPage
-  //   }).catchError((error) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to cancel booking')),
-  //     );
-  //   });
-  // }
+  void _cancelBooking(BuildContext context, String bookingId) {
+    final bookingProvider =
+        Provider.of<BookingProvider>(context, listen: false);
+
+    // Show a confirmation dialog before proceeding
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Cancellation'),
+          content: const Text('Are you sure you want to cancel this booking?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Proceed with the cancellation
+                final updatedBooking = Booking(
+                  bookingId: bookingId,
+                  userId: booking.userId,
+                  restaurantId: booking.restaurantId,
+                  timeSlot: booking.timeSlot,
+                  numberOfPeople: booking.numberOfPeople,
+                  specialRequests: booking.specialRequests,
+                  status: "Cancelled",
+                );
+
+                // Call the cancelBooking method from the provider
+                bookingProvider.updateBooking(updatedBooking).then((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Booking Cancelled')),
+                  );
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingDetailsPage(
+                        restaurant:
+                            restaurant, // Pass the updated restaurant if needed
+                        booking: updatedBooking,
+                        isPastBooking: true,
+                      ),
+                    ),
+                  );
+                }).catchError((error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to cancel booking')),
+                  );
+                });
+
+                // Close the dialog
+                Navigator.pop(context);
+              },
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close the dialog without doing anything
+                Navigator.pop(context);
+              },
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

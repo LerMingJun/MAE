@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/screens/user/addBooking.dart';
 import 'package:jom_makan/screens/user/addReview.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/screens/user/allReviews.dart';
 import 'package:jom_makan/screens/user/fullImgae.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
@@ -256,8 +258,8 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         // Display each day in the sorted order
         ...sortedOperatingHours.map((entry) {
           return Padding(
-            padding:
-                const EdgeInsets.only(left: 10, top: 4), // Add padding above each entry
+            padding: const EdgeInsets.only(
+                left: 10, top: 4), // Add padding above each entry
             child: Text(
                 "${entry.key}: ${entry.value.open} - ${entry.value.close}"),
           );
@@ -285,6 +287,9 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   Widget _buildReviewsSection(ReviewProvider reviewProvider) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final User? user = userProvider.userData;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -294,10 +299,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             const Text('Reviews:', style: TextStyle(fontSize: 20)),
             TextButton(
               onPressed: () {
-                Navigator.pushNamed(
+                Navigator.push(
                   context,
-                  '/allReviews',
-                  arguments: widget.restaurant.id,
+                  MaterialPageRoute(
+                    builder: (context) => AllReviewsScreen(
+                      restaurantId: widget.restaurant.id,
+                      user: user,
+                    ),
+                  ),
                 );
               },
               child: const Text('View All Reviews'),
@@ -350,9 +359,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
-              Text(
-                'Rating: $rating',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: List.generate(
+                  5,
+                  (starIndex) => Icon(
+                    starIndex < rating ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                    size: 16,
+                  ),
+                ),
               ),
             ],
           ),
@@ -394,6 +409,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 builder: (context) => LeaveReviewScreen(
                   restaurantId: widget.restaurant.id,
                   userId: userId ?? '',
+                  restaurant: widget.restaurant,
                 ),
               ),
             );

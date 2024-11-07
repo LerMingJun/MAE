@@ -500,7 +500,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
     switch (widget.status) {
       case 'Pending':
         return Colors.blue;
-      case 'Booked':
+      case 'Approved':
         return Colors.green;
       case 'Rejected':
         return Colors.red;
