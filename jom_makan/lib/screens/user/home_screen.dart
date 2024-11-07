@@ -12,25 +12,27 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'events.dart'; 
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int _page = 0;
-  GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
-  PageController _pageController = PageController();
+  final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
+  final PageController _pageController = PageController();
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _pages = [
-      Home(),
-      RestaurantsPage(),
-      RestaurantManagementPage(),
-      Community(),
-      Profile(),
+      const Home(),
+      const RestaurantsPage(),
+      const RestaurantManagementPage(),
+      const Community(),
+      const Profile(),
     ];
   }
 
@@ -44,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         controller: _pageController,
         children: _pages,
         onPageChanged: (index) {
@@ -57,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
         key: _bottomNavigationKey,
         index: _page,
         height: 60.0,
-        items: <Widget>[
+        items: const <Widget>[
           Icon(Icons.home, size: 30, color: AppColors.primary),
           Icon(Icons.grid_view, size: 30, color: AppColors.primary),
           Icon(Icons.bookmark_outline, size: 30, color: AppColors.primary),
@@ -68,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: AppColors.tertiary,
         backgroundColor: AppColors.background,
         animationCurve: Curves.easeInOut,
-        animationDuration: Duration(milliseconds: 600),
+        animationDuration: const Duration(milliseconds: 600),
         onTap: (index) {
           _pageController.jumpToPage(index);
         },

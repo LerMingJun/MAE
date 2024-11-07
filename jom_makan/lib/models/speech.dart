@@ -3,19 +3,28 @@ import 'package:jom_makan/models/activity.dart';
 
 class Speech implements Activity {
   final String speechID;
+  @override
   final String image;
+  @override
   final String title;
+  @override
   final String organizer;
   final String organizerID;
+  @override
   final String location;
+  @override
   final Timestamp hostDate;
   final String description;
+  @override
   final String type;
   final String eventID;
   final String eventName;
   final String? recording;
+  @override
   final Timestamp createdAt;
+  @override
   final String status;
+  @override
   final List<String> tags; 
 
   Speech({
@@ -59,7 +68,7 @@ class Speech implements Activity {
       type: data['type'],
       eventID: data['eventID'],
       eventName: data['eventName'],
-      recording: data['recording'] ?? null,
+      recording: data['recording'],
       createdAt: data['createdAt'],
       status: data['status'],
       tags: List<String>.from(data['tags'] ?? []),

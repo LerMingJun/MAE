@@ -10,7 +10,7 @@ class FilterOptions extends StatefulWidget {
   final List<String> selectedTags;
   final String sortByRatingDesc;
 
-  FilterOptions({
+  const FilterOptions({super.key, 
     required this.onApplyFilters,
     required this.selectedFilter,
     required this.selectedTags,
@@ -40,7 +40,7 @@ class _FilterOptionsState extends State<FilterOptions> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -59,7 +59,7 @@ class _FilterOptionsState extends State<FilterOptions> {
               },
               child: Column(
                 children: [
-                  SizedBox(height: 10), // Add SizedBox before the options
+                  const SizedBox(height: 10), // Add SizedBox before the options
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -73,7 +73,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ],
                   ),
                   if (_isCuisineExpanded)
-                    SizedBox(height: 10), // Add some space after the drop-down
+                    const SizedBox(height: 10), // Add some space after the drop-down
                   if (_isCuisineExpanded)
                     Wrap(
                       spacing: 8.0,
@@ -86,8 +86,8 @@ class _FilterOptionsState extends State<FilterOptions> {
                                   color: isSelected
                                       ? Colors.white
                                       : AppColors.primary)),
-                          side: BorderSide(width: 0),
-                          shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 0),
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                           selected: isSelected,
@@ -108,7 +108,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 ],
               ),
             ),
-            Divider(),
+            const Divider(),
             // Tags Toggle Section
             GestureDetector(
               onTap: () {
@@ -118,7 +118,7 @@ class _FilterOptionsState extends State<FilterOptions> {
               },
               child: Column(
                 children: [
-                  SizedBox(height: 10), // Add SizedBox before the options
+                  const SizedBox(height: 10), // Add SizedBox before the options
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -132,7 +132,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ],
                   ),
                   if (_isTagsExpanded)
-                    SizedBox(height: 10), // Add some space after the drop-down
+                    const SizedBox(height: 10), // Add some space after the drop-down
                   if (_isTagsExpanded)
                     Wrap(
                       spacing: 8.0,
@@ -144,8 +144,8 @@ class _FilterOptionsState extends State<FilterOptions> {
                                   color: isSelected
                                       ? Colors.white
                                       : AppColors.primary)),
-                          side: BorderSide(width: 0),
-                          shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 0),
+                          shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(20)),
                           ),
                           selected: isSelected,
@@ -166,7 +166,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 ],
               ),
             ),
-            Divider(),
+            const Divider(),
             // Sort by Rating Section
             Text(
               'Sort by Rating',
@@ -185,7 +185,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                   },
                   activeColor: AppColors.primary,
                 ),
-                Text('High to Low'),
+                const Text('High to Low'),
                 Radio<String>(
                   value: 'Low to High',
                   groupValue: _sortByRatingDesc,
@@ -196,10 +196,10 @@ class _FilterOptionsState extends State<FilterOptions> {
                   },
                   activeColor: AppColors.primary,
                 ),
-                Text('Low to High'),
+                const Text('Low to High'),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             // Button to clear all filters
             CustomPrimaryButton(
               text: 'Clear All Filters',
@@ -212,7 +212,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 Navigator.of(context).pop();
               },
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             // Button to apply selected filters
             CustomPrimaryButton(
               text: 'Apply Filters',

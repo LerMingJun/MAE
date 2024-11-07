@@ -228,17 +228,17 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
                 child: ElevatedButton(
                   onPressed: isButtonEnabled ? saveDetail : null,
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.disabled)) {
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.disabled)) {
                           return Colors.grey;
                         }
                         return Theme.of(context).primaryColor;
                       },
                     ),
-                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.disabled)) {
+                    foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.disabled)) {
                           return Colors.grey;
                         }
                         return Colors.white;

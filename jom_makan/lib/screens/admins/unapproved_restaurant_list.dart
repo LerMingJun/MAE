@@ -47,7 +47,8 @@ class _RestaurantsPageState extends State<UnapprovedRestaurantList> with SingleT
   }
 
 // @override
-Widget build(BuildContext context) {
+@override
+  Widget build(BuildContext context) {
   final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
   // Filter to get only pending restaurants

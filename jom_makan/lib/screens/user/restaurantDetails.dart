@@ -3,17 +3,16 @@ import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/screens/user/addBooking.dart';
-import 'package:jom_makan/screens/user/addReview.dart'; // Import the Leave Review screen
+import 'package:jom_makan/screens/user/addReview.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/screens/user/fullImgae.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
-// import 'package:jom_makan/models/operatingHours.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
   final Restaurant restaurant;
 
-  RestaurantDetailsScreen({Key? key, required this.restaurant})
-      : super(key: key);
+  const RestaurantDetailsScreen({super.key, required this.restaurant});
 
   @override
   _RestaurantDetailsScreenState createState() =>
@@ -30,16 +29,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final String? userId = userProvider.firebaseUser?.uid;
 
-    // Fetch favorites when the screen is initialized
     if (userId != null && !_favoritesFetched) {
-      // Use addPostFrameCallback to call fetchFavorites after the build
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Provider.of<FavoriteProvider>(context, listen: false)
             .fetchFavorites(userId)
             .then((_) {
           if (mounted) {
             setState(() {
-              _favoritesFetched = true; // Mark favorites as fetched
+              _favoritesFetched = true;
             });
           }
         });
@@ -60,7 +57,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
     final reviewProvider = Provider.of<ReviewProvider>(context);
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
 
-    // Clear reviews when navigating to a new restaurant
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_reviewsFetched) {
         reviewProvider.clearReviews();
@@ -69,7 +65,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       }
     });
 
-    // Ensure favorite status is updated only after fetching favorites
     bool isFavorited = _favoritesFetched
         ? favoriteProvider.isFavorited(widget.restaurant.id)
         : false;
@@ -93,7 +88,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                 } else {
                   favoriteProvider.addFavorite(userId, widget.restaurant.id);
                 }
-                // Refresh favorite status after adding/removing
                 setState(() {
                   isFavorited = !isFavorited;
                 });
@@ -108,213 +102,316 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              widget.restaurant.image.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        widget.restaurant.image,
-                        height: 200,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+              _buildRestaurantImage(),
+              const SizedBox(height: 16),
+              _buildRestaurantIntro(),
+              const SizedBox(height: 16),
+              _buildCuisineType(),
+              const SizedBox(height: 16),
+              _buildLocation(),
+              const SizedBox(height: 16),
+              _buildOperatingHours(),
+              const SizedBox(height: 16),
+              _buildTags(),
+              const Divider(),
+              const Text("Menu Images",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              widget.restaurant.menu.isNotEmpty
+                  ? SizedBox(
+                      height: 150,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.restaurant.menu.length,
+                        itemBuilder: (context, index) {
+                          final imageUrl = widget.restaurant.menu[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FullScreenImageViewer(
+                                    imageUrls: widget
+                                        .restaurant.menu, // All menu images
+                                    initialIndex:
+                                        index, // Start at the tapped image
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                          child: Text("Image Not Available")),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     )
-                  : Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Center(child: Text('No Image Available')),
-                    ),
+                  : const Text("No menu images available",
+                      style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 16),
-              Text(widget.restaurant.intro,
-                  style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 8),
-              Text("Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              FutureBuilder<String>(
-                future: getAddressFromCoordinates(
-                    widget.restaurant.location.latitude,
-                    widget.restaurant.location.longitude),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else {
-                    return Text("Location: ${snapshot.data}",
-                        style: const TextStyle(fontWeight: FontWeight.bold));
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-              Text("Operating Hours:",
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: widget.restaurant.operatingHours.entries.map((entry) {
-                  return Text(
-                      "${entry.key}: ${entry.value.open} - ${entry.value.close}");
+              const Divider(),
+              _buildReviewsSection(reviewProvider),
+              const Divider(),
+              _buildActionButtons(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRestaurantImage() {
+    return widget.restaurant.image.isNotEmpty
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Image.network(
+              widget.restaurant.image,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          )
+        : Container(
+            height: 200,
+            color: Colors.grey[300],
+            child: const Center(child: Text('No Image Available')),
+          );
+  }
+
+  Widget _buildRestaurantIntro() {
+    return Text(
+      widget.restaurant.intro,
+      style: const TextStyle(fontSize: 16),
+    );
+  }
+
+  Widget _buildCuisineType() {
+    return Text(
+      "Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildLocation() {
+    return FutureBuilder<String>(
+      future: getAddressFromCoordinates(
+        widget.restaurant.location.latitude,
+        widget.restaurant.location.longitude,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else {
+          return Text(
+            "Location: ${snapshot.data}",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildOperatingHours() {
+    // Define the correct order for the days of the week
+    final orderedDays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+
+    // Sort the operating hours based on the defined order
+    final sortedOperatingHours = widget.restaurant.operatingHours.entries
+        .toList()
+      ..sort((a, b) =>
+          orderedDays.indexOf(a.key).compareTo(orderedDays.indexOf(b.key)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Operating Hours:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        // Display each day in the sorted order
+        ...sortedOperatingHours.map((entry) {
+          return Padding(
+            padding:
+                const EdgeInsets.only(left: 10, top: 4), // Add padding above each entry
+            child: Text(
+                "${entry.key}: ${entry.value.open} - ${entry.value.close}"),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildTags() {
+    return widget.restaurant.tags.isNotEmpty
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Tags:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Wrap(
+                spacing: 8.0,
+                children: widget.restaurant.tags.map((tag) {
+                  return Chip(label: Text(tag));
                 }).toList(),
               ),
-              const SizedBox(height: 16),
-              if (widget.restaurant.tags.isNotEmpty) ...[
-                const Text("Tags:",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Wrap(
-                  spacing: 8.0,
-                  children: widget.restaurant.tags.map((tag) {
-                    return Chip(label: Text(tag));
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Reviews:', style: TextStyle(fontSize: 20)),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/allReviews',
-                        arguments: widget.restaurant.id,
+            ],
+          )
+        : Container();
+  }
+
+  Widget _buildReviewsSection(ReviewProvider reviewProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Reviews:', style: TextStyle(fontSize: 20)),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/allReviews',
+                  arguments: widget.restaurant.id,
+                );
+              },
+              child: const Text('View All Reviews'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Consumer<ReviewProvider>(
+          builder: (context, reviewProvider, _) {
+            return reviewProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : reviewProvider.reviews.isEmpty
+                    ? const Text(
+                        'No reviews yet',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      )
+                    : SizedBox(
+                        height: 150,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: reviewProvider.reviews.length,
+                          itemBuilder: (context, index) {
+                            final review = reviewProvider.reviews[index];
+                            return _buildReviewCard(
+                                review.feedback, review.rating);
+                          },
+                        ),
                       );
-                    },
-                    child: const Text('View All Reviews'),
-                  ),
-                ],
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReviewCard(String feedback, double rating) {
+    return Container(
+      width: 250,
+      margin: const EdgeInsets.only(right: 10),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                feedback,
+                style: const TextStyle(fontSize: 16),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
-
-              // Horizontal scrollable reviews
-              Consumer<ReviewProvider>(
-                builder: (context, reviewProvider, _) {
-                  return reviewProvider.isLoading
-                      ? SizedBox(
-                          height: 100,
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      : reviewProvider.reviews.isEmpty
-                          ? Text(
-                              'No reviews yet',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey),
-                            )
-                          : Container(
-                              height:
-                                  150, // Set a fixed height for the review container
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: reviewProvider.reviews.length,
-                                itemBuilder: (context, index) {
-                                  final review = reviewProvider.reviews[index];
-                                  return Container(
-                                    width: 250, // Width of each review card
-                                    margin: const EdgeInsets.only(right: 10),
-                                    child: Card(
-                                      elevation: 4,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              review.feedback,
-                                              style: TextStyle(fontSize: 16),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              'Rating: ${review.rating}',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              // Action buttons arranged in two columns
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true, // Prevent scrolling issues
-                physics:
-                    NeverScrollableScrollPhysics(), // Disable GridView scrolling
-                childAspectRatio: 3, // Maintain aspect ratio
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(
-                        8.0), // Add padding around the button
-                    child: SizedBox(
-                      width: 120, // Fixed width for buttons
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final userId =
-                              Provider.of<UserProvider>(context, listen: false)
-                                  .firebaseUser
-                                  ?.uid;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddBookingScreen(
-                                restaurant: widget.restaurant,
-                                userId: userId ?? '',
-                              ),
-                            ),
-                          );
-                        },
-                        child: Center(
-                          child: const Text(
-                            "Make a Reservation",
-                            textAlign: TextAlign.center, // Center the text
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(
-                        8.0), // Add padding around the button
-                    child: SizedBox(
-                      width: 120, // Fixed width for buttons
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final userId =
-                              Provider.of<UserProvider>(context, listen: false)
-                                  .firebaseUser
-                                  ?.uid;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LeaveReviewScreen(
-                                restaurantId: widget.restaurant.id,
-                                userId: userId ?? '',
-                              ),
-                            ),
-                          );
-                        },
-                        child: Center(
-                          child: const Text(
-                            "Leave a Review",
-                            textAlign: TextAlign.center, // Center the text
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                'Rating: $rating',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final userId =
+        Provider.of<UserProvider>(context, listen: false).firebaseUser?.uid;
+
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 3,
+      children: [
+        _buildActionButton(
+          "Make a Reservation",
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddBookingScreen(
+                  restaurant: widget.restaurant,
+                  userId: userId ?? '',
+                ),
+              ),
+            );
+          },
+        ),
+        _buildActionButton(
+          "Leave a Review",
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LeaveReviewScreen(
+                  restaurantId: widget.restaurant.id,
+                  userId: userId ?? '',
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(String label, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Center(
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
           ),
         ),
       ),

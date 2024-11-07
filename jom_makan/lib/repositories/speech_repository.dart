@@ -15,7 +15,7 @@ class SpeechRepository {
       return speeches;
     } catch (e) {
       print('Error fetching events: $e');
-      throw e;
+      rethrow;
     }
 
   }
@@ -32,7 +32,7 @@ class SpeechRepository {
 
     } catch (e) {
       print('Error fetching Speech: $e');
-      throw e;
+      rethrow;
     }
   }
 

@@ -8,10 +8,10 @@ class LeaveReviewScreen extends StatefulWidget {
   final String userId;
 
   const LeaveReviewScreen({
-    Key? key,
+    super.key,
     required this.restaurantId,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   _LeaveReviewScreenState createState() => _LeaveReviewScreenState();
@@ -40,7 +40,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
     } else {
       // Show an error message if feedback is empty or rating is 0
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please provide feedback and a rating.')),
+        const SnackBar(content: Text('Please provide feedback and a rating.')),
       );
     }
   }
@@ -48,7 +48,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Leave a Review')),
+      appBar: AppBar(title: const Text('Leave a Review')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -80,10 +80,10 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                 // Optional: Handle text changes
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitReview,
-              child: Text('Submit Review'),
+              child: const Text('Submit Review'),
             ),
           ],
         ),

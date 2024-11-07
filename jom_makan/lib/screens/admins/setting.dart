@@ -127,10 +127,10 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               if (storeProvider.storeNumber != null)
                 Text(
                   formatPhoneNumber(storeProvider.storeNumber ?? ''),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 )
               else
-                Text(
+                const Text(
                   'Not Available',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
@@ -242,7 +242,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HelpCenterScreen()),
+                MaterialPageRoute(builder: (context) => const HelpCenterScreen()),
               );
             },
           ),

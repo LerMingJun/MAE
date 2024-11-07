@@ -50,7 +50,7 @@ class CustomOptOutButton extends StatelessWidget {
         textStyle: GoogleFonts.poppins(fontSize: 16),
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(
-          side: BorderSide(color: AppColors.placeholder),
+          side: const BorderSide(color: AppColors.placeholder),
           borderRadius: BorderRadius.circular(5), // Border radius
         ),
       ),
@@ -90,7 +90,7 @@ class CustomIconButton extends StatelessWidget {
             imagePath,
             height: 25.0,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Text(text, style: GoogleFonts.lato(color: Colors.black))
         ],
       ),

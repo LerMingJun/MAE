@@ -15,7 +15,7 @@ class EventProvider with ChangeNotifier {
   final EventRepository _eventRepository = EventRepository();
   final AuthRepository _authRepository = AuthRepository();
 
-  List<Event> _events = [];
+  final List<Event> _events = [];
   Event? _event;
   List<Activity>? _activities = [];
   List<Activity>? _allActivities = [];

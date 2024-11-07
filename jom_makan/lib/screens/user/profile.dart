@@ -61,8 +61,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         backgroundColor: Colors.red,
         foregroundColor: Colors.white,
         elevation: 5,
-        shape: CircleBorder(),
-        child: Icon(Icons.logout_outlined),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.logout_outlined),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
@@ -92,7 +92,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               onPressed: () {
                                 Navigator.pushNamed(context, '/editProfile');
                               },
-                              icon: Icon(Icons.mode_edit_outlined),
+                              icon: const Icon(Icons.mode_edit_outlined),
                               iconSize: 25,
                             ),
                           ],
@@ -100,8 +100,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       ],
                     ),
                     Container(
-                      padding: EdgeInsets.all(2.0), // Border width
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.all(2.0), // Border width
+                      decoration: const BoxDecoration(
                         color: AppColors.primary, // Border color
                         shape: BoxShape.circle,
                       ),
@@ -114,7 +114,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Card(
                   elevation: 7,
                   shape: RoundedRectangleBorder(
@@ -128,11 +128,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       children: [
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.park_outlined,
                               color: AppColors.primary,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               'My Proudly Stats',
                               style: GoogleFonts.lato(
@@ -141,17 +141,17 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             //IconButton(onPressed: _handleRefresh, icon: Icon(Icons.refresh)),
                             InkWell(
                               onTap: _handleRefresh,
-                              child: Icon(Icons.autorenew),
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: const BorderRadius.all(Radius.circular(10)),
                               splashColor: AppColors.secondary,
+                              child: Icon(Icons.autorenew),
                             )
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -173,8 +173,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
-                Container(
+                const SizedBox(height: 20),
+                SizedBox(
                   height: 38.0,
                   child: TabBar(
                     splashFactory: NoSplash.splashFactory,
@@ -193,14 +193,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         child: Container(
                           width: double.infinity,
                           alignment: Alignment.center,
-                          child: Text('Posts'),
+                          child: const Text('Posts'),
                         ),
                       ),
                       Tab(
                         child: Container(
                           width: double.infinity,
                           alignment: Alignment.center,
-                          child: Text('History'),
+                          child: const Text('History'),
                         ),
                       ),
                     ],
@@ -213,7 +213,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       controller: _tabController,
                       children: [
                         PostContent(),
-                        HistoryContent(),
+                        const HistoryContent(),
                       ],
                     ),
                  ),
@@ -230,25 +230,25 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 }
 
 class PostContent extends StatelessWidget {
-  PostContent({super.key});
+  const PostContent({super.key});
 
   @override
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
 
     if (postProvider.isLoading) {
-      return Center(child: CustomLoading(text: "Fetching Posts..."));
+      return const Center(child: CustomLoading(text: "Fetching Posts..."));
     } else if (postProvider.postsByUserID?.isEmpty ?? false) {
-      return EmptyWidget(
+      return const EmptyWidget(
           text:
               'No Posts Added Yet.\nLooking forward for your first post in Folks!',
           image: 'assets/no-post.png');
     } else {
       return Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: GridView.builder(
-          padding: EdgeInsets.all(4.0),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          padding: const EdgeInsets.all(4.0),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3, // 3 images per row
             crossAxisSpacing: 7.0, // Horizontal spacing between images
             mainAxisSpacing: 7.0, // Vertical spacing between images
@@ -256,6 +256,7 @@ class PostContent extends StatelessWidget {
           itemCount: postProvider.postsByUserID?.length ?? 0,
           itemBuilder: (context, index) {
             final post = postProvider.postsByUserID![index];
+            return null;
             // return InkWell(
             //   onTap: () {
             //     Navigator.pushNamed(context, '/userPost',
@@ -293,9 +294,9 @@ class HistoryContent extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context);
 
     if (userProvider.isHistoryLoading ?? false) {
-      return Center(child: CustomLoading(text: "Fetching History..."));
+      return const Center(child: CustomLoading(text: "Fetching History..."));
     } else if (userProvider.history?.isEmpty ?? false) {
-      return EmptyWidget(
+      return const EmptyWidget(
           text:
               'Oops! Looks like you have not participated in any activities yet.',
           image: 'assets/oops.png');
@@ -315,13 +316,13 @@ class HistoryContent extends StatelessWidget {
             return Card(
               color: Colors.white,
               surfaceTintColor: Colors.white,
-              margin: EdgeInsets.symmetric(vertical: 5),
+              margin: const EdgeInsets.symmetric(vertical: 5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               elevation: 3,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 height: 80,
                 child: Row(
                   children: [
@@ -334,7 +335,7 @@ class HistoryContent extends StatelessWidget {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return CustomImageLoading(width: 100);
+                            return const CustomImageLoading(width: 100);
                           }
                         },
                       ),
@@ -356,9 +357,9 @@ class HistoryContent extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-                            SizedBox(height: 5),
+                            const SizedBox(height: 5),
                             Text(
-                              "** You participated this activity on ${formattedDate}!",
+                              "** You participated this activity on $formattedDate!",
                               style: GoogleFonts.poppins(
                                   fontSize: 12, color: AppColors.placeholder),
                               overflow: TextOverflow.ellipsis,

@@ -56,7 +56,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
@@ -117,15 +117,15 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                           ),
                           IconButton(
                             onPressed: _showFilterOptions,
-                            icon: Icon(Icons.filter_list),
+                            icon: const Icon(Icons.filter_list),
                             color: AppColors.primary,
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Expanded(
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(maxHeight: 40),
+                          constraints: const BoxConstraints(maxHeight: 40),
                           child: TextField(
                             onChanged: (text) {
                               _searchRestaurants(text);
@@ -136,18 +136,18 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                             decoration: InputDecoration(
                               hintText: 'Search Restaurants',
                               hintStyle: GoogleFonts.poppins(fontSize: 12),
-                              suffixIcon: Icon(Icons.search, size: 20),
+                              suffixIcon: const Icon(Icons.search, size: 20),
                               filled: true,
                               isDense: true,
                               fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 10.0, vertical: 8.0),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide:
-                                    BorderSide(color: AppColors.primary),
+                                    const BorderSide(color: AppColors.primary),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
@@ -160,11 +160,11 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                 expandedHeight: 80,
               ),
               if (isSearching)
-                SliverFillRemaining(
+                const SliverFillRemaining(
                   child: CustomLoading(text: 'Searching...'),
                 )
               else if (restaurantProvider.isLoading)
-                SliverFillRemaining(
+                const SliverFillRemaining(
                   child: CustomLoading(text: 'Fetching Restaurants...'),
                 )
               else if (restaurantProvider.restaurants.isEmpty)

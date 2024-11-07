@@ -47,7 +47,7 @@ class ParticipationRepository {
 
         } catch (e) {
           print('Error updating points: $e');
-          throw e;
+          rethrow;
         }
       }
     } catch (e) {
@@ -98,7 +98,7 @@ class ParticipationRepository {
           print('Points updated successfully');
         } catch (e) {
           print('Error updating points: $e');
-          throw e;
+          rethrow;
         }
       }
     } catch (e) {
@@ -122,7 +122,7 @@ class ParticipationRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -144,7 +144,7 @@ class ParticipationRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 

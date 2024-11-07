@@ -268,7 +268,7 @@ SizedBox(
 
   // Helper method to build each grid item
   Widget _buildGridItem(IconData icon, String label) {
-    return Container(
+    return SizedBox(
       width: 60,
       height: 60,
       child: Column(

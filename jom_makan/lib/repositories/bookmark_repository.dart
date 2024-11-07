@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/bookmark.dart';
-import 'package:jom_makan/models/project.dart';
-import 'package:jom_makan/models/speech.dart';
 
 class BookmarkRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

@@ -281,9 +281,9 @@ class RestaurantRepository {
       }
 
       // Sort by average rating if requested
-      if (sortByRatingDesc == 'true') {
+      if (sortByRatingDesc == 'High to Low') {
         restaurants.sort((a, b) => b.averageRating.compareTo(a.averageRating));
-      } else if (sortByRatingDesc == 'false') {
+      } else if (sortByRatingDesc == 'Low to High') {
         restaurants.sort((a, b) => a.averageRating.compareTo(b.averageRating));
       }
 

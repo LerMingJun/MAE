@@ -10,8 +10,7 @@ import 'package:geocoding/geocoding.dart';
 class RestaurantDetailsScreenAdmin extends StatelessWidget {
   final Restaurant restaurant;
 
-  RestaurantDetailsScreenAdmin({Key? key, required this.restaurant})
-      : super(key: key);
+  RestaurantDetailsScreenAdmin({super.key, required this.restaurant});
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -191,7 +190,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.grey),
                                 )
-                              : Container(
+                              : SizedBox(
                                   height:
                                       150, // Set a fixed height for the review container
                                   child: ListView.builder(

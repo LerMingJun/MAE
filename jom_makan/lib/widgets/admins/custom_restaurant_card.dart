@@ -34,7 +34,7 @@ class CustomVerticalCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 3,
-      child: Container(
+      child: SizedBox(
         height: 100,
         child: Row(
           children: [
@@ -132,7 +132,7 @@ class CustomHorizontalCard extends StatelessWidget {
               // Image
               Stack(
                 children: [
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: 160,
                     child: ClipRRect(

@@ -9,8 +9,8 @@ class EmptyWidget extends StatelessWidget {
   const EmptyWidget({
     required this.text,
     required this.image,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class EmptyWidget extends StatelessWidget {
           children: [
             Image.asset(image,
                 width: 200, fit: BoxFit.cover),
-                SizedBox(height:20),
+                const SizedBox(height:20),
             Text(
               text,
               style: GoogleFonts.poppins(

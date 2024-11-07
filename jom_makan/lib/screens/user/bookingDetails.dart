@@ -12,10 +12,10 @@ class BookingDetailsPage extends StatelessWidget {
   final Booking booking;
 
   const BookingDetailsPage({
-    Key? key,
+    super.key,
     required this.restaurant,
     required this.booking,
-  }) : super(key: key);
+  });
   // Method to get the address from latitude and longitude
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -50,11 +50,11 @@ class BookingDetailsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           restaurant.name,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_border),
+            icon: const Icon(Icons.favorite_border),
             onPressed: () {
               // Handle favorite button press
             },
@@ -100,13 +100,13 @@ class BookingDetailsPage extends StatelessWidget {
                 ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
                   } else {
                     return Text(
                       'Location: ${snapshot.data}',
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     );
                   }
                 },
@@ -115,7 +115,7 @@ class BookingDetailsPage extends StatelessWidget {
 
               // Tags
               if (restaurant.tags.isNotEmpty) ...[
-                Text("Tags:", style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Tags:", style: TextStyle(fontWeight: FontWeight.bold)),
                 Wrap(
                   spacing: 8.0,
                   children: restaurant.tags.map((tag) {
@@ -126,7 +126,7 @@ class BookingDetailsPage extends StatelessWidget {
               ],
 
               // Booking Details
-              Divider(),
+              const Divider(),
               const SizedBox(height: 10),
               Text(
                 'Booking Date: $formattedDate',
@@ -144,7 +144,7 @@ class BookingDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Container(
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 decoration: BoxDecoration(
                   color: _getStatusColor(booking.status).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -168,13 +168,13 @@ class BookingDetailsPage extends StatelessWidget {
                     onPressed: () {
                       _showEditBookingDialog(context, booking);
                     },
-                    child: Text('Edit Booking'),
+                    child: const Text('Edit Booking'),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       // _cancelBooking(context, booking.id);
                     },
-                    child: Text('Cancel Booking'),
+                    child: const Text('Cancel Booking'),
                   ),
                 ],
               ),
@@ -191,7 +191,7 @@ class BookingDetailsPage extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Booking'),
+          title: const Text('Edit Booking'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -211,14 +211,14 @@ class BookingDetailsPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 // Handle the actual booking update here
                 Navigator.pop(context);
               },
-              child: Text('Save Changes'),
+              child: const Text('Save Changes'),
             ),
           ],
         );

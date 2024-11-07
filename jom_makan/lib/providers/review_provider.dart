@@ -20,8 +20,9 @@ class ReviewProvider with ChangeNotifier {
  
   // Fetch initial reviews for a restaurant
   Future<void> fetchReviews(String restaurantId) async {
-    if (_isLoading || _reviews.isNotEmpty)
+    if (_isLoading || _reviews.isNotEmpty) {
       return; // Prevent multiple fetch calls
+    }
     print('Fetching reviews for restaurant: $restaurantId');
  
     _isLoading = true; // Set loading state

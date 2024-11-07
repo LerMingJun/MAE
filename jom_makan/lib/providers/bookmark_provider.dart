@@ -10,11 +10,11 @@ class BookmarkProvider with ChangeNotifier {
   final BookmarkRepository _bookmarkRepository = BookmarkRepository();
   final AuthRepository _authRepository = AuthRepository();
 
-  List<Bookmark> _bookmarks = [];
+  final List<Bookmark> _bookmarks = [];
   List<Bookmark> _events = [];
   List<Bookmark> _speeches = [];
   bool _isLoading = false;
-  bool _isRemoveDone = false;
+  final bool _isRemoveDone = false;
 
   List<Bookmark> get bookmarks => _bookmarks;
   List<Bookmark> get events => _events;

@@ -9,7 +9,7 @@ import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {
-  SignUp({super.key});
+  const SignUp({super.key});
 
   @override
   _SignUpState createState() => _SignUpState();
@@ -106,7 +106,7 @@ class _SignUpState extends State<SignUp> {
                         children: _selectedOptions.map((option) {
                           return Chip(
                             label: Text(option),
-                            deleteIcon: Icon(Icons.close),
+                            deleteIcon: const Icon(Icons.close),
                             onDeleted: () {
                               setState(() {
                                 _selectedOptions.remove(option);
@@ -165,7 +165,7 @@ class _SignUpState extends State<SignUp> {
                               context: context,
                               animType: AnimType.scale,
                               dialogType: DialogType.warning,
-                              body: Center(
+                              body: const Center(
                                 child: Text(
                                   'Password must be longer than 6 characters.',
                                   style: TextStyle(),
@@ -173,14 +173,14 @@ class _SignUpState extends State<SignUp> {
                               ),
                               btnOkOnPress: () {},
                               btnOkColor: AppColors.secondary,
-                            )..show();
+                            ).show();
                           }
                         } else {
                           AwesomeDialog(
                             context: context,
                             animType: AnimType.scale,
                             dialogType: DialogType.warning,
-                            body: Center(
+                            body: const Center(
                               child: Text(
                                 'Please fill in all relevant fields.',
                                 style: TextStyle(),
@@ -188,7 +188,7 @@ class _SignUpState extends State<SignUp> {
                             ),
                             btnOkOnPress: () {},
                             btnOkColor: AppColors.secondary,
-                          )..show();
+                          ).show();
                         }
                       },
                       text: "Register",
@@ -203,11 +203,11 @@ class _SignUpState extends State<SignUp> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SpinKitWanderingCubes(
+                      const SpinKitWanderingCubes(
                         color: AppColors.primary,
                         size: 70.0,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text("Registering...",
                           style: GoogleFonts.lato(
                               color: AppColors.primary, fontSize: 20))

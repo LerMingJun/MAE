@@ -35,10 +35,10 @@ class _RecordingState extends State<Recording> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recording For Speech'),
+        title: const Text('Recording For Speech'),
       ),
       body: flickManager == null
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : OrientationBuilder(
               builder: (context, orientation) {
                 if (orientation == Orientation.landscape) {
@@ -51,10 +51,10 @@ class _RecordingState extends State<Recording> {
                     aspectRatio: 16 / 9,
                     child: FlickVideoPlayer(
                       flickManager: flickManager!,
-                      flickVideoWithControls: FlickVideoWithControls(
+                      flickVideoWithControls: const FlickVideoWithControls(
                         controls: FlickPortraitControls(),
                       ),
-                      flickVideoWithControlsFullscreen: FlickVideoWithControls(
+                      flickVideoWithControlsFullscreen: const FlickVideoWithControls(
                         controls: FlickLandscapeControls(),
                       ),
                     ),

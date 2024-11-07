@@ -15,7 +15,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class RestaurantSignUp extends StatefulWidget {
-  RestaurantSignUp({super.key});
+  const RestaurantSignUp({super.key});
 
   @override
   _RestaurantSignUpState createState() => _RestaurantSignUpState();
@@ -30,12 +30,12 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
   
 
   List<String> _selectedCuisineTypes = [];
-  List<File> _menuImages = [];
+  final List<File> _menuImages = [];
   List<String> _selectedTags = [];
   File? _profileImage;
 
   // Separate maps for opening and closing times
-  Map<String, TimeOfDay?> _openTimes = {
+  final Map<String, TimeOfDay?> _openTimes = {
     'Monday': null,
     'Tuesday': null,
     'Wednesday': null,
@@ -45,7 +45,7 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
     'Sunday': null,
   };
 
-  Map<String, TimeOfDay?> _closeTimes = {
+  final Map<String, TimeOfDay?> _closeTimes = {
     'Monday': null,
     'Tuesday': null,
     'Wednesday': null,
@@ -212,7 +212,7 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
                     children: _selectedCuisineTypes.map((cuisine) {
                       return Chip(
                         label: Text(cuisine),
-                        deleteIcon: Icon(Icons.close),
+                        deleteIcon: const Icon(Icons.close),
                         onDeleted: () {
                           setState(() {
                             _selectedCuisineTypes.remove(cuisine);
@@ -256,7 +256,7 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
                     children: _selectedTags.map((tag) {
                       return Chip(
                         label: Text(tag),
-                        deleteIcon: Icon(Icons.close),
+                        deleteIcon: const Icon(Icons.close),
                         onDeleted: () {
                           setState(() {
                             _selectedTags.remove(tag);
@@ -297,22 +297,22 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
                                 onPressed: () => _selectOpenTime(context, day),
                                 child: Text(
                                   _openTimes[day]?.format(context) ?? 'Open Time',
-                                  style: TextStyle(color: Colors.blue),
+                                  style: const TextStyle(color: Colors.blue),
                                 ),
                               ),
-                              Text(' - '),
+                              const Text(' - '),
                               TextButton(
                                 onPressed: () => _selectCloseTime(context, day),
                                 child: Text(
                                   _closeTimes[day]?.format(context) ?? 'Close Time',
-                                  style: TextStyle(color: Colors.blue),
+                                  style: const TextStyle(color: Colors.blue),
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                     ],
                   );
                 }).toList(),
@@ -327,7 +327,7 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _pickMenuImage,
-                child: Text("Add Menu Image"),
+                child: const Text("Add Menu Image"),
               ),
               const SizedBox(height: 10),
               // Display selected menu images
@@ -353,7 +353,7 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
                         right: 0,
                         top: 0,
                         child: IconButton(
-                          icon: Icon(Icons.remove_circle, color: Colors.red),
+                          icon: const Icon(Icons.remove_circle, color: Colors.red),
                           onPressed: () {
                             setState(() {
                               _menuImages.remove(image);

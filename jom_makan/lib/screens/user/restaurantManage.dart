@@ -13,7 +13,7 @@ import 'package:jom_makan/widgets/custom_cards.dart';
 import 'package:provider/provider.dart';
 
 class RestaurantManagementPage extends StatefulWidget {
-  const RestaurantManagementPage({Key? key}) : super(key: key);
+  const RestaurantManagementPage({super.key});
 
   @override
   State<RestaurantManagementPage> createState() =>
@@ -61,7 +61,7 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
             ),
             pinned: true,
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(60),
+              preferredSize: const Size.fromHeight(60),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
@@ -69,11 +69,11 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 indicatorPadding:
-                    EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.black,
-                tabs: [
+                tabs: const [
                   Tab(text: 'Booking'),
                   Tab(text: 'History'),
                   Tab(text: 'Favorite'),
@@ -82,7 +82,7 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
             ),
           ),
           SliverToBoxAdapter(
-            child: Container(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height - 120,
               child: TabBarView(
                 controller: _tabController,
@@ -101,13 +101,15 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
 }
 
 class BookedRestaurantContent extends StatefulWidget {
+  const BookedRestaurantContent({super.key});
+
   @override
   _BookedRestaurantContentState createState() =>
       _BookedRestaurantContentState();
 }
 
 class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
-  List<Restaurant?> _restaurants = [];
+  final List<Restaurant?> _restaurants = [];
 
   @override
   void initState() {
@@ -127,7 +129,7 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
   }
 
   Future<void> _fetchRestaurantDetails(List<Booking> bookings) async {
-    final oneHourLater = DateTime.now().add(Duration(hours: 1));
+    final oneHourLater = DateTime.now().add(const Duration(hours: 1));
     List<Booking> upcomingBookings = bookings
         .where((booking) => booking.timeSlot.toDate().isAfter(oneHourLater))
         .toList();
@@ -144,17 +146,17 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
   @override
   Widget build(BuildContext context) {
     final bookingProvider = Provider.of<BookingProvider>(context);
-    final oneHourLater = DateTime.now().add(Duration(hours: 1));
+    final oneHourLater = DateTime.now().add(const Duration(hours: 1));
     List<Booking> upcomingBookings = bookingProvider.bookings
         .where((booking) => booking.timeSlot.toDate().isAfter(oneHourLater))
         .toList();
 
     return bookingProvider.isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : upcomingBookings.isEmpty
-            ? Center(child: Text('No upcoming bookings found.'))
+            ? const Center(child: Text('No upcoming bookings found.'))
             : ListView.builder(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 itemCount: upcomingBookings.length,
                 itemBuilder: (context, index) {
                   final booking = upcomingBookings[index];
@@ -187,12 +189,14 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
 }
 
 class BookingHistoryContent extends StatefulWidget {
+  const BookingHistoryContent({super.key});
+
   @override
   _BookingHistoryContentState createState() => _BookingHistoryContentState();
 }
 
 class _BookingHistoryContentState extends State<BookingHistoryContent> {
-  List<Restaurant?> _restaurants = [];
+  final List<Restaurant?> _restaurants = [];
 
   @override
   void initState() {
@@ -214,7 +218,7 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
   }
 
   Future<void> _fetchRestaurantDetailsForHistory(List<Booking> bookings) async {
-    final oneHourLater = DateTime.now().add(Duration(hours: 1));
+    final oneHourLater = DateTime.now().add(const Duration(hours: 1));
     List<Booking> pastBookings = bookings
         .where((booking) => booking.timeSlot.toDate().isBefore(oneHourLater))
         .toList();
@@ -231,17 +235,17 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
   @override
   Widget build(BuildContext context) {
     final bookingProvider = Provider.of<BookingProvider>(context);
-    final oneHourLater = DateTime.now().add(Duration(hours: 1));
+    final oneHourLater = DateTime.now().add(const Duration(hours: 1));
     List<Booking> pastBookings = bookingProvider.bookings
         .where((booking) => booking.timeSlot.toDate().isBefore(oneHourLater))
         .toList();
 
     return bookingProvider.isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : pastBookings.isEmpty
-            ? Center(child: Text('No booking history found.'))
+            ? const Center(child: Text('No booking history found.'))
             : ListView.builder(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 itemCount: pastBookings.length,
                 itemBuilder: (context, index) {
                   final booking = pastBookings[index];
@@ -276,16 +280,18 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
 }
 
 class FavoriteRestaurantTab extends StatelessWidget {
+  const FavoriteRestaurantTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
 
     return favoriteProvider.isLoading
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : favoriteProvider.favoriteRestaurants.isEmpty
-            ? Center(child: Text('No favorite restaurants added yet.'))
+            ? const Center(child: Text('No favorite restaurants added yet.'))
             : ListView.builder(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 itemCount: favoriteProvider.favoriteRestaurants.length,
                 itemBuilder: (context, index) {
                   final restaurant =

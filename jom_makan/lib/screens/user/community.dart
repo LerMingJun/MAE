@@ -66,8 +66,8 @@ class _CommunityState extends State<Community> {
         backgroundColor: AppColors.tertiary,
         foregroundColor: Colors.black,
         elevation: 10,
-        shape: CircleBorder(),
-        child: Icon(Icons.add),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: Padding(
@@ -94,32 +94,32 @@ class _CommunityState extends State<Community> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               // Search Bar
               TextField(
                 controller: searchController,
                 onChanged: filterPosts,
                 decoration: InputDecoration(
                   hintText: 'Search posts...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide: const BorderSide(color: Colors.blue),
                   ),
-                  suffixIcon: Icon(Icons.search, color: Colors.blue),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  suffixIcon: const Icon(Icons.search, color: Colors.blue),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               // Post Content
               if (postProvider.isLoading)
-                Expanded(
+                const Expanded(
                   child: Center(
                     child: CustomLoading(text: 'Fetching interesting Posts!'),
                   ),
                 )
               else if (filteredPosts.isEmpty)
-                Expanded(
+                const Expanded(
                   child: EmptyWidget(
                     text: 'No Posts Found.\nPlease Try Again.',
                     image: 'assets/no-filter.png',

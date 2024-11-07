@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: participationProvider.isLoading
-          ? Center(child: CustomLoading(text: 'Loading...'))
+          ? const Center(child: CustomLoading(text: 'Loading...'))
           : Stack(
               children: [
                 Container(
@@ -84,8 +84,8 @@ class _HomeState extends State<Home> {
                             Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(2.0), // Border width
-                                  decoration: BoxDecoration(
+                                  padding: const EdgeInsets.all(2.0), // Border width
+                                  decoration: const BoxDecoration(
                                     color: AppColors.primary, // Border color
                                     shape: BoxShape.circle,
                                   ),
@@ -96,7 +96,7 @@ class _HomeState extends State<Home> {
                                             userPlaceholder),
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Hello, ${userProvider.userData?.username ?? 'Unknown User'}!',
                                   style: GoogleFonts.lato(fontSize: 15),
@@ -107,18 +107,18 @@ class _HomeState extends State<Home> {
                               onPressed: () {
                                 Navigator.pushNamed(context, '/schedule');
                               },
-                              icon: Icon(Icons.calendar_today_rounded),
+                              icon: const Icon(Icons.calendar_today_rounded),
                               color: AppColors.primary,
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         // My Events Text
                         Text(
                           'My Activities',
                           style: GoogleFonts.lato(fontSize: 20),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         participationProvider.allUserActivities!.isEmpty
                             ? Card(
                                 elevation: 7,
@@ -137,7 +137,7 @@ class _HomeState extends State<Home> {
                                             height: 70,
                                             fit: BoxFit.cover,
                                           ),
-                                          SizedBox(width: 10),
+                                          const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
                                               'Hey, you have not participated in any activities yet!',
@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                       Text(
                                         'Be sure to check out the amazing activities in Folks!',
                                         style: GoogleFonts.poppins(
@@ -190,7 +190,7 @@ class _HomeState extends State<Home> {
                                       ? {
                                           Marker(
                                             markerId:
-                                                MarkerId("selectedLocation"),
+                                                const MarkerId("selectedLocation"),
                                             position: _selectedLocation!,
                                           )
                                         }
@@ -225,7 +225,7 @@ class _HomeState extends State<Home> {
                             },
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         // Upcoming Opportunities Text
 
                         Text(
@@ -233,14 +233,14 @@ class _HomeState extends State<Home> {
                           style: GoogleFonts.lato(fontSize: 20),
                         ),
 
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         // Vertically scrollable cards
                         FutureBuilder<List<Article>>(
                           future: articles,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Center(
+                              return const Center(
                                 child: SpinKitThreeBounce(
                                   color: AppColors.primary,
                                   size: 30.0,
@@ -251,7 +251,7 @@ class _HomeState extends State<Home> {
                                   child: Text('Error: ${snapshot.error}'));
                             } else if (!snapshot.hasData ||
                                 snapshot.data!.isEmpty) {
-                              return Center(child: Text('No articles found'));
+                              return const Center(child: Text('No articles found'));
                             } else {
                               return Column(
                                 children: snapshot.data!.take(5).map((article) {
@@ -262,7 +262,7 @@ class _HomeState extends State<Home> {
                                           .format(dateTime);
 
                                   return Card(
-                                    margin: EdgeInsets.only(bottom: 20),
+                                    margin: const EdgeInsets.only(bottom: 20),
                                     elevation: 3,
                                     color: Colors.white,
                                     child: Container(
@@ -278,7 +278,7 @@ class _HomeState extends State<Home> {
                                           children: [
                                             Container(
                                                 clipBehavior: Clip.antiAlias,
-                                                decoration: BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.only(
                                                             topLeft: Radius
@@ -297,7 +297,7 @@ class _HomeState extends State<Home> {
                                                         null) {
                                                       return child;
                                                     } else {
-                                                      return CustomImageLoading(
+                                                      return const CustomImageLoading(
                                                           width: 130);
                                                     }
                                                   },
@@ -329,7 +329,7 @@ class _HomeState extends State<Home> {
                                                           TextOverflow.ellipsis,
                                                       maxLines: 2,
                                                     ),
-                                                    SizedBox(height: 4),
+                                                    const SizedBox(height: 4),
                                                     Text(
                                                       article.excerpt,
                                                       style:
@@ -339,7 +339,7 @@ class _HomeState extends State<Home> {
                                                           TextOverflow.ellipsis,
                                                       maxLines: 1,
                                                     ),
-                                                    SizedBox(height: 8),
+                                                    const SizedBox(height: 8),
                                                     Row(
                                                       children: [
                                                         Image.network(
@@ -357,7 +357,7 @@ class _HomeState extends State<Home> {
                                                                 height: 20);
                                                           },
                                                         ),
-                                                        SizedBox(width: 2),
+                                                        const SizedBox(width: 2),
                                                         Expanded(
                                                           child: Text(
                                                             article
@@ -374,9 +374,9 @@ class _HomeState extends State<Home> {
                                                         ),
                                                       ],
                                                     ),
-                                                    SizedBox(height: 8),
+                                                    const SizedBox(height: 8),
                                                     Text(
-                                                      '${formattedDate}',
+                                                      formattedDate,
                                                       style:
                                                           GoogleFonts.poppins(
                                                               fontSize: 10),

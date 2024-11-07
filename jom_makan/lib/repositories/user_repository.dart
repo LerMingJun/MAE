@@ -86,7 +86,7 @@ class UserRepository {
       await userCollection.doc(uid).update(data);
     } catch (e) {
       print('Error updating user data: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -172,7 +172,7 @@ Future<String> fetchReviewCount(String userID) async {
       return history;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 

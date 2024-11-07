@@ -17,7 +17,7 @@ class EventRepository {
       return snapshot.docs.map((doc) => Tag.fromFirestore(doc)).toList();
     } catch (e) {
       print('Error fetching tags: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -41,7 +41,7 @@ class EventRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -90,7 +90,7 @@ class EventRepository {
       return activities;
     } catch (e) {
       print('Error fetching filtered activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -124,7 +124,7 @@ class EventRepository {
       }
     } catch (e) {
       print('Error fetching event: $e');
-      throw e;
+      rethrow;
     }
   }
 

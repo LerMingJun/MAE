@@ -21,8 +21,8 @@ class CustomList extends StatelessWidget {
     required this.date,
     required this.image,
     required this.onPressed,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class CustomList extends StatelessWidget {
             key: Key(title),
             endActionPane: ActionPane(
               extentRatio: 0.4,
-              motion: ScrollMotion(),
+              motion: const ScrollMotion(),
               children: [
                 SlidableAction(
                   onPressed: onPressed,
@@ -72,11 +72,11 @@ class CustomList extends StatelessWidget {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return CustomImageLoading(width: 100);
+                            return const CustomImageLoading(width: 100);
                           }
                         },
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ class CustomList extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           date,
                           style: GoogleFonts.poppins(
@@ -104,7 +104,7 @@ class CustomList extends StatelessWidget {
             ),
           ),
         ),
-        Divider(
+        const Divider(
           color: Colors.grey,
           thickness: 1,
         ),

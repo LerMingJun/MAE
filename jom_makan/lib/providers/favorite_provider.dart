@@ -8,7 +8,7 @@ class FavoriteProvider with ChangeNotifier {
   final FavoriteRepository _favoriteRepository = FavoriteRepository();
   final RestaurantRepository _restaurantRepository = RestaurantRepository();
 
-  List<Restaurant> _favoriteRestaurants = [];
+  final List<Restaurant> _favoriteRestaurants = [];
   bool _isLoading = false;
 
   List<Restaurant> get favoriteRestaurants => _favoriteRestaurants;

@@ -95,7 +95,7 @@ class RestaurantProvider with ChangeNotifier {
     try {
       _restaurant = await _restaurantRepository.getRestaurantById(restaurantID);
 
-      if (_restaurant == null || _restaurant!.location == null) {
+      if (_restaurant == null) {
         throw Exception('Location data is empty');
       }
 

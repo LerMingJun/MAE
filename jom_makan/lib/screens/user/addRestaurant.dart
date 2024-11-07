@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 
 class AddRestaurantScreen extends StatefulWidget {
+  const AddRestaurantScreen({super.key});
+
   @override
   _AddRestaurantScreenState createState() => _AddRestaurantScreenState();
 }
@@ -51,7 +53,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
       GeoPoint? location = await _getCoordinates(addressController.text);
       if (location == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to find location for the provided address')),
+          const SnackBar(content: Text('Unable to find location for the provided address')),
         );
         return;
       }
@@ -77,7 +79,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restaurant added successfully!')),
+        const SnackBar(content: Text('Restaurant added successfully!')),
       );
 
       _formKey.currentState!.reset();
@@ -87,9 +89,9 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Restaurant')),
+      appBar: AppBar(title: const Text('Add Restaurant')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -98,7 +100,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
               children: [
                 TextFormField(
                   controller: nameController,
-                  decoration: InputDecoration(labelText: 'Restaurant Name'),
+                  decoration: const InputDecoration(labelText: 'Restaurant Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Please enter a name';
                     return null;
@@ -106,7 +108,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                 ),
                 TextFormField(
                   controller: introController,
-                  decoration: InputDecoration(labelText: 'Introduction'),
+                  decoration: const InputDecoration(labelText: 'Introduction'),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Please enter an introduction';
                     return null;
@@ -114,7 +116,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                 ),
                 TextFormField(
                   controller: addressController,
-                  decoration: InputDecoration(labelText: 'Address'),
+                  decoration: const InputDecoration(labelText: 'Address'),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Please enter an address';
                     return null;
@@ -122,20 +124,20 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                 ),
                 TextFormField(
                   controller: cuisineTypeController,
-                  decoration: InputDecoration(labelText: 'Cuisine Types (comma-separated)'),
+                  decoration: const InputDecoration(labelText: 'Cuisine Types (comma-separated)'),
                 ),
                 TextFormField(
                   controller: menuController,
-                  decoration: InputDecoration(labelText: 'Menu Items (comma-separated)'),
+                  decoration: const InputDecoration(labelText: 'Menu Items (comma-separated)'),
                 ),
                 TextFormField(
                   controller: tagsController,
-                  decoration: InputDecoration(labelText: 'Tags (comma-separated)'),
+                  decoration: const InputDecoration(labelText: 'Tags (comma-separated)'),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _addRestaurant,
-                  child: Text('Add Restaurant'),
+                  child: const Text('Add Restaurant'),
                 ),
               ],
             ),

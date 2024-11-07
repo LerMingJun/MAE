@@ -25,9 +25,9 @@ class UserProvider with ChangeNotifier {
   List<User>? _allUsers = [];
   List<User> _users = [];
   User? _user;
-  bool _isComplainsLoading = false;
-  List<Complain> _allComplains = [];
-  bool _isLoadingComplains = false;
+  final bool _isComplainsLoading = false;
+  final List<Complain> _allComplains = [];
+  final bool _isLoadingComplains = false;
   List<Map<String, dynamic>> _resolvedComplains = [];
   List<Map<String, dynamic>> _unresolvedComplains = [];
   List<Review> _reviews = [];
@@ -52,7 +52,7 @@ class UserProvider with ChangeNotifier {
 
   UserProvider(auth.User? firebaseUser) {
     _firebaseUser = firebaseUser;
-    print("CURRENT: " + _firebaseUser.toString());
+    print("CURRENT: $_firebaseUser");
     if (_firebaseUser != null) {
       fetchUserDatabyUid(_firebaseUser!.uid);
     }

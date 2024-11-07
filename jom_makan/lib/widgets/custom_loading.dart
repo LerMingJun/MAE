@@ -8,18 +8,18 @@ class CustomLoading extends StatelessWidget {
 
   const CustomLoading({
     required this.text,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SpinKitWanderingCubes(
+        const SpinKitWanderingCubes(
           color: AppColors.primary,
           size: 60.0,
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Text(text,
             style: GoogleFonts.lato(color: AppColors.primary, fontSize: 20))
       ],
@@ -34,15 +34,15 @@ class CustomImageLoading extends StatelessWidget {
   const CustomImageLoading({
     required this.width,
     this.height,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
-      height: height!=null ? height : null,
-      child: Column(
+      height: height,
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

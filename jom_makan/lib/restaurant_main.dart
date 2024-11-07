@@ -10,7 +10,6 @@ import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/providers/auth_provider.dart'; // Import AuthProvider
-import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
 
 Future<void> main() async {
   // Ensure widget binding is initialized before running the app

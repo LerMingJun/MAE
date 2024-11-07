@@ -5,7 +5,7 @@ class CustomDropdown extends StatelessWidget {
   final List<String> selectedOptions;
   final Function(List<String>) onChanged;
 
-  CustomDropdown({
+  const CustomDropdown({super.key, 
     required this.options,
     required this.selectedOptions,
     required this.onChanged,
@@ -14,7 +14,7 @@ class CustomDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Select Cuisine',
         border: OutlineInputBorder(),
       ),
