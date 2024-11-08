@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/models/post.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
-import 'package:jom_makan/widgets/custom_loading.dart';
-import 'package:jom_makan/widgets/custom_posts.dart';
 import 'package:provider/provider.dart';
 
 class UserPost extends StatefulWidget {

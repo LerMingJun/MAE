@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'operatingHours.dart';
 
 class Restaurant {
   final String id;

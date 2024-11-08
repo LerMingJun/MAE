@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/bookmark.dart';
-import 'package:jom_makan/models/project.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:jom_makan/repositories/bookmark_repository.dart';
 

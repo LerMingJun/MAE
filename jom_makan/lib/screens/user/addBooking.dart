@@ -125,7 +125,7 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                     color: Colors.grey[700],
                     fontSize: 16,
                   ),
-                  prefixIcon: Icon(Icons.group, color: Colors.blueAccent),
+                  prefixIcon: const Icon(Icons.group, color: Colors.blueAccent),
                   filled: true,
                   fillColor: Colors.grey[200], // Light background color
                   border: OutlineInputBorder(
@@ -136,10 +136,10 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: Colors.blueAccent, width: 1.5),
+                        const BorderSide(color: Colors.blueAccent, width: 1.5),
                   ),
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                      const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -152,7 +152,7 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                     color: Colors.grey[700],
                     fontSize: 16,
                   ),
-                  prefixIcon: Icon(Icons.message, color: Colors.blueAccent),
+                  prefixIcon: const Icon(Icons.message, color: Colors.blueAccent),
                   filled: true,
                   fillColor: Colors.grey[200], // Light background color
                   border: OutlineInputBorder(
@@ -162,10 +162,10 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide:
-                        BorderSide(color: Colors.blueAccent, width: 1.5),
+                        const BorderSide(color: Colors.blueAccent, width: 1.5),
                   ),
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                      const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
                 ),
               ),
               const SizedBox(height: 16),

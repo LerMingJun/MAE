@@ -262,7 +262,7 @@ class _HomeState extends State<Home> {
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
-                  child: Text('Suggest Random Restaurant', style: TextStyle(fontSize: 14),),
+                  child: const Text('Suggest Random Restaurant', style: TextStyle(fontSize: 14),),
                 ),
               ),
             ),
@@ -308,7 +308,7 @@ class _HomeState extends State<Home> {
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
-                  child: Text(
+                  child: const Text(
                     'Enter Address Manually',
                     style: TextStyle(fontSize: 14), // Adjust the font size here
                   ),
@@ -328,7 +328,7 @@ class _HomeState extends State<Home> {
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
-                  child: Text(
+                  child: const Text(
                     'Refresh Location',
                     style: TextStyle(fontSize: 14), // Adjust the font size here
                   ),

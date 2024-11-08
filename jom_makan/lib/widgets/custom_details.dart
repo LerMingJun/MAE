@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/projectSpeeches.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';

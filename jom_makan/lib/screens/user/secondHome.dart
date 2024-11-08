@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/api/articleAPI.dart';
 import 'package:jom_makan/constants/placeholderURL.dart';
 import 'package:jom_makan/models/article.dart';
-import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_cards.dart';

@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()), // Add AuthProvider
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         // home: RestaurantHome(),
         home: RestaurantSignUp(),
       ),

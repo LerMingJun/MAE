@@ -1,8 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:jom_makan/models/community.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/post_provider.dart';
@@ -10,7 +7,6 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
-import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {

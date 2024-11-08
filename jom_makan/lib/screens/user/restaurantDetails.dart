@@ -263,7 +263,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
             child: Text(
                 "${entry.key}: ${entry.value.open} - ${entry.value.close}"),
           );
-        }).toList(),
+        }),
       ],
     );
   }

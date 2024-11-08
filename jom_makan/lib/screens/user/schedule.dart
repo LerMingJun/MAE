@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

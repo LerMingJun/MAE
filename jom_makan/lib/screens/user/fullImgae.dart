@@ -5,10 +5,10 @@ class FullScreenImageViewer extends StatefulWidget {
   final int initialIndex;
 
   const FullScreenImageViewer({
-    Key? key,
+    super.key,
     required this.imageUrls,
     this.initialIndex = 0,
-  }) : super(key: key);
+  });
 
   @override
   _FullScreenImageViewerState createState() => _FullScreenImageViewerState();
@@ -45,11 +45,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
           return Center(
             child: InteractiveViewer(
               panEnabled: true,
-              boundaryMargin: EdgeInsets.all(
+              boundaryMargin: const EdgeInsets.all(
                   20), // Optional: To allow the image to move a little beyond screen bounds
               minScale: 0.5, // Set min scale to allow zooming out more
               maxScale: 4.0, // Max zoom level
-              child: Container(
+              child: SizedBox(
                 width: 500, // Set a fixed width for the image
                 height: 800, // Set a fixed height for the image
                 child: Image.network(
