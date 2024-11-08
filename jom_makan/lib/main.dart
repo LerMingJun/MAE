@@ -91,17 +91,17 @@ class MyApp extends StatelessWidget {
             routes: {
               '/': (context) => const OnboardingScreens(), // Onboarding screen
               '/login': (context) => Login(), // Login screen
-              '/signup': (context) => SignUp(), // Signup screen
+              '/signup': (context) => const SignUp(), // Signup screen
               '/home': (context) => const Home(), // Home screen
               // '/events': (context) => Events(), // Events screen
               // '/eventDetail': (context) => EventDetail(), // Event details screen
               '/addPost': (context) => const AddPost(), // Add post screen
               '/community': (context) => const Community(), // Community screen
-              '/editProfile': (context) => EditProfile(), // Edit profile screen
-              '/homeScreen': (context) => HomeScreen(), // Home screen for logged-in users
+              '/editProfile': (context) => const EditProfile(), // Edit profile screen
+              '/homeScreen': (context) => const HomeScreen(), // Home screen for logged-in users
               '/profile': (context) => const Profile(), // User profile screen
               '/bookmark': (context) => const Bookmark(), // Bookmarked items screen
-              '/addRestaurant': (context) => AddRestaurantScreen(), // Add Restaurant screen
+              '/addRestaurant': (context) => const AddRestaurantScreen(), // Add Restaurant screen
               // '/speechDetail': (context) => SpeechDetail(), // Speech details screen
               // '/recording': (context) => Recording(), // Recording screen
               '/userPost': (context) => const UserPost(), // User's posts screen

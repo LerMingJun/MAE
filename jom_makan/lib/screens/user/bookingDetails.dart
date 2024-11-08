@@ -223,7 +223,7 @@ class BookingDetailsPage extends StatelessWidget {
     DateTime selectedDateTime = booking.timeSlot.toDate();
 
     // Function to show date and time picker
-    Future<void> _pickDateTime(BuildContext context) async {
+    Future<void> pickDateTime(BuildContext context) async {
       DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: selectedDateTime,
@@ -287,7 +287,7 @@ class BookingDetailsPage extends StatelessWidget {
                       const SizedBox(height: 8),
                       TextButton(
                         onPressed: () async {
-                          await _pickDateTime(context);
+                          await pickDateTime(context);
                         },
                         child: Text(
                           DateFormat('MMMM dd, yyyy – hh:mm a')

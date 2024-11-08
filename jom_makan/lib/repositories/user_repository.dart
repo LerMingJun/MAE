@@ -4,13 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:jom_makan/constants/collections.dart';
-import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/participation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/models/project.dart';
 import 'package:jom_makan/models/review.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/models/user.dart';
 
 class UserRepository {

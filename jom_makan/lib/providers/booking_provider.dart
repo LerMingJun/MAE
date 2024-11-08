@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/booking.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/repositories/booking_repository.dart';
-import 'package:provider/provider.dart';
 
 class BookingProvider with ChangeNotifier {
   final BookingRepository _bookingRepository = BookingRepository();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/review.dart';

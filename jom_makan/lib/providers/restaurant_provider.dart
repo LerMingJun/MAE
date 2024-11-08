@@ -4,7 +4,6 @@ import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart'; // Change from Tag to Review
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:jom_makan/repositories/restaurant_repository.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RestaurantProvider with ChangeNotifier {

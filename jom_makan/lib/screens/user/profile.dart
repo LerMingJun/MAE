@@ -147,7 +147,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               onTap: _handleRefresh,
                               borderRadius: const BorderRadius.all(Radius.circular(10)),
                               splashColor: AppColors.secondary,
-                              child: Icon(Icons.autorenew),
+                              child: const Icon(Icons.autorenew),
                             )
                           ],
                         ),
@@ -211,9 +211,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   height: 500,
                    child: TabBarView(
                       controller: _tabController,
-                      children: [
+                      children: const [
                         PostContent(),
-                        const HistoryContent(),
+                        HistoryContent(),
                       ],
                     ),
                  ),

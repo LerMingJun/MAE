@@ -102,7 +102,7 @@ class _EditProfileState extends State<EditProfile> {
                               backgroundColor: AppColors.secondary,
                               foregroundColor: AppColors.primary,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.edit_outlined,
                               color: Colors.white,
                             ),
