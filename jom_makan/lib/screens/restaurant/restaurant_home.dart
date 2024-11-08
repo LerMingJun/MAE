@@ -1,6 +1,7 @@
 // lib/screens/restaurant/restaurant_home.dart
 import 'package:flutter/material.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
+import 'package:jom_makan/screens/restaurant/voucher_page.dart';
 import 'package:provider/provider.dart';
 import 'package:jom_makan/widgets/restaurant/custom_bottom_navigation.dart';
 
@@ -135,7 +136,18 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   _buildGridItem(Icons.receipt, 'Orders'),
                   _buildGridItem(Icons.menu_book, 'Menu'),
                   _buildGridItem(Icons.feedback, 'Feedback'),
-                  _buildGridItem(Icons.local_offer, 'Promotions'),
+                  InkWell(
+                    onTap: () {
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const VoucherScreen()),
+                        );
+                      });
+                    },
+                    child: _buildGridItem(Icons.local_offer, 'Promotions'),
+                  ),
                   _buildGridItem(Icons.report, 'Reports'),
                   _buildGridItem(Icons.insights, 'Analytics'),
                   _buildGridItem(Icons.group, 'Community'),
@@ -203,8 +215,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
               Text(data['time']!,
                   style: const TextStyle(fontSize: 12, color: Colors.black54)),
               const SizedBox(width: 16),
-              const Icon(Icons.info_outline,
-                  color: Colors.black54, size: 16),
+              const Icon(Icons.info_outline, color: Colors.black54, size: 16),
               const SizedBox(width: 4),
               Text(data['status']!,
                   style: const TextStyle(fontSize: 12, color: Colors.black54)),

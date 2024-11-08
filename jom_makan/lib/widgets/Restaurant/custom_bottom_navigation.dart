@@ -1,6 +1,8 @@
 // lib/widget/custom_bottom_navigation.dart
 import 'package:flutter/material.dart';
-import 'package:jom_makan/screens/restaurant/restaurant_home.dart'; // Home screen
+import 'package:jom_makan/screens/restaurant/voucher_page.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_setting.dart'; // Home screen
 // import 'package:jom_makan/screens/restaurant/booking.dart'; // Booking screen
 // import 'package:jom_makan/screens/restaurant/voucher.dart'; // Voucher screen
 // import 'package:jom_makan/screens/restaurant/community.dart'; // Community screen
@@ -35,10 +37,10 @@ class CustomBottomNavigation extends StatelessWidget {
           // );
         } else if (index == 2) {
           // Navigate to Voucher page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const VoucherPage()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VoucherScreen()),
+          );
         } else if (index == 3) {
           // Navigate to Community page
           // Navigator.push(
@@ -47,10 +49,10 @@ class CustomBottomNavigation extends StatelessWidget {
           // );
         } else if (index == 4) {
           // Navigate to Profile page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const ProfilePage()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const RestaurantSetting()),
+          );
         } else {
           // Call the original onItemSelected callback for other icons
           onItemSelected(index);

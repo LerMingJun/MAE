@@ -4,6 +4,7 @@ import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
 import 'package:provider/provider.dart';
 import 'package:jom_makan/screens/restaurant/signup.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
@@ -39,9 +40,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()), // Add AuthProvider
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         // home: RestaurantHome(),
-        home: RestaurantSignUp(),
+        home: RestaurantHome(),
       ),
     );
   }
