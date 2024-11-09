@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/models/complain.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,7 +19,6 @@ class UserProvider with ChangeNotifier {
   String _postCount = "0";
   String? _likeCount;
   String? _participationCount;
-  List<Participation>? _history = [];
   List<User>? _allUsers = [];
   List<User> _users = [];
   User? _user;
@@ -45,7 +43,6 @@ class UserProvider with ChangeNotifier {
   String? get postCount => _postCount;
   String? get likeCount => _likeCount;
   String? get participationCount => _participationCount;
-  List<Participation>? get history => _history;
   List<Review> get reviews => _reviews;
   String? get reviewCount => _reviewCount;
 
@@ -91,7 +88,6 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
 
     await fetchUserDatabyUid(_authRepository.currentUser!.uid);
-    await _fetchUserHistory();
     await _fetchUserStats();
 
     _isLoading = false;
@@ -132,16 +128,6 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _fetchUserHistory() async {
-    try {
-      _history = await _userRepository
-          .fetchUserHistory(_authRepository.currentUser!.uid);
-    } catch (e) {
-      _history = [];
-      print('Error in EventProvider: $e');
-    }
-  }
-
   Future<void> _fetchUserStats() async {
     try {
       _postCount = await _userRepository
@@ -151,7 +137,6 @@ class UserProvider with ChangeNotifier {
       _participationCount = await _userRepository
           .fetchParticipationCount(_authRepository.currentUser!.uid);
     } catch (e) {
-      _history = [];
       print('Error in EventProvider: $e');
     }
   }

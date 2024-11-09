@@ -213,7 +213,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       controller: _tabController,
                       children: const [
                         PostContent(),
-                        HistoryContent(),
+                        // HistoryContent(),
                       ],
                     ),
                  ),
@@ -286,97 +286,97 @@ class PostContent extends StatelessWidget {
   }
 }
 
-class HistoryContent extends StatelessWidget {
-  const HistoryContent({super.key});
+// class HistoryContent extends StatelessWidget {
+//   const HistoryContent({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
+//   @override
+//   Widget build(BuildContext context) {
+//     final userProvider = Provider.of<UserProvider>(context);
 
-    if (userProvider.isHistoryLoading ?? false) {
-      return const Center(child: CustomLoading(text: "Fetching History..."));
-    } else if (userProvider.history?.isEmpty ?? false) {
-      return const EmptyWidget(
-          text:
-              'Oops! Looks like you have not participated in any activities yet.',
-          image: 'assets/oops.png');
-    } else {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ListView.builder(
-          padding: const EdgeInsets.only(top: 15),
-          scrollDirection: Axis.vertical,
-          itemCount: userProvider.history?.length ?? 0,
-          itemBuilder: (context, index) {
-            final history = userProvider.history![index];
+//     if (userProvider.isHistoryLoading ?? false) {
+//       return const Center(child: CustomLoading(text: "Fetching History..."));
+//     } else if (userProvider.history?.isEmpty ?? false) {
+//       return const EmptyWidget(
+//           text:
+//               'Oops! Looks like you have not participated in any activities yet.',
+//           image: 'assets/oops.png');
+//     } else {
+//       return Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 10),
+//         child: ListView.builder(
+//           padding: const EdgeInsets.only(top: 15),
+//           scrollDirection: Axis.vertical,
+//           itemCount: userProvider.history?.length ?? 0,
+//           itemBuilder: (context, index) {
+//             final history = userProvider.history![index];
 
-            DateTime date = history.hostDate.toDate();
-            String formattedDate =
-                DateFormat('dd MMMM yyyy, HH:mm').format(date);
-            return Card(
-              color: Colors.white,
-              surfaceTintColor: Colors.white,
-              margin: const EdgeInsets.symmetric(vertical: 5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              elevation: 3,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                height: 80,
-                child: Row(
-                  children: [
-                     Image.network(
-                        history.image,
-                        width:100,
-                        height: 70,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
-                            return child;
-                          } else {
-                            return const CustomImageLoading(width: 100);
-                          }
-                        },
-                      ),
+//             DateTime date = history.hostDate.toDate();
+//             String formattedDate =
+//                 DateFormat('dd MMMM yyyy, HH:mm').format(date);
+//             return Card(
+//               color: Colors.white,
+//               surfaceTintColor: Colors.white,
+//               margin: const EdgeInsets.symmetric(vertical: 5),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(10),
+//               ),
+//               elevation: 3,
+//               child: Container(
+//                 padding: const EdgeInsets.symmetric(horizontal: 10),
+//                 height: 80,
+//                 child: Row(
+//                   children: [
+//                      Image.network(
+//                         history.image,
+//                         width:100,
+//                         height: 70,
+//                         fit: BoxFit.cover,
+//                         loadingBuilder: (context, child, loadingProgress) {
+//                           if (loadingProgress == null) {
+//                             return child;
+//                           } else {
+//                             return const CustomImageLoading(width: 100);
+//                           }
+//                         },
+//                       ),
                     
 
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              history.title,
-                              style: GoogleFonts.lato(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              "** You participated this activity on $formattedDate!",
-                              style: GoogleFonts.poppins(
-                                  fontSize: 12, color: AppColors.placeholder),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+//                     Expanded(
+//                       child: Padding(
+//                         padding: const EdgeInsets.symmetric(
+//                             horizontal: 10.0, vertical: 5.0),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Text(
+//                               history.title,
+//                               style: GoogleFonts.lato(
+//                                 fontSize: 15,
+//                                 fontWeight: FontWeight.bold,
+//                               ),
+//                               overflow: TextOverflow.ellipsis,
+//                               maxLines: 1,
+//                             ),
+//                             const SizedBox(height: 5),
+//                             Text(
+//                               "** You participated this activity on $formattedDate!",
+//                               style: GoogleFonts.poppins(
+//                                   fontSize: 12, color: AppColors.placeholder),
+//                               overflow: TextOverflow.ellipsis,
+//                               maxLines: 3,
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ),
                     
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-  }
-}
+//                   ],
+//                 ),
+//               ),
+//             );
+//           },
+//         ),
+//       );
+//     }
+//   }
+// }

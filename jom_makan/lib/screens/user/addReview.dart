@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart'; // Update with your actual path
+import 'package:jom_makan/screens/user/restaurantDetails.dart';
 import 'package:jom_makan/widgets/custom_text.dart'; // Update with your actual path
 
 class LeaveReviewScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class LeaveReviewScreen extends StatefulWidget {
 
 class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   final TextEditingController _feedbackController = TextEditingController();
-  double _rating = 0.0;
+  double _rating = 1.0;
 
   void _submitReview() async {
     if (_feedbackController.text.isNotEmpty && _rating > 0) {
@@ -40,8 +41,20 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
           .collection('reviews')
           .add(review.toFirestore());
 
-      // Optionally, navigate back or show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review submitted successfully!')),
+      );
+
       Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RestaurantDetailsScreen(
+            restaurant:
+                widget.restaurant, // Pass the updated restaurant if needed
+          ),
+        ),
+      );
     } else {
       // Show an error message if feedback is empty or rating is 0
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,11 +67,11 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Leave a Review')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Align the text to left
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -91,9 +104,9 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
             ),
             Slider(
               value: _rating,
-              min: 0,
+              min: 1,
               max: 5,
-              divisions: 5,
+              divisions: 4,
               label: _rating.toStringAsFixed(1),
               onChanged: (value) {
                 setState(() {
@@ -108,9 +121,6 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
               obscureText: false,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
-              onChanged: (value) {
-                // Optional: Handle text changes
-              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(

@@ -297,20 +297,21 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('Reviews:', style: TextStyle(fontSize: 20)),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AllReviewsScreen(
-                      restaurantId: widget.restaurant.id,
-                      user: user,
+            if (reviewProvider.reviews.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AllReviewsScreen(
+                        restaurantId: widget.restaurant.id,
+                        user: user,
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: const Text('View All Reviews'),
-            ),
+                  );
+                },
+                child: const Text('View All Reviews'),
+              ),
           ],
         ),
         const SizedBox(height: 8),

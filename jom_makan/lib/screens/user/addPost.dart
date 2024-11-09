@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/community.dart';
-import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
@@ -38,20 +37,6 @@ class _AddPostState extends State<AddPost> {
 
   @override
   Widget build(BuildContext context) {
-    final participationProvider = Provider.of<ParticipationProvider>(context);
-
-    List<String> activities = [];
-    for (var activity in participationProvider.pastActivities) {
-      activities.add("${activity.activityID}|${activity.title}");
-    }
-
-    List<DropdownMenuItem<String>> dropdownItems =
-        activities.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item.split("|")[1]),
-      );
-    }).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,

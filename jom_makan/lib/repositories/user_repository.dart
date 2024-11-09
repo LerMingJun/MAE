@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:jom_makan/constants/collections.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/models/user.dart';
@@ -154,23 +153,6 @@ Future<String> fetchReviewCount(String userID) async {
     return participationCount;
   }
 
-  Future<List<Participation>> fetchUserHistory(String userID) async {
-    List<Participation> history = [];
-    try {
-      QuerySnapshot participationSnapshot = await userCollection
-          .doc(userID)
-          .collection(participationSubCollection)
-          .get();
-
-      history = participationSnapshot.docs
-          .map((doc) => Participation.fromFirestore(doc))
-          .toList();
-      return history;
-    } catch (e) {
-      print('Error fetching activities: $e');
-      rethrow;
-    }
-  }
 
   Future<List<User>> fetchAllUsers() async {
     try {

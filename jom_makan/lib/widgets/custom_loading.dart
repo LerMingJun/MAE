@@ -21,7 +21,7 @@ class CustomLoading extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(text,
-            style: GoogleFonts.lato(color: AppColors.primary, fontSize: 20))
+            style: GoogleFonts.lato(color: AppColors.primary, fontSize: 20,decoration: TextDecoration.none))
       ],
     );
   }

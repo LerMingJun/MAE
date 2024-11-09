@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
@@ -33,8 +32,6 @@ class _EditPostState extends State<EditPost> {
       _titleController.text = args['currentTitle'];
       _descriptionController.text = args['currentDescription'];
       _tagsController.text = args['currentTags'].join(', ');
-      Provider.of<ParticipationProvider>(context, listen: false).fetchPastParticipatedActivities();
-      selectedActivity = "${args['activityID']}|${args['activityName']}";
     });
   }
 
@@ -48,20 +45,7 @@ class _EditPostState extends State<EditPost> {
 
   @override
   Widget build(BuildContext context) {
-    final participationProvider = Provider.of<ParticipationProvider>(context);
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-// final Map<String, dynamic>? args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-
-    List<String> activities = participationProvider.pastActivities
-        .map((activity) => "${activity.activityID}|${activity.title}")
-        .toList();
-
-    List<DropdownMenuItem<String>> dropdownItems = activities.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item.split("|")[1]),
-      );
-    }).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
