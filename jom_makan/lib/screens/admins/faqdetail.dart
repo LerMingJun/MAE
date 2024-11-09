@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/screens/admins/helpitemform.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class FaqDetailScreen extends StatelessWidget {
@@ -8,13 +10,24 @@ class FaqDetailScreen extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const FaqDetailScreen({super.key, required this.title, required this.subtitle, required this.helpItemId});
+  const FaqDetailScreen(
+      {super.key,
+      required this.title,
+      required this.subtitle,
+      required this.helpItemId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('FAQ Detail'),
+        title: Text(
+          'Faq Detail',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.green,
         actions: [
           // Hamburger menu
@@ -27,16 +40,16 @@ class FaqDetailScreen extends StatelessWidget {
               }
             },
             itemBuilder: (BuildContext context) => [
-            const PopupMenuItem<String>(
-              value: 'modify',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, color: Colors.black),
-                  SizedBox(width: 8),
-                  Text('Modify'),
-                ],
+              const PopupMenuItem<String>(
+                value: 'modify',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Modify'),
+                  ],
+                ),
               ),
-            ),
               const PopupMenuItem<String>(
                 value: 'delete',
                 child: Row(
@@ -108,27 +121,26 @@ class FaqDetailScreen extends StatelessWidget {
     );
   }
 
-void _modifyFaq(BuildContext context) async {
-  final updatedData = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => HelpItemFormScreen(
-        id: helpItemId,
-        existingTitle: title,
-        existingSubtitle: subtitle,
+  void _modifyFaq(BuildContext context) async {
+    final updatedData = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HelpItemFormScreen(
+          id: helpItemId,
+          existingTitle: title,
+          existingSubtitle: subtitle,
+        ),
       ),
-    ),
-  );
+    );
 
-  if (updatedData != null) {
-    // Assuming updatedData is a map with 'title' and 'subtitle' keys
-    // Update the FAQ details with the modified data
-    // You might want to setState to refresh the screen
-    print("Modified FAQ Title: ${updatedData['title']}");
-    print("Modified FAQ Subtitle: ${updatedData['subtitle']}");
+    if (updatedData != null) {
+      // Assuming updatedData is a map with 'title' and 'subtitle' keys
+      // Update the FAQ details with the modified data
+      // You might want to setState to refresh the screen
+      print("Modified FAQ Title: ${updatedData['title']}");
+      print("Modified FAQ Subtitle: ${updatedData['subtitle']}");
+    }
   }
-}
-
 
   void _deleteFaq(BuildContext context) {
     // Implement delete confirmation dialog before actual deletion
@@ -147,9 +159,11 @@ void _modifyFaq(BuildContext context) async {
             ),
             TextButton(
               onPressed: () {
-                Provider.of<HelpItemProvider>(context, listen: false).deleteHelpItem(helpItemId);
+                Provider.of<HelpItemProvider>(context, listen: false)
+                    .deleteHelpItem(helpItemId);
                 Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pop(); // Return to the previous screen after deletion
+                Navigator.of(context)
+                    .pop(); // Return to the previous screen after deletion
                 print("FAQ deleted.");
               },
               child: const Text(

@@ -1,7 +1,9 @@
 // lib/screens/store_details_page.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/screens/admins/modify_detail.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class StoreDetailsPage extends StatefulWidget {
@@ -13,27 +15,34 @@ class StoreDetailsPage extends StatefulWidget {
 
 class _StoreDetailsPageState extends State<StoreDetailsPage> {
   @override
-    void initState() {
+  void initState() {
     super.initState();
     Future.microtask(() {
       Provider.of<StoreProvider>(context, listen: false).fetchStore();
     });
   }
 
-String formatPhoneNumber(String number) {
-  if (number.length <= 2) return number;
-  if (number.length <= 5) {
-    return '${number.substring(0, 2)} ${number.substring(2)}';
+  String formatPhoneNumber(String number) {
+    if (number.length <= 2) return number;
+    if (number.length <= 5) {
+      return '${number.substring(0, 2)} ${number.substring(2)}';
+    }
+    return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
   }
-  return '${number.substring(0, 2)} ${number.substring(2, 6)} ${number.substring(6)}';
-}
 
   @override
   Widget build(BuildContext context) {
-        final storeProvider = Provider.of<StoreProvider>(context);
+    final storeProvider = Provider.of<StoreProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Store"),
+        title: Text(
+          "Store",
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -145,61 +154,75 @@ String formatPhoneNumber(String number) {
             const Divider(height: 32),
 
             // Owner's Contact
-ListTile(
-  leading: const Icon(Icons.contact_phone_outlined),
-  title: const Text("Contact Number"),
-  subtitle: storeProvider.storeNumber != null
-    ? Text(
-        formatPhoneNumber(storeProvider.storeNumber ?? ''),
-      )
-    : const Text(
-        'Not Available',
-      ),
-  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-  onTap: () async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ModifyDetailScreen(fieldType: "phone",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
-      ),
-    );
-  },
-),
-const Divider(),
+            ListTile(
+              leading: const Icon(Icons.contact_phone_outlined),
+              title: const Text("Contact Number"),
+              subtitle: storeProvider.storeNumber != null
+                  ? Text(
+                      formatPhoneNumber(storeProvider.storeNumber ?? ''),
+                    )
+                  : const Text(
+                      'Not Available',
+                    ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ModifyDetailScreen(
+                        fieldType: "phone",
+                        address: storeProvider.storeAddress ?? '',
+                        email: storeProvider.storeEmail ?? '',
+                        phoneNumber: storeProvider.storeNumber ?? ''),
+                  ),
+                );
+              },
+            ),
+            const Divider(),
 
-ListTile(
-  leading: const Icon(Icons.email_outlined),
-  title: const Text("Email"),
-  subtitle: Text(storeProvider.storeEmail ?? 'Not Available'), // sample email
-  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-  onTap: () async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ModifyDetailScreen(fieldType: "email",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
-      ),
-    );
-  },
-),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text("Email"),
+              subtitle: Text(
+                  storeProvider.storeEmail ?? 'Not Available'), // sample email
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ModifyDetailScreen(
+                        fieldType: "email",
+                        address: storeProvider.storeAddress ?? '',
+                        email: storeProvider.storeEmail ?? '',
+                        phoneNumber: storeProvider.storeNumber ?? ''),
+                  ),
+                );
+              },
+            ),
 
-const Divider(),
+            const Divider(),
 
-ListTile(
-  leading: const Icon(Icons.location_on),
-  title: const Text("Address"),
-  subtitle: Text(storeProvider.storeAddress ?? 'Not Available'), // sample address
-  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-  onTap: () async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ModifyDetailScreen(fieldType: "address",address:storeProvider.storeAddress ?? '',email:storeProvider.storeEmail ?? '',phoneNumber:storeProvider.storeNumber ?? ''),
-      ),
-    );
-  },
-),
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text("Address"),
+              subtitle: Text(storeProvider.storeAddress ??
+                  'Not Available'), // sample address
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ModifyDetailScreen(
+                        fieldType: "address",
+                        address: storeProvider.storeAddress ?? '',
+                        email: storeProvider.storeEmail ?? '',
+                        phoneNumber: storeProvider.storeNumber ?? ''),
+                  ),
+                );
+              },
+            ),
 
-const Divider(),
+            const Divider(),
           ],
         ),
       ),

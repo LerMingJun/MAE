@@ -90,7 +90,7 @@ class RestaurantRepository {
   Future<List<Restaurant>> fetchUnapprovedRestaurants() async {
     try {
       QuerySnapshot snapshot = await _restaurantCollection
-          .where("status", isEqualTo: "pending")
+          .where("status", isEqualTo: "Pending")
           .get();
 
       print(

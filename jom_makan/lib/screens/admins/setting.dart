@@ -1,13 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/screens/admins/edit_store_detail.dart';
 import 'package:jom_makan/screens/admins/helpcenter.dart';
 import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
 import 'package:jom_makan/screens/admins/users_list.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 class StoreProfilePage extends StatefulWidget {
   const StoreProfilePage({super.key});
@@ -126,7 +129,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               if (storeProvider.storeNumber != null)
                 Text(
                   formatPhoneNumber(storeProvider.storeNumber ?? ''),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 )
               else
                 const Text(
@@ -163,8 +167,14 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
-          automaticallyImplyLeading: false, // This line disables the back button
+        title: Text('Settings',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+          ),
+        automaticallyImplyLeading: false, // This line disables the back button
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -202,22 +212,30 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             children: [
-              _buildIconButton(Icons.people, 'Partners',onTap: () {
+              _buildIconButton(
+                Icons.people,
+                'Partners',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             const RestaurantsPage()), // Navigate to InsightsPage instead
                   );
-                },),
-              _buildIconButton(Icons.supervised_user_circle, 'Users', onTap: () {
+                },
+              ),
+              _buildIconButton(
+                Icons.supervised_user_circle,
+                'Users',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             const UsersPage()), // Navigate to InsightsPage instead
                   );
-                },),
+                },
+              ),
               _buildIconButton(
                 Icons.show_chart,
                 'Insights',
@@ -241,7 +259,8 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HelpCenterScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const HelpCenterScreen()),
               );
             },
           ),
@@ -265,9 +284,13 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               );
             },
           ),
-          const ListTile(
-            leading: Icon(Icons.logout, color: Colors.red),
-            title: Text('Log Out', style: TextStyle(color: Colors.red)),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Exit Program', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              // Perform any cleanup operations (e.g., clearing user data, tokens, etc.)
+              SystemNavigator.pop(); // This will close the app
+            },
           ),
         ],
       ),

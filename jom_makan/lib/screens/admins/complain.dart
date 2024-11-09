@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/screens/admins/specific_complain.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +36,14 @@ class _ComplainsPageState extends State<ComplainsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complains'),
+        title: Text(
+          'Complains',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: BackButton(
           onPressed: () {
             Navigator.of(context).pop();
@@ -84,11 +93,12 @@ class _ComplainsPageState extends State<ComplainsPage>
           return const Center(
             child: EmptyWidget(
               text: "No Complains Found.\nPlease try again.",
-              image: 'assets/projectEmpty.png', // Adjust the image path as needed
+              image:
+                  'assets/projectEmpty.png', // Adjust the image path as needed
             ),
           );
         }
-        
+
         return ListView.builder(
           padding: const EdgeInsets.all(16.0),
           itemCount: complains.length,
@@ -105,13 +115,13 @@ class _ComplainsPageState extends State<ComplainsPage>
 
   Widget _buildComplainCard(Complain complain) {
     return GestureDetector(
-/// The card is tappable and navigates to the complain detail screen when tapped.
-/// It displays the complain name, type, and ID.
-/// 
-/// The card has a rounded border and elevation for a raised effect. Padding is 
-/// applied to ensure content is not flush against the edges of the card.
-/// 
-/// - Parameter complain: The complain object containing details to be displayed.
+      /// The card is tappable and navigates to the complain detail screen when tapped.
+      /// It displays the complain name, type, and ID.
+      ///
+      /// The card has a rounded border and elevation for a raised effect. Padding is
+      /// applied to ensure content is not flush against the edges of the card.
+      ///
+      /// - Parameter complain: The complain object containing details to be displayed.
       onTap: () => navigateToComplainDetailScreen(context, complain),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -147,16 +157,15 @@ class _ComplainsPageState extends State<ComplainsPage>
       ),
     );
   }
-void navigateToComplainDetailScreen(BuildContext context, Complain complain) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ComplainDetailsScreen(
-        complain: complain,
+
+  void navigateToComplainDetailScreen(BuildContext context, Complain complain) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComplainDetailsScreen(
+          complain: complain,
+        ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 }
