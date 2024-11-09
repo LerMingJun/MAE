@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart';
 
@@ -176,21 +177,21 @@ class RestaurantRepository {
   }
 
   Future<void> editRestaurant(
-Restaurant restaurant
-  ) async {
-  try {
-    Map<String, dynamic> updatedData = {
-      'status': restaurant.status,
-      'commentByAdmin': restaurant.commentByAdmin,
-    };
+  Restaurant restaurant
+    ) async {
+    try {
+      Map<String, dynamic> updatedData = {
+        'status': restaurant.status,
+        'commentByAdmin': restaurant.commentByAdmin,
+      };
 
-    // Update the store document in Firestore
-    await _firestore.collection('restaurants').doc(restaurant.id).update(updatedData);
-  } catch (e) {
-    print('Error updating store: $e');
-    throw Exception('Error updating store: $e');
+      // Update the store document in Firestore
+      await _firestore.collection('restaurants').doc(restaurant.id).update(updatedData);
+    } catch (e) {
+      print('Error updating store: $e');
+      throw Exception('Error updating store: $e');
+    }
   }
-}
 
 
 
@@ -226,4 +227,79 @@ Restaurant restaurant
         print("Error updating restaurant images: $e");
       }
     }
+
+  Future<void> updateRestaurant(String restaurantId, Map<String, dynamic> updatedData) async {
+    try {
+      await _restaurantCollection.doc(restaurantId).update(updatedData);
+    } catch (e) {
+      print("Error updating restaurant: $e");
+      rethrow;
+    }
+  }
+
+Future<bool> updateRestaurantProfile({
+  required String restaurantId,
+  required String name,
+  required GeoPoint location,
+  required List<String> cuisineType,
+  required Map<String, OperatingHours> operatingHours,
+  required String intro,
+  required List<String> tags,
+}) async {
+  try {
+    // Log the parameters to check if they are passed correctly
+    print('Updating restaurant profile...');
+    print('Restaurant ID: $restaurantId');
+    print('Name: $name');
+    print('Location: $location');
+    print('Cuisine Type: $cuisineType');
+    print('Operating Hours: $operatingHours');
+    print('Intro: $intro');
+    print('Tags: $tags');
+    
+    // Convert OperatingHours instances to Map<String, dynamic> for Firestore
+    Map<String, Map<String, dynamic>> serializedOperatingHours = {};
+    operatingHours.forEach((day, hours) {
+      serializedOperatingHours[day] = hours.toMap(); // Convert OperatingHours to Map
+    });
+
+    final restaurantRef = FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
+    print('Firestore Document Reference: $restaurantRef');
+    
+    // Perform Firestore update
+    await restaurantRef.update({
+      'name': name,
+      'location': location,
+      'cuisineType': cuisineType,
+      'operatingHours': serializedOperatingHours, // Send serialized operating hours map
+      'intro': intro,
+      'tags': tags,
+    });
+
+    print('Profile updated successfully');
+    return true;
+  } catch (e) {
+    // Catch any errors and log them
+    print("Error updating profile: $e");
+    return false;
+  }
+}
+
+Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUrl) async {
+    try {
+      // Reference to the restaurant document in Firestore
+      DocumentReference restaurantRef =  FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
+
+      // Update the image URL in the restaurant document
+      await restaurantRef.update({
+        'image': newImageUrl,  // The field where the image URL is stored
+      });
+
+      print("Restaurant image updated successfully.");
+    } catch (e) {
+      print("Error updating restaurant image: $e");
+      throw Exception("Failed to update restaurant image.");
+    }
+  }
+  
 }

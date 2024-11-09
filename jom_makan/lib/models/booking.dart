@@ -8,7 +8,7 @@ class Booking {
   final int numberOfPeople;
   final Timestamp timeSlot;
   final String specialRequests;
-  final String status;
+  String status;
   final String approvalComment;
   Restaurant? restaurantDetails;
 

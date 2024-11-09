@@ -24,4 +24,13 @@ class BookingRepository {
   Future<void> deleteBooking(String bookingId) async {
     await _firestore.collection('bookings').doc(bookingId).delete();
   }
+
+    Future<List<Booking>> fetchBookingsForRestaurant(String restaurantId) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('bookings')
+        .where('restaurantId', isEqualTo: restaurantId) // Filter by restaurantId
+        .get();
+
+    return snapshot.docs.map((doc) => Booking.fromFirestore(doc)).toList();
+  }
 }

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'operatingHours.dart';
+// import 'operatingHours.dart';
 
 class Restaurant {
   final String id;
@@ -151,6 +151,16 @@ class OperatingHours {
     return OperatingHours(
       openTime: data['open'] ?? '',
       closeTime: data['close'] ?? '',
+    );
+  }
+   // Method to create a modified copy of OperatingHours instance
+  OperatingHours copyWith({
+    String? openTime,
+    String? closeTime,
+  }) {
+    return OperatingHours(
+      openTime: openTime ?? this.openTime,
+      closeTime: closeTime ?? this.closeTime,
     );
   }
 

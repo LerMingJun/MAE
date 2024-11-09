@@ -1,10 +1,11 @@
 // lib/widget/custom_bottom_navigation.dart
 import 'package:flutter/material.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_home.dart'; // Home screen
-// import 'package:jom_makan/screens/restaurant/booking.dart'; // Booking screen
+import 'package:jom_makan/screens/restaurant/restaurant_booking.dart'; // Booking screen
 // import 'package:jom_makan/screens/restaurant/voucher.dart'; // Voucher screen
 // import 'package:jom_makan/screens/restaurant/community.dart'; // Community screen
 // import 'package:jom_makan/screens/restaurant/profile.dart'; // Profile screen
+import 'package:jom_makan/screens/restaurant/restaurant_profile.dart'; // Profile screen
 
 class CustomBottomNavigation extends StatelessWidget {
   final int selectedIndex;
@@ -25,14 +26,14 @@ class CustomBottomNavigation extends StatelessWidget {
           // Navigate to Home page
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const RestaurantHome()),
+            MaterialPageRoute(builder: (context) => const RestaurantHome(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
           );
         } else if (index == 1) {
           // Navigate to Booking page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const BookingPage()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ManageBooking(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
+          );
         } else if (index == 2) {
           // Navigate to Voucher page
           // Navigator.push(
@@ -47,10 +48,11 @@ class CustomBottomNavigation extends StatelessWidget {
           // );
         } else if (index == 4) {
           // Navigate to Profile page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const ProfilePage()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ManageProfilePage(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
+            //  MaterialPageRoute(builder: (context) => const StoreDetailsPage()),
+          );
         } else {
           // Call the original onItemSelected callback for other icons
           onItemSelected(index);

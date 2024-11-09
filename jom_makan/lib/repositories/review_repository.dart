@@ -12,7 +12,7 @@ class ReviewRepository {
           .collection('reviews')
           .where('restaurantId', isEqualTo: restaurantId)
           .orderBy('timestamp', descending: true) // Most recent reviews first
-          .limit(3) // Limit to 3 reviews for initial display
+          // .limit(3) // Limit to 3 reviews for initial display
           .get();
 
       return snapshot.docs.map((doc) => Review.fromFirestore(doc)).toList();
