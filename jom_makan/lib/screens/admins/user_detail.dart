@@ -254,10 +254,10 @@ String? reviewCount = userProvider.reviewCount;
                 }
                 if (title == 'Delete') {
                   provider.updateUser(widget.user.copyWith(
-                      status: "delete", commentByAdmin: userInput));
+                      status: "Delete", commentByAdmin: userInput));
                 } else if (title == 'Suspend') {
                   provider.updateUser(widget.user.copyWith(
-                      status: "suspend", commentByAdmin: userInput));
+                      status: "Suspend", commentByAdmin: userInput));
                 }
                 Navigator.of(context).pop();
               },
