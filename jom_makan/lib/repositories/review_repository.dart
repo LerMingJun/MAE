@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/reply.dart';
 import 'package:jom_makan/models/review.dart';
 
 class ReviewRepository {
@@ -66,6 +67,23 @@ class ReviewRepository {
     } catch (e) {
       print('Error deleting review or replies: $e');
       return false;
+    }
+  }
+
+  Future<List<Reply>> fetchRepliesForReview(String reviewId) async {
+    try {
+      final reviewDocRef =
+          FirebaseFirestore.instance.collection('reviews').doc(reviewId);
+
+      // Delete all replies in the subcollection 'replies'
+      final replySnapshot = await reviewDocRef.collection('replies').get();
+
+      return replySnapshot.docs
+          .map((doc) => Reply.fromFirestore(doc.data(), doc.id))
+          .toList();
+      
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -8,11 +8,16 @@ import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
+import 'package:jom_makan/providers/reply_provider.dart';
+import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
+import 'package:jom_makan/screens/admins/mainpage.dart';
 import 'package:jom_makan/screens/onboarding/onboarding_screen.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
+import 'package:jom_makan/screens/restaurant/signup.dart';
 import 'package:jom_makan/screens/user/addPost.dart';
 import 'package:jom_makan/screens/user/community.dart';
 import 'package:jom_makan/screens/user/editPost.dart';
@@ -70,6 +75,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => HelpItemProvider()),
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
+        ChangeNotifierProvider(create: (_) => ReplyProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider(null)),
+        ChangeNotifierProvider(create: (_) => StoreProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -78,14 +87,11 @@ class MyApp extends StatelessWidget {
             theme: CustomTheme.lightTheme, // Light theme
             darkTheme: CustomTheme.darkTheme, // Dark theme
             // Set initial route based on user authentication state
-            initialRoute: authProvider.userData != null ? '/homeScreen' : '/',
+            initialRoute: authProvider.userData != null ? '/homeScreen' : '/login',
             routes: {
-              '/': (context) => const OnboardingScreens(), // Onboarding screen
               '/login': (context) => Login(), // Login screen
               '/signup': (context) => const SignUp(), // Signup screen
               '/home': (context) => const Home(), // Home screen
-              '/addPost': (context) => const AddPost(), // Add post screen
-              '/community': (context) => const Community(), // Community screen
               '/editProfile': (context) => const EditProfile(), // Edit profile screen
               '/homeScreen': (context) => const HomeScreen(), // Home screen for logged-in users
               '/profile': (context) => const Profile(), // User profile screen
@@ -94,7 +100,8 @@ class MyApp extends StatelessWidget {
               '/editPost': (context) => const EditPost(), // Edit post screen
               '/restaurantList': (context) => const RestaurantsPage(), // Restaurant list screen
               '/restaurantManagement': (context) => const RestaurantManagementPage(), // Restaurant management screen
-              
+              '/adminHome': (context) => const MainPage(), // Admin home screen
+              '/restaurantSignUp': (context) => const RestaurantSignUp(), // Restaurant sign-up screen
             },
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/restaurantDetails') {

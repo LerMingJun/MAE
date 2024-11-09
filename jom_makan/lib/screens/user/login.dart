@@ -1,12 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/auth_provider.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
 import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class Login extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
@@ -26,12 +29,10 @@ class Login extends StatelessWidget {
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20), // Horizontal padding
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Align items to the start
-                crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
                 children: [
-                  const SizedBox(height: 100), // Space at the top to give some breathing room
+                  const SizedBox(height: 100),
                   Image.asset(
                     'assets/logo-no-background.png',
                     height: 120,
@@ -42,9 +43,7 @@ class Login extends StatelessWidget {
                     controller: _emailController,
                     placeholderText: 'Email',
                     keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) {
-                      // Handle text field changes
-                    },
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 20),
                   CustomTextFormField(
@@ -52,9 +51,7 @@ class Login extends StatelessWidget {
                     placeholderText: 'Password',
                     keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
-                    onChanged: (value) {
-                      // Handle text field changes
-                    },
+                    onChanged: (value) {},
                   ),
                   const SizedBox(height: 40),
                   CustomPrimaryButton(
@@ -62,17 +59,41 @@ class Login extends StatelessWidget {
                       final email = _emailController.text.trim();
                       final password = _passwordController.text.trim();
                       await authProvider.signInWithEmail(email, password);
+
+                      // Check if user is logged in successfully
                       if (authProvider.user != null) {
-                        Navigator.pushReplacementNamed(context, '/homeScreen');
+                        // Determine role after successful login
+                        String userRole =
+                            await _determineUserRole(authProvider.user!);
+
+                        if (userRole == 'user') {
+                          Navigator.pushReplacementNamed(
+                              context, '/homeScreen');
+                        } else if (userRole == 'restaurant') {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RestaurantHome(
+                                        restaurantId: authProvider.user!.uid,
+                                      )));
+                        } else if (userRole == 'admin') {
+                          Navigator.pushReplacementNamed(context, '/adminHome');
+                        } else {
+                          // Show error if no role found
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red,
+                              content:
+                                  Text('Error Logging In, Please Try Again.'),
+                            ),
+                          );
+                        }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: Colors.red,
-                            content: Text(
-                              'Error Logging In, Please Try Again.',
-                              style: GoogleFonts.poppins(color: Colors.white),
-                            ),
-                            showCloseIcon: true,
+                            content:
+                                Text('Error Logging In, Please Try Again.'),
                           ),
                         );
                       }
@@ -86,22 +107,39 @@ class Login extends StatelessWidget {
                     text: TextSpan(
                       text: 'Not part of us yet? ',
                       style: const TextStyle(color: Colors.black),
-                      children: <TextSpan>[
+                      children: [
                         TextSpan(
                           text: 'Sign Up Now!',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
+                          style: TextStyle(
+                              color: AppColors.primary,
+                              decoration: TextDecoration.underline),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Navigator.pushNamed(context, '/signup');
+                              Navigator.pushNamed(context, '/signUp');
                             },
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40), // Add some space below
+                  const SizedBox(height: 20),
+                  RichText(
+                    text: TextSpan(
+                      text: 'Join as restaurant partner? ',
+                      style: const TextStyle(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: 'Sign Up Now!',
+                          style: TextStyle(
+                              color: AppColors.primary,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushNamed(context, '/restaurantSignUp');
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -126,5 +164,24 @@ class Login extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> _determineUserRole(auth.User user) async {
+    // Check if the user is a restaurant
+    DocumentSnapshot restaurantDoc = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .doc(user.uid)
+        .get();
+    if (restaurantDoc.exists) {
+      return 'restaurant';
+    }
+
+    // Check if the user is an admin
+    if (user.email == 'admin@admin.com') {
+      return 'admin';
+    }
+
+    // If neither, assume it's a regular user
+    return 'user';
   }
 }

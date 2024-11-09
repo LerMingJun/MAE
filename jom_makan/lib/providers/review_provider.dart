@@ -9,9 +9,11 @@ class ReviewProvider with ChangeNotifier {
   final RestaurantRepository _restaurantRepository = RestaurantRepository();
   List<Review> _reviews = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   List<Review> get reviews => _reviews;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   void clearReviews() {
     _reviews = []; // Clear the reviews list
@@ -62,7 +64,10 @@ class ReviewProvider with ChangeNotifier {
     for (var review in reviews) {
       totalRating += review.rating; // Assuming Review has a 'rating' field
     }
-    return totalRating / reviews.length; // Average rating
+
+    // Calculate and round to two decimal places
+    double averageRating = totalRating / reviews.length;
+    return double.parse(averageRating.toStringAsFixed(2));
   }
 
   // Fetch reviews for a specific restaurant and calculate the average rating
@@ -86,7 +91,7 @@ class ReviewProvider with ChangeNotifier {
     Restaurant? lowestRatingRestaurant;
 
     double highestRating = double.negativeInfinity;
-    double lowestRating = 0.0;
+    double lowestRating = 5.0;
 
     for (var restaurant in restaurants) {
       // Fetch the average rating for each restaurant
@@ -98,7 +103,7 @@ class ReviewProvider with ChangeNotifier {
         highestRatingRestaurant = restaurant; // Store restaurant
       }
       // Identify lowest rating restaurant
-      if (averageRating < lowestRating) {
+      if (averageRating < lowestRating && averageRating != 0.0) {
         lowestRating = averageRating;
         lowestRatingRestaurant = restaurant; // Store restaurant
       }
@@ -139,14 +144,43 @@ class ReviewProvider with ChangeNotifier {
 
   // Delete a review
   Future<bool> deleteReview(String reviewId) async {
+    _isLoading = true;
+    notifyListeners();
     // Call deleteReview from the repository
     bool success = await _reviewRepository.deleteReview(reviewId);
 
     if (success) {
       // Remove the review from the local list if the deletion is successful
       _reviews.removeWhere((review) => review.reviewId == reviewId);
+      _isLoading = false;
+      notifyListeners(); // Notify listeners to update the UI
+    } else {
+      _isLoading = false;
       notifyListeners(); // Notify listeners to update the UI
     }
+
     return success;
+  }
+
+Future<void> fetchAllReviewsAndReplies(String restaurantId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      _reviews = await _reviewRepository.fetchReviews(restaurantId);
+      // Fetch replies for each review
+      for (var review in _reviews) {
+        review.replies = await _reviewRepository.fetchRepliesForReview(review.reviewId);
+      }
+
+      _isLoading = false;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (error) {
+      _isLoading = false;
+      _errorMessage = error.toString();
+      notifyListeners();
+      throw error;
+    }
   }
 }

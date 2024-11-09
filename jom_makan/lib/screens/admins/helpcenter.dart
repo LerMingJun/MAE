@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/screens/admins/faqdetail.dart';
 import 'package:jom_makan/screens/admins/helpitemform.dart';
 import 'package:jom_makan/screens/admins/setting.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class HelpCenterScreen extends StatefulWidget {
@@ -34,7 +36,14 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppBar(
-                title: const Text('Help Centre'),
+                title: Text(
+                  'Help Centre',
+                  style: GoogleFonts.lato(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),

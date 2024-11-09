@@ -370,7 +370,7 @@ class _ComplainsState extends State<Complains> {
 
                   await context
                       .read<ComplainProvider>()
-                      .addComplain(newComplain);
+                      .submitComplain(newComplain,"user");
                   Navigator.of(context).pop();
                   _complainController.clear();
                   ScaffoldMessenger.of(context).showSnackBar(

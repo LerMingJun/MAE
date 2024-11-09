@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/screens/admins/mainpage.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_tab_bar.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/widgets/custom_empty.dart';
+import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:provider/provider.dart';
 
 class CustomerAnalyticsScreen extends StatefulWidget {
   const CustomerAnalyticsScreen({super.key});
 
   @override
-  _CustomerAnalyticsScreenState createState() => _CustomerAnalyticsScreenState();
+  _CustomerAnalyticsScreenState createState() =>
+      _CustomerAnalyticsScreenState();
 }
 
 class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
+  Future<Map<String, dynamic>>? _analyticsData;
+
   @override
   void initState() {
     super.initState();
-    Provider.of<UserProvider>(context, listen: false).fetchAllUsers();
+    _analyticsData = _fetchAnalyticsData();
   }
 
-  @override
+  Future<Map<String, dynamic>> _fetchAnalyticsData() async {
+    // Fetch data from providers concurrently
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Fetch all required data
+    await Future.wait([
+      userProvider.fetchAllUsers(),
+    ]);
+
+    // Fetch the highest and lowest rated restaurants
+    final topUsers = await userProvider.findTopUsers();
+
+    return {
+      'totalUsers': userProvider.totalUserCount,
+      'topUserByPosts': topUsers['topUserByPosts'],
+      'topUserByLikes': topUsers['topUserByLikes'],
+      'maxPosts': topUsers['maxPosts'],
+      'maxLikes': topUsers['maxLikes'],
+    };
+  }
+
+ @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -30,50 +57,94 @@ class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
             );
           },
         ),
-        title: const Text('Analytics'),
+        title: Text(
+          'Analytics',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Custom Tab Bar
             const SizedBox(
-              width: double.infinity, // Take up the full width of the screen
-              height: 48.0, // Specify a fixed height
-              child: CustomTabBar(index:2),
+              width: double.infinity,
+              height: 48.0,
+              child: CustomTabBar(index: 2),
             ),
             const SizedBox(height: 16.0),
 
-            // // Analytics Cards
-            // _buildAnalyticsCard(
-            //   title: 'Total Partners',
-            //   value: '20', // Replace with your data
-            //   change: '▲ 5',
-            //   changeColor: Colors.green,
-            // ),
-            _buildAnalyticsCard(
-              title: 'Total Users',
-              value: userProvider.totalUserCount.toString(), // Replace with your data
-              change: '▼ 10',
-              changeColor: Colors.red,
+            // Center and add SingleChildScrollView to allow scrolling on overflow
+            Center(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height *
+                    0.8, // Adjust height to your preference
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: _analyticsData,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Center the loading indicator
+                      return const Center(
+                        child: CustomLoading(text: 'Fetching Analytics...'),
+                      );
+                    } else if (snapshot.hasError) {
+                      // Show error state
+                      return const Center(
+                        child: Text('Error fetching analytics data'),
+                      );
+                    } else if (snapshot.hasData) {
+                      // Show empty state if data is empty
+                      if (snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: EmptyWidget(
+                            text: "No Analytics Found.\nPlease try again.",
+                            image: 'assets/projectEmpty.png',
+                          ),
+                        );
+                      }
+                      // Display analytics cards if data exists with scrollable view
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            if (snapshot.data!['totalUsers'] != null)
+                              _buildAnalyticsCard(
+                                title: 'Total Users',
+                                value: snapshot.data!['totalUsers'].toString(),
+                                changeColor: Colors.green,
+                              ),
+                            if (snapshot.data!['topUserByPosts'] != null)
+                              _buildAnalyticsCard(
+                                title: 'Top User by Posts',
+                                value:
+                                    snapshot.data!['topUserByPosts'] ?? 'N/A',
+                                additionalInfo:
+                                    snapshot.data!['topUserByPosts'] != null
+                                        ? 'Posts: ${snapshot.data!['maxPosts']}'
+                                        : 'No posts available',
+                              ),
+                            if (snapshot.data!['topUserByLikes'] != null)
+                              _buildAnalyticsCard(
+                                title: 'Top User by Likes',
+                                value:
+                                    snapshot.data!['topUserByLikes'] ?? 'N/A',
+                                additionalInfo:
+                                    snapshot.data!['topUserByLikes'] != null
+                                        ? 'Likes: ${snapshot.data!['maxLikes']}'
+                                        : 'No likes available',
+                              ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox(); // Default return if none of the above conditions match
+                  },
+                ),
+              ),
             ),
-            // _buildAnalyticsCard(
-            //   title: 'Lowest Rating Partner',
-            //   value: 'John\'s Café',
-            //   additionalInfo: 'Rating: 2.0',
-            // ),
-            // _buildAnalyticsCard(
-            //   title: 'Highest Rating Partner',
-            //   value: 'Elite Dine',
-            //   additionalInfo: 'Rating: 4.9',
-            // ),
-            // _buildAnalyticsCard(
-            //   title: 'Average Order Value',
-            //   value: 'MYR 25.40',
-            //   change: '▲ 3%',
-            //   changeColor: Colors.green,
-            // ),
           ],
         ),
       ),

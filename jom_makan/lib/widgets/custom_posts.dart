@@ -20,6 +20,7 @@ class CommunityPost extends StatelessWidget {
   final List<String> tags;
   final String userID;
   final bool? edit;
+  final VoidCallback? deletePost;
 
   const CommunityPost({
     required this.postID,
@@ -34,6 +35,7 @@ class CommunityPost extends StatelessWidget {
     required this.userID,
     this.edit = false,
     super.key,
+    this.deletePost,
   });
 
   @override
@@ -109,10 +111,20 @@ class CommunityPost extends StatelessWidget {
                       },
                     );
                   },
-                  child: const Icon(
-                    Icons.edit,
-                    color: Colors.blue,
-                    size: 20,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.edit,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: deletePost,
+                        color: Colors.red,
+                        tooltip: 'Delete Post',
+                      ),
+                    ],
                   ),
                 ),
             ],

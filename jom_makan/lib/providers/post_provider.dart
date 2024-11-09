@@ -11,6 +11,7 @@ class PostProvider with ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
 
   bool _isLoading = false;
+  bool isAddingPost = false;
   List<Post>? _posts;
   List<Post>? _postsByUserID;
   Post? _userPost;
@@ -22,22 +23,22 @@ class PostProvider with ChangeNotifier {
 
   Future<void> addPost(XFile? imageFile, String title, String description,
       List<String> tags) async {
-    _isLoading = true;
+    isAddingPost = true;
     notifyListeners();
 
     try {
       await _postRepository.addPost(_authRepository.currentUser!.uid, imageFile,
           title, description, tags);
       await fetchAllPosts();
-
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
-      _isLoading = false;
+      isAddingPost = false;
       notifyListeners();
       print('Error in PostProvider: $e');
       throw Exception('Error adding post');
     }
+
+    isAddingPost = false;
+    notifyListeners();
   }
 
   Future<void> updatePost(String postID, XFile? imageFile, String title,

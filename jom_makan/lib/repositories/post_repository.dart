@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/models/post.dart';
+import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/user.dart';
 
 class PostRepository {
@@ -87,9 +88,11 @@ class PostRepository {
           if (userDoc.exists) {
             post.user = User.fromFirestore(userDoc);
           } else {
-            // Optionally handle missing user data
-            print('User document does not exist for userId: ${post.userID}');
-            post.user = null; // or set a default User object if needed
+            DocumentSnapshot restaurantDoc =
+                await restaurantCollection.doc(post.userID).get();
+            if (restaurantDoc.exists) {
+              post.restaurant = Restaurant.fromFirestore(restaurantDoc);
+            }
           }
         } else {
           print('userId is empty or null for post: ${post.postId}');

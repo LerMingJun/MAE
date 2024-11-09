@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/store_provider.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class ModifyDetailScreen extends StatefulWidget {
@@ -67,8 +69,8 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
               child: Image.asset('assets/email.jpeg'),
             ),
           ],
-        );      
-        case "address":
+        );
+      case "address":
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -79,8 +81,8 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
               child: Image.asset('assets/addressPin.png'),
             ),
           ],
-        ); 
-              default:
+        );
+      default:
         return null;
     }
   }
@@ -176,7 +178,14 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(getFieldLabel()),
+        title: Text(
+          getFieldLabel(),
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -208,7 +217,7 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
                       errorText: errorMessage,
                     ),
                   ),
-                                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (widget.fieldType == "address")
                     Image.asset(
                       'assets/map.png',

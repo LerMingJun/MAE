@@ -25,7 +25,8 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final String? userId = userProvider.firebaseUser?.uid;
+                userProvider.fetchUserData();
+      final String? userId = userProvider.userData?.userID;
     final reviewProvider = Provider.of<ReviewProvider>(context);
 
     // Status banner properties

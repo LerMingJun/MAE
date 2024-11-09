@@ -10,8 +10,8 @@ import 'package:jom_makan/widgets/restaurant/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
 class RestaurantSetting extends StatefulWidget {
-  const RestaurantSetting({super.key});
-
+  final String restaurantId;
+  const RestaurantSetting({super.key, required this.restaurantId});
   @override
   _RestaurantSettingState createState() => _RestaurantSettingState();
 }
@@ -33,7 +33,6 @@ class _RestaurantSettingState extends State<RestaurantSetting> {
     // Add navigation logic here based on the index
   }
 
-
   String formatPhoneNumber(String number) {
     if (number.length <= 2) return number;
     if (number.length <= 5) {
@@ -43,90 +42,91 @@ class _RestaurantSettingState extends State<RestaurantSetting> {
   }
 
   void _showContactAdminOverlay(int pinNumber) {
-  final storeProvider = Provider.of<StoreProvider>(context, listen: false);
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (BuildContext context) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Display PIN number
-            Text(
-              'PIN #$pinNumber',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-
-            // JomMakan Contact Information title
-            const Text(
-              "JomMakan Contact Information",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-
-            // Description
-            Text(
-              "For any inquiries, please reach out using the contact details below.",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-            const SizedBox(height: 16),
-
-            // Phone number or Not Available
-            if (storeProvider.storeNumber != null)
+    final storeProvider = Provider.of<StoreProvider>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Display PIN number
               Text(
-                formatPhoneNumber(storeProvider.storeNumber ?? ''),
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              )
-            else
+                'PIN #$pinNumber',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+
+              // JomMakan Contact Information title
               const Text(
-                'Not Available',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                "JomMakan Contact Information",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-            // Email or Not Available
-            Text(
-              storeProvider.storeEmail ?? 'Not Available',
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-            const SizedBox(height: 20),
-
-            // Close button
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the overlay
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+              // Description
+              Text(
+                "For any inquiries, please reach out using the contact details below.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[700]),
               ),
-              child: const Text(
-                'Close',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+              const SizedBox(height: 16),
 
+              // Phone number or Not Available
+              if (storeProvider.storeNumber != null)
+                Text(
+                  formatPhoneNumber(storeProvider.storeNumber ?? ''),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              else
+                const Text(
+                  'Not Available',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              const SizedBox(height: 8),
+
+              // Email or Not Available
+              Text(
+                storeProvider.storeEmail ?? 'Not Available',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              const SizedBox(height: 20),
+
+              // Close button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the overlay
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-          automaticallyImplyLeading: false, // This line disables the back button
+        automaticallyImplyLeading: false, // This line disables the back button
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -164,22 +164,30 @@ class _RestaurantSettingState extends State<RestaurantSetting> {
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             children: [
-              _buildIconButton(Icons.people, 'Partners',onTap: () {
+              _buildIconButton(
+                Icons.people,
+                'Partners',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             const RestaurantsPage()), // Navigate to InsightsPage instead
                   );
-                },),
-              _buildIconButton(Icons.supervised_user_circle, 'Users', onTap: () {
+                },
+              ),
+              _buildIconButton(
+                Icons.supervised_user_circle,
+                'Users',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             const UsersPage()), // Navigate to InsightsPage instead
                   );
-                },),
+                },
+              ),
               _buildIconButton(
                 Icons.show_chart,
                 'Insights',
@@ -201,7 +209,8 @@ class _RestaurantSettingState extends State<RestaurantSetting> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HelpCenterScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const HelpCenterScreen()),
               );
             },
           ),
@@ -234,6 +243,7 @@ class _RestaurantSettingState extends State<RestaurantSetting> {
       bottomNavigationBar: CustomBottomNavigation(
         selectedIndex: _selectedIndex,
         onItemSelected: _onItemTapped,
+        restaurantId: widget.restaurantId,
       ),
     );
   }

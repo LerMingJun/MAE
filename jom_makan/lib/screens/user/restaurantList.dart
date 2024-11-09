@@ -35,7 +35,8 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       restaurantProvider.fetchAllRestaurants();
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final String? userId = userProvider.firebaseUser?.uid;
+                 userProvider.fetchUserData();
+      final String? userId = userProvider.userData?.userID;
       if (userId != null) {
         Provider.of<FavoriteProvider>(context, listen: false)
             .fetchFavorites(userId);

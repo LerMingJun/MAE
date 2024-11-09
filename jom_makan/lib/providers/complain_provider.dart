@@ -90,14 +90,46 @@ class ComplainProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addComplain(Complain complain) async {
+  Future<void> submitComplain(Complain complain, String userType) async {
     try {
-      await _complainRepository.addComplain(complain);
-      _userComplains.add(complain);
-      notifyListeners(); // Notify listeners to update UI if needed
+      await _complainRepository.addComplain(
+          complain, userType); // Call the repository to add the new complain
+      notifyListeners(); // Notify listeners after the complaint is added
     } catch (e) {
-      print('Error adding complaint in provider: $e');
-      throw Exception('Error adding complaint in provider: $e');
+      print('Error submitting complain: $e');
+      throw Exception('Error submitting complain: $e');
     }
   }
+
+  Future<void> fetchComplainsBasedonUserID(
+      String userID, String userType) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      List<Complain> userComplains = await _complainRepository
+          .fetchUserComplainBasedonUserID(userID, userType);
+      print(
+          'Fetched ${userComplains.length} complaints for userID: $userID and userType: $userType');
+
+      // Classify complaints into resolved and unresolved
+      _resolvedComplains = userComplains
+          .where((complain) => complain.feedback?.isNotEmpty ?? false)
+          .toList();
+      _unresolvedComplains = userComplains
+          .where((complain) =>
+              complain.feedback == null || complain.feedback!.isEmpty)
+          .toList();
+
+      print('Resolved complaints count: ${_resolvedComplains.length}');
+      print('Unresolved complaints count: ${_unresolvedComplains.length}');
+    } catch (e) {
+      print('Error fetching complaints for userID $userID: $e');
+      throw Exception('Error fetching complaints');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 }

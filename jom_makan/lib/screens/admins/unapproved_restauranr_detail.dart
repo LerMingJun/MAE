@@ -31,7 +31,7 @@ class UnapprovedRestauranrDetail extends StatelessWidget {
     String statusText;
 
     switch (restaurant.status) {
-      case 'pending':
+      case 'Pending':
         statusColor = Colors.orange;
         statusText = 'Pending Approval';
         break;

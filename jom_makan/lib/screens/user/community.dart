@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jom_makan/constants/placeholderURL.dart';
+import 'package:jom_makan/providers/restaurant_provider.dart';
+import 'package:jom_makan/screens/user/addPost.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +13,9 @@ import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 
 class Community extends StatefulWidget {
-  const Community({super.key});
+  final String? userId;
+  final String? userRole;
+  const Community({super.key, required this.userId, required this.userRole});
 
   @override
   State<Community> createState() => _CommunityState();
@@ -19,24 +24,35 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community> {
   final TextEditingController searchController = TextEditingController();
   List<Post> filteredPosts = [];
-  bool showUserPostsOnly = false; // Toggle to filter user-specific posts
+  bool showUserPostsOnly = false;
+  bool isDescending = true;
 
   @override
   void initState() {
     super.initState();
+    print("Current User ID: ${widget.userId}");
+    _fetchPosts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      postProvider.fetchAllPosts().then((_) {
-        setState(() {
-          filteredPosts = postProvider.posts ?? [];
-        });
-      });
+    filteredPosts = postProvider.posts ?? [];
+    sortPosts();
+  }
+
+  void _fetchPosts() async {
+    final postProvider = Provider.of<PostProvider>(context, listen: false);
+    await postProvider.fetchAllPosts();
+    setState(() {
+      filteredPosts = postProvider.posts ?? [];
+      sortPosts();
     });
   }
 
   void filterPosts(String query) {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     setState(() {
       if (query.isEmpty) {
@@ -47,38 +63,100 @@ class _CommunityState extends State<Community> {
                       post.description
                           .toLowerCase()
                           .contains(query.toLowerCase())) &&
-                  (!showUserPostsOnly ||
-                      post.userID == userProvider.userData!.userID);
+                  (!showUserPostsOnly || post.userID == widget.userId);
             }).toList() ??
             [];
       }
+      sortPosts();
     });
   }
 
   void toggleUserPostsFilter() {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     setState(() {
       showUserPostsOnly = !showUserPostsOnly;
       filteredPosts = postProvider.posts?.where((post) {
-            return !showUserPostsOnly ||
-                post.userID == userProvider.userData!.userID;
+            return !showUserPostsOnly || post.userID == widget.userId;
           }).toList() ??
           [];
+      sortPosts();
     });
+  }
+
+  void toggleSortOrder() {
+    setState(() {
+      isDescending = !isDescending;
+      sortPosts();
+    });
+  }
+
+  void sortPosts() {
+    setState(() {
+      filteredPosts.sort((a, b) {
+        final aTime = a.createdAt;
+        final bTime = b.createdAt;
+        if (aTime == null || bTime == null) {
+          return 0;
+        }
+        return isDescending ? bTime.compareTo(aTime) : aTime.compareTo(bTime);
+      });
+    });
+  }
+
+  void deletePost(String postId) async {
+    final postProvider = Provider.of<PostProvider>(context, listen: false);
+
+    bool? confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this post?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      await postProvider.deletePost(postId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post deleted successfully')),
+      );
+      setState(() {
+        filteredPosts.removeWhere((post) => post.postId == postId);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/addPost');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddPost(
+                        userId: widget.userId,
+                        userRole: widget.userRole,
+                      )));
         },
         backgroundColor: AppColors.tertiary,
         foregroundColor: Colors.black,
@@ -92,7 +170,6 @@ class _CommunityState extends State<Community> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Heading and Filter Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,18 +181,34 @@ class _CommunityState extends State<Community> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      showUserPostsOnly ? Icons.person : Icons.person_outline,
-                      color: AppColors.primary,
-                    ),
-                    onPressed: toggleUserPostsFilter,
-                    tooltip: 'Show only my posts',
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          showUserPostsOnly
+                              ? Icons.person
+                              : Icons.person_outline,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: toggleUserPostsFilter,
+                        tooltip: 'Show only my posts',
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isDescending
+                              ? Icons.arrow_downward
+                              : Icons.arrow_upward,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: toggleSortOrder,
+                        tooltip:
+                            isDescending ? 'Sort Ascending' : 'Sort Descending',
+                      ),
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: 10),
-              // Search Bar
               TextField(
                 controller: searchController,
                 onChanged: filterPosts,
@@ -132,7 +225,6 @@ class _CommunityState extends State<Community> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Post Content
               if (postProvider.isLoading)
                 const Expanded(
                   child: Center(
@@ -153,28 +245,33 @@ class _CommunityState extends State<Community> {
                       await postProvider.fetchAllPosts();
                       setState(() {
                         filteredPosts = postProvider.posts ?? [];
+                        sortPosts();
                       });
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.only(bottom: 80.0),
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
-                        final post = postProvider.posts![index];
-                        final isEditable =
-                            post.userID == userProvider.userData!.userID;
+                        final post = filteredPosts[index];
+                        final isEditable = widget.userId == post.userID;
                         return CommunityPost(
                           postID: post.postId,
-                          profileImage:
-                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
-                          name: post.user!.username,
+                          profileImage: post.user?.profileImage ??
+                              post.restaurant?.image ??
+                              userPlaceholder,
+                          name: post.user?.username ??
+                              post.restaurant?.name ??
+                              '',
                           tags: post.tags,
                           date: post.createdAt,
                           postImage: post.postImage,
                           postTitle: post.title,
                           postDescription: post.description,
                           likes: post.likes,
-                          userID: userProvider.userData!.userID,
+                          userID: post.userID,
                           edit: isEditable,
+                          deletePost:
+                              isEditable ? () => deletePost(post.postId) : null,
                         );
                       },
                     ),

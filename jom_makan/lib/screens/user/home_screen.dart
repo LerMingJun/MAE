@@ -1,11 +1,13 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/user/community.dart';
 import 'package:jom_makan/screens/user/restaurantList.dart';
 import 'package:jom_makan/screens/user/home.dart';
 import 'package:jom_makan/screens/user/profile.dart';
 import 'package:jom_makan/screens/user/restaurantManage.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,11 +25,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchUserData();
+
+    userProvider.fetchUserData();
+    final String? userId = userProvider.userData?.userID;
     _pages = [
       const Home(),
       const RestaurantsPage(),
       const RestaurantManagementPage(),
-      const Community(),
+      Community(
+        userId: userProvider.userData!.userID,
+        userRole: "User",
+      ),
       const Profile(),
     ];
   }

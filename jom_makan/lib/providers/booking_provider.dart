@@ -70,4 +70,46 @@ class BookingProvider with ChangeNotifier {
     await _bookingRepository.deleteBooking(bookingId);
     await fetchBookings(userId);
   }
+
+  Future<void> fetchPendingBookings(String restaurantId) async {
+  _isLoading = true;
+  notifyListeners();
+
+  // Fetch all bookings (no filtering by userId)
+  List<Booking> allBookings = await _bookingRepository.fetchBookingsForRestaurant(restaurantId);
+
+  // Filter bookings that match the restaurantId and have "Pending" status
+  _bookings = allBookings.where((booking) =>
+      booking.status == "Pending" && booking.restaurantId == restaurantId).toList();
+
+  // Fetch restaurant details for each pending booking
+  for (var booking in _bookings) {
+    // Assuming Booking has a restaurantId property
+    booking.restaurantDetails = await _restaurantProvider.fetchRestaurantByID(booking.restaurantId);
+  }
+
+  _isLoading = false;
+  notifyListeners();
+}
+  Future<void> updateBookingStatus(Booking booking, String newStatus) async {
+    booking.status = newStatus;
+    await _bookingRepository.updateBooking(booking);
+    notifyListeners();
+  }
+
+  Future<void> fetchBookingsByRestaurant(String restaurantId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    List<Booking> allBookings = await _bookingRepository.fetchBookingsForRestaurant(restaurantId);
+
+    _bookings = allBookings.where((booking) => booking.restaurantId == restaurantId).toList();
+
+    for (var booking in _bookings) {
+      booking.restaurantDetails = await _restaurantProvider.fetchRestaurantByID(booking.restaurantId);
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
 }

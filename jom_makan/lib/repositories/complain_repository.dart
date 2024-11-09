@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/models/complain.dart';
 
@@ -119,59 +121,117 @@ class ComplainRepository {
     return complains;
   }
 
-  Future<void> editComplain(Complain complain) async {
+    Future<void> editComplain(
+Complain complain
+  ) async {
+  try {
+    Map<String, dynamic> updatedData = {
+      'feedback': complain.feedback,
+    };
+    if (complain.userType == 'user') {
+      // Update the user document in Firestore
+      await _firestore.collection('users').doc(complain.userID).collection('complain').doc(complain.id).update(updatedData);
+    } else if (complain.userType == 'restaurant') {
+          await _firestore.collection('restaurants').doc(complain.userID).collection('complain').doc(complain.id).update(updatedData);
+
+    } else {
+      throw Exception('Invalid user type');
+    }
+    // Update the store document in Firestore
+    await fetchRestaurantComplains();
+    
+  } catch (e) {
+    print('Error updating store: $e');
+    throw Exception('Error updating store: $e');
+  }
+}
+  Future<List<Complain>> fetchUserComplainBasedonUserID(String userID, String userType) async {
+      List<Complain> complains = [];
+
+      try {
+        // Check userType and fetch the relevant complaints
+        if (userType == 'user') {
+          // Fetch complaints for the user
+          CollectionReference complainCollection = _userCollection
+              .doc(userID)
+              .collection('complain');
+          QuerySnapshot complainSnapshot = await complainCollection.get();
+          
+          for (QueryDocumentSnapshot complainDoc in complainSnapshot.docs) {
+            Map<String, dynamic> complainData = complainDoc.data() as Map<String, dynamic>;
+            String userName = 'Unknown';  // Replace with actual user name fetch logic if needed
+
+            complains.add(Complain.fromMap(
+              complainData,
+              complainDoc.id,
+              userID,
+              'user',
+              userName,
+            ));
+          }
+        } else if (userType == 'restaurant') {
+          // Fetch complaints for the restaurant
+          CollectionReference complainCollection = _restaurantCollection
+              .doc(userID)
+              .collection('complain');
+          QuerySnapshot complainSnapshot = await complainCollection.get();
+          
+          for (QueryDocumentSnapshot complainDoc in complainSnapshot.docs) {
+            Map<String, dynamic> complainData = complainDoc.data() as Map<String, dynamic>;
+            String restaurantName = 'Unknown';  // Replace with actual restaurant name fetch logic if needed
+
+            complains.add(Complain.fromMap(
+              complainData,
+              complainDoc.id,
+              userID,
+              'restaurant',
+              restaurantName,
+            ));
+          }
+        } else {
+          throw Exception('Invalid userType: $userType');
+        }
+      } catch (e) {
+        print('Error fetching complaints for $userID and $userType: $e');
+        throw Exception('Error fetching complaints');
+      }
+
+      return complains;
+    }
+
+    Future<void> addComplain(Complain complain, String userType) async {
     try {
-      Map<String, dynamic> updatedData = {
+      Map<String, dynamic> newComplainData = {
+        'description': complain.description,  // Add timestamp to the complaint
         'feedback': complain.feedback,
       };
-      if (complain.userType == 'user') {
-        // Update the user document in Firestore
+
+      // Add a new complaint to the appropriate sub-collection based on the userType
+      if (userType == 'user') {
+        // Add the new complaint to the user's 'complain' sub-collection
         await _firestore
             .collection('users')
-            .doc(complain.userID)
-            .collection('complain')
-            .doc(complain.id)
-            .update(updatedData);
-      } else if (complain.userType == 'restaurant') {
+            .doc(complain.userID)  // Access the user document
+            .collection('complain')  // Access the 'complain' sub-collection
+            .add(newComplainData);  // Add new complaint
+      } else if (userType == 'restaurant') {
+        // Add the new complaint to the restaurant's 'complain' sub-collection
         await _firestore
             .collection('restaurants')
-            .doc(complain.userID)
-            .collection('complain')
-            .doc(complain.id)
-            .update(updatedData);
+            .doc(complain.userID)  // Access the restaurant document
+            .collection('complain')  // Access the 'complain' sub-collection
+            .add(newComplainData);  // Add new complaint
       } else {
-        throw Exception('Invalid user type');
+        throw Exception('Invalid userType');
       }
-      // Update the store document in Firestore
-      await fetchRestaurantComplains();
-    } catch (e) {
-      print('Error updating store: $e');
-      throw Exception('Error updating store: $e');
-    }
-  }
 
-  Future<void> addComplain(Complain complain) async {
-    try {
-      Map<String, dynamic> complainData = complain.toMap();
-
-      if (complain.userType == 'user') {
-        // Add complain to user's complain subcollection
-        await _userCollection
-            .doc(complain.userID)
-            .collection('complain')
-            .add(complainData);
-      } else if (complain.userType == 'restaurant') {
-        // Add complain to restaurant's complain subcollection
-        await _restaurantCollection
-            .doc(complain.userID)
-            .collection('complain')
-            .add(complainData);
-      } else {
-        throw Exception('Invalid user type');
-      }
+      print('Complaint added successfully');
     } catch (e) {
       print('Error adding complaint: $e');
       throw Exception('Error adding complaint: $e');
     }
   }
+
+
 }
+

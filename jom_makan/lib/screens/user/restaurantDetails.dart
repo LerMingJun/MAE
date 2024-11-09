@@ -28,22 +28,46 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final String? userId = userProvider.firebaseUser?.uid;
 
-    if (userId != null && !_favoritesFetched) {
+    // Fetch user data
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (userProvider.userData == null) {
+      userProvider.fetchUserData();
+    }
+    // userProvider.fetchUserData();
+    final String? userId = userProvider.userData?.userID;
+
+    // Fetch favorites if userId is available
+    if (userId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Provider.of<FavoriteProvider>(context, listen: false)
-            .fetchFavorites(userId)
+        if (!_favoritesFetched) {
+          Provider.of<FavoriteProvider>(context, listen: false)
+              .fetchFavorites(userId)
+              .then((_) {
+            if (mounted) {
+              setState(() {
+                _favoritesFetched = true;
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Fetch reviews only once
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_reviewsFetched) {
+        Provider.of<ReviewProvider>(context, listen: false)
+            .fetchReviews(widget.restaurant.id)
             .then((_) {
           if (mounted) {
             setState(() {
-              _favoritesFetched = true;
+              _reviewsFetched = true;
             });
           }
         });
-      });
-    }
+      }
+    });
   }
 
   Future<String> getAddressFromCoordinates(
@@ -58,14 +82,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   Widget build(BuildContext context) {
     final reviewProvider = Provider.of<ReviewProvider>(context);
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_reviewsFetched) {
-        reviewProvider.clearReviews();
-        reviewProvider.fetchReviews(widget.restaurant.id);
-        _reviewsFetched = true;
-      }
-    });
 
     bool isFavorited = _favoritesFetched
         ? favoriteProvider.isFavorited(widget.restaurant.id)
@@ -305,6 +321,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                     MaterialPageRoute(
                       builder: (context) => AllReviewsScreen(
                         restaurantId: widget.restaurant.id,
+                        restaurantName: widget.restaurant.name,
                         user: user,
                       ),
                     ),

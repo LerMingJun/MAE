@@ -54,11 +54,11 @@ class _RestaurantsPageState extends State<RestaurantsPage>
     final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
     final activeRestaurants = restaurantProvider.restaurants
-        .where((restaurant) => restaurant.status == 'active')
+        .where((restaurant) => restaurant.status == 'Active')
         .toList();
 
     final inactiveRestaurants = restaurantProvider.restaurants
-        .where((restaurant) => restaurant.status != 'active')
+        .where((restaurant) => restaurant.status != 'Active')
         .toList();
 
     return Scaffold(

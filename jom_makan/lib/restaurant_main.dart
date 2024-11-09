@@ -4,13 +4,17 @@ import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
-import 'package:provider/provider.dart';
 import 'package:jom_makan/screens/restaurant/signup.dart';
+import 'package:provider/provider.dart';
+// import 'package:jom_makan/screens/restaurant/signup.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/providers/store_provider.dart';
 import 'package:jom_makan/providers/auth_provider.dart'; // Import AuthProvider
+import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
+import 'package:jom_makan/providers/booking_provider.dart';
+import 'package:jom_makan/providers/reply_provider.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_review.dart';
 
 Future<void> main() async {
   // Ensure widget binding is initialized before running the app
@@ -39,10 +43,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()), // Add AuthProvider
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
+        ChangeNotifierProvider(
+          create: (context) => ReplyProvider(),
+          child: ReviewPage(restaurantId: 'restaurantId'),
+        ),
+
       ],
-      child: const MaterialApp(
-        // home: RestaurantHome(),
-        home: RestaurantHome(),
+      child: MaterialApp(
+        home: RestaurantHome(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2"),
+        // home: RestaurantSignUp()
       ),
     );
   }

@@ -28,7 +28,8 @@ class _EditPostState extends State<EditPost> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       _titleController.text = args['currentTitle'];
       _descriptionController.text = args['currentDescription'];
       _tagsController.text = args['currentTags'].join(', ');
@@ -45,7 +46,8 @@ class _EditPostState extends State<EditPost> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -54,10 +56,14 @@ class _EditPostState extends State<EditPost> {
         title: Text.rich(
           TextSpan(
             children: [
-              TextSpan(text: 'Edit your ', style: GoogleFonts.lato(fontSize: 24)),
+              TextSpan(
+                  text: 'Edit your ', style: GoogleFonts.lato(fontSize: 24)),
               TextSpan(
                 text: 'Post!',
-                style: GoogleFonts.lato(fontSize: 24, color: AppColors.primary, fontWeight: FontWeight.bold),
+                style: GoogleFonts.lato(
+                    fontSize: 24,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -74,7 +80,7 @@ class _EditPostState extends State<EditPost> {
               children: [
                 _image == null
                     ? Image.network(
-                        args['postImage'] ?? 'defaultImageURL' , 
+                        args['postImage'] ?? 'defaultImageURL',
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
@@ -93,19 +99,23 @@ class _EditPostState extends State<EditPost> {
                   children: [
                     TextButton.icon(
                       onPressed: getImage,
-                      icon: const Icon(Icons.image_outlined, color: AppColors.primary),
+                      icon: const Icon(Icons.image_outlined,
+                          color: AppColors.primary),
                       label: Text(
                         'Pick an Image',
-                        style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: AppColors.primary),
                       ),
                     ),
                     Text(' or ', style: GoogleFonts.poppins(fontSize: 12)),
                     TextButton.icon(
                       onPressed: getImageFromCamera,
-                      icon: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+                      icon: const Icon(Icons.camera_alt_outlined,
+                          color: AppColors.primary),
                       label: Text(
                         'Take A Picture',
-                        style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -117,7 +127,8 @@ class _EditPostState extends State<EditPost> {
                     hintText: 'Your Title Here...',
                     border: InputBorder.none,
                   ),
-                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, color: AppColors.placeholder),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a title';
@@ -132,7 +143,8 @@ class _EditPostState extends State<EditPost> {
                     hintText: 'Description here...',
                     border: InputBorder.none,
                   ),
-                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, color: AppColors.placeholder),
                   maxLines: null,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -148,7 +160,8 @@ class _EditPostState extends State<EditPost> {
                     hintText: 'Tags (comma separated)...',
                     border: InputBorder.none,
                   ),
-                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, color: AppColors.placeholder),
                 ),
                 const Divider(color: Colors.black, thickness: 1),
                 CustomPrimaryButton(
@@ -190,20 +203,48 @@ class _EditPostState extends State<EditPost> {
 
   void _updatePost() async {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    List<String> tags = _tagsController.text.split(',').map((tag) => tag.trim()).toList();
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    List<String> tags =
+        _tagsController.text.split(',').map((tag) => tag.trim()).toList();
 
-    await postProvider.updatePost(
-      args['postID'],
-      _image,
-      _titleController.text.trim(),
-      _descriptionController.text,
-      tags,
+    // Show loading dialog while updating
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
+      builder: (BuildContext context) {
+        return CustomLoading(text: 'Updating Post...');
+      },
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Post updated successfully!'), backgroundColor: Colors.green),
-    );
-    Navigator.pop(context);
+    try {
+      // Update post using the provider
+      await postProvider.updatePost(
+        args['postID'],
+        _image,
+        _titleController.text.trim(),
+        _descriptionController.text,
+        tags,
+      );
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Post updated successfully!'),
+            backgroundColor: Colors.green),
+      );
+
+      // Dismiss the loading dialog and navigate back
+      Navigator.pop(context); // Close the loading dialog
+      Navigator.pop(context); // Close the EditPost screen
+    } catch (e) {
+      // Handle errors and show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Failed to update post: $e'),
+            backgroundColor: Colors.red),
+      );
+
+    }
   }
 }
