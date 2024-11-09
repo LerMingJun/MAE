@@ -52,9 +52,9 @@ class _UsersPageState extends State<UsersPage>
     final userProvider = Provider.of<UserProvider>(context);
 
     final activeUsers =
-        userProvider.users.where((user) => user.status == 'active').toList();
+        userProvider.users.where((user) => user.status == 'Active').toList();
     final inactiveUsers =
-        userProvider.users.where((user) => user.status != 'active').toList();
+        userProvider.users.where((user) => user.status != 'Active').toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -344,16 +344,16 @@ class CustomUserCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      status == 'delete'
-                          ? 'Account Deleted'
-                          : (status == 'suspend'
-                              ? 'Account Suspended'
+                      status == 'Delete'
+                          ? 'Deleted'
+                          : (status == 'Suspend'
+                              ? 'Suspended'
                               : 'Active'),
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: status == 'delete'
+                        color: status == 'Delete'
                             ? Colors.red
-                            : (status == 'suspend'
+                            : (status == 'Suspend'
                                 ? Colors.orange
                                 : Colors.green),
                       ),

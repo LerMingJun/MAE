@@ -6,7 +6,6 @@ import 'package:jom_makan/screens/restaurant/restaurant_booking.dart'; // Bookin
 // import 'package:jom_makan/screens/restaurant/community.dart'; // Community screen
 // import 'package:jom_makan/screens/restaurant/profile.dart'; // Profile screen
 import 'package:jom_makan/screens/restaurant/restaurant_profile.dart';
-import 'package:jom_makan/screens/restaurant/voucher_page.dart';
 import 'package:jom_makan/screens/user/community.dart'; // Profile screen
 
 class CustomBottomNavigation extends StatelessWidget {
@@ -43,11 +42,11 @@ class CustomBottomNavigation extends StatelessWidget {
                     ManageBooking(restaurantId: restaurantId)),
           );
         } else if (index == 2) {
-          // Navigate to Voucher page
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const VoucherScreen()),
-          );
+          // // Navigate to Voucher page
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const VoucherScreen()),
+          // );
         } else if (index == 3) {
           Navigator.push(
             context,
