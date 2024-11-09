@@ -5,7 +5,8 @@ import 'package:jom_makan/screens/restaurant/restaurant_booking.dart'; // Bookin
 // import 'package:jom_makan/screens/restaurant/voucher.dart'; // Voucher screen
 // import 'package:jom_makan/screens/restaurant/community.dart'; // Community screen
 // import 'package:jom_makan/screens/restaurant/profile.dart'; // Profile screen
-import 'package:jom_makan/screens/restaurant/restaurant_profile.dart'; // Profile screen
+import 'package:jom_makan/screens/restaurant/restaurant_profile.dart';
+import 'package:jom_makan/screens/restaurant/voucher_page.dart'; // Profile screen
 
 class CustomBottomNavigation extends StatelessWidget {
   final int selectedIndex;
