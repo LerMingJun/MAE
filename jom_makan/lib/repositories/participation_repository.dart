@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/participation.dart';
-import 'package:jom_makan/models/project.dart';
-import 'package:jom_makan/models/speech.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class ParticipationRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -47,7 +44,7 @@ class ParticipationRepository {
 
         } catch (e) {
           print('Error updating points: $e');
-          throw e;
+          rethrow;
         }
       }
     } catch (e) {
@@ -98,7 +95,7 @@ class ParticipationRepository {
           print('Points updated successfully');
         } catch (e) {
           print('Error updating points: $e');
-          throw e;
+          rethrow;
         }
       }
     } catch (e) {
@@ -122,7 +119,7 @@ class ParticipationRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -144,7 +141,7 @@ class ParticipationRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 

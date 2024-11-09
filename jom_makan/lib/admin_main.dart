@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
+import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => ComplainProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => PostProvider()),
       ],
       child: const MaterialApp(
         home: MainPage(),

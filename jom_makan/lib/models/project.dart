@@ -4,18 +4,27 @@ import 'package:jom_makan/models/activity.dart';
 
 class Event implements Activity {
   final String eventID;
+  @override
   final String image;
+  @override
   final String title;
+  @override
   final String organizer;
   final String organizerID;
+  @override
   final String location;
+  @override
   final Timestamp hostDate;
   final String description;
   final String sdg;
   final int impointsAdd;
+  @override
   final Timestamp createdAt;
+  @override
   final String type;
+  @override
   final String status;
+  @override
   final List<String> tags; 
   List<String> participants;
 

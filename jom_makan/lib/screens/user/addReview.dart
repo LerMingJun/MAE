@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart'; // Update with your actual path
 import 'package:jom_makan/widgets/custom_text.dart'; // Update with your actual path
 
 class LeaveReviewScreen extends StatefulWidget {
   final String restaurantId;
   final String userId;
+  final Restaurant restaurant;
 
   const LeaveReviewScreen({
-    Key? key,
+    super.key,
     required this.restaurantId,
     required this.userId,
-  }) : super(key: key);
+    required this.restaurant,
+  });
 
   @override
   _LeaveReviewScreenState createState() => _LeaveReviewScreenState();
@@ -33,14 +36,16 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
       );
 
       // Add the review to Firestore
-      await FirebaseFirestore.instance.collection('reviews').add(review.toFirestore());
-      
+      await FirebaseFirestore.instance
+          .collection('reviews')
+          .add(review.toFirestore());
+
       // Optionally, navigate back or show a success message
       Navigator.pop(context);
     } else {
       // Show an error message if feedback is empty or rating is 0
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please provide feedback and a rating.')),
+        const SnackBar(content: Text('Please provide feedback and a rating.')),
       );
     }
   }
@@ -48,11 +53,38 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Leave a Review')),
+      appBar: AppBar(title: const Text('Leave a Review')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Align the text to left
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.restaurant.name,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+            const SizedBox(height: 8),
+            widget.restaurant.image.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Image.network(
+                      widget.restaurant.image,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: const Center(child: Text('No Image Available')),
+                  ),
+            const SizedBox(height: 16),
+            const Divider(),
             CustomNumberText(
               number: _rating.toStringAsFixed(1),
               text: 'Rating',
@@ -80,10 +112,10 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                 // Optional: Handle text changes
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitReview,
-              child: Text('Submit Review'),
+              child: const Text('Submit Review'),
             ),
           ],
         ),

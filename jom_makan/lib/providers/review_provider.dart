@@ -20,8 +20,9 @@ class ReviewProvider with ChangeNotifier {
  
   // Fetch initial reviews for a restaurant
   Future<void> fetchReviews(String restaurantId) async {
-    if (_isLoading || _reviews.isNotEmpty)
+    if (_isLoading || _reviews.isNotEmpty) {
       return; // Prevent multiple fetch calls
+    }
     print('Fetching reviews for restaurant: $restaurantId');
  
     _isLoading = true; // Set loading state
@@ -53,16 +54,20 @@ int countUserReviews(String userId) {
     return await _reviewRepository.fetchAllReviews(restaurantId);
   }
  
-  double calculateAverageRating(List<Review> reviews) {
-    if (reviews.isEmpty) return 0.0;
- 
-    double totalRating = 0.0;
- 
-    for (var review in reviews) {
-      totalRating += review.rating; // Assuming Review has a 'rating' field
-    }
-    return totalRating / reviews.length; // Average rating
+double calculateAverageRating(List<Review> reviews) {
+  if (reviews.isEmpty) return 0.0;
+
+  double totalRating = 0.0;
+
+  for (var review in reviews) {
+    totalRating += review.rating; // Assuming Review has a 'rating' field
   }
+
+  // Calculate and round to two decimal places
+  double averageRating = totalRating / reviews.length;
+  return double.parse(averageRating.toStringAsFixed(2));
+}
+
  
     // Fetch reviews for a specific restaurant and calculate the average rating
   Future<double> fetchRestaurantAverageRating(String restaurantId) async {
@@ -84,7 +89,7 @@ int countUserReviews(String userId) {
     Restaurant? lowestRatingRestaurant;
  
     double highestRating = double.negativeInfinity;
-    double lowestRating = 0.0;
+    double lowestRating = 5.0;
  
     for (var restaurant in restaurants) {
       // Fetch the average rating for each restaurant
@@ -95,7 +100,7 @@ int countUserReviews(String userId) {
         highestRatingRestaurant = restaurant; // Store restaurant
       }
       // Identify lowest rating restaurant
-      if (averageRating < lowestRating) {
+      if (averageRating < lowestRating && averageRating != 0.0) {
         lowestRating = averageRating;
         lowestRatingRestaurant = restaurant; // Store restaurant
       }

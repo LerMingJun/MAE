@@ -1,8 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:jom_makan/models/community.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/post_provider.dart';
@@ -10,7 +7,6 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
-import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class EditPost extends StatefulWidget {
@@ -94,13 +90,13 @@ class _EditPostState extends State<EditPost> {
               children: [
                 _image == null
                     ? Image.network(
-                        args?['postImage'] ?? 'defaultImageURL' , 
+                        args['postImage'] ?? 'defaultImageURL' , 
                         width: double.infinity,
                         height: 300,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return CustomImageLoading(width: 300);
+                          return const CustomImageLoading(width: 300);
                         },
                       )
                     : Image.file(
@@ -113,7 +109,7 @@ class _EditPostState extends State<EditPost> {
                   children: [
                     TextButton.icon(
                       onPressed: getImage,
-                      icon: Icon(Icons.image_outlined, color: AppColors.primary),
+                      icon: const Icon(Icons.image_outlined, color: AppColors.primary),
                       label: Text(
                         'Pick an Image',
                         style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
@@ -122,7 +118,7 @@ class _EditPostState extends State<EditPost> {
                     Text(' or ', style: GoogleFonts.poppins(fontSize: 12)),
                     TextButton.icon(
                       onPressed: getImageFromCamera,
-                      icon: Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+                      icon: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
                       label: Text(
                         'Take A Picture',
                         style: GoogleFonts.poppins(fontSize: 12, color: AppColors.primary),
@@ -130,10 +126,10 @@ class _EditPostState extends State<EditPost> {
                     ),
                   ],
                 ),
-                Divider(color: Colors.black, thickness: 1),
+                const Divider(color: Colors.black, thickness: 1),
                 TextFormField(
                   controller: _titleController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Your Title Here...',
                     border: InputBorder.none,
                   ),
@@ -145,10 +141,10 @@ class _EditPostState extends State<EditPost> {
                     return null;
                   },
                 ),
-                Divider(color: Colors.black, thickness: 1),
+                const Divider(color: Colors.black, thickness: 1),
                 TextFormField(
                   controller: _descriptionController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Description here...',
                     border: InputBorder.none,
                   ),
@@ -161,23 +157,23 @@ class _EditPostState extends State<EditPost> {
                     return null;
                   },
                 ),
-                Divider(color: Colors.black, thickness: 1),
+                const Divider(color: Colors.black, thickness: 1),
                 TextFormField(
                   controller: _tagsController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Tags (comma separated)...',
                     border: InputBorder.none,
                   ),
                   style: GoogleFonts.poppins(fontSize: 12, color: AppColors.placeholder),
                 ),
-                Divider(color: Colors.black, thickness: 1),
+                const Divider(color: Colors.black, thickness: 1),
                 CustomPrimaryButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _updatePost();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Please fill out all fields.'),
                           backgroundColor: Colors.red,
                         ),
@@ -222,7 +218,7 @@ class _EditPostState extends State<EditPost> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Post updated successfully!'), backgroundColor: Colors.green),
+      const SnackBar(content: Text('Post updated successfully!'), backgroundColor: Colors.green),
     );
     Navigator.pop(context);
   }

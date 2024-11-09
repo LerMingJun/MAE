@@ -102,7 +102,7 @@ class PostRepository {
       return posts;
     } catch (e) {
       print('Error fetching posts: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -125,7 +125,7 @@ class PostRepository {
       return posts;
     } catch (e) {
       print('Error fetching posts: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -146,7 +146,7 @@ class PostRepository {
       }
     } catch (e) {
       print('Error fetching posts: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -158,7 +158,7 @@ class PostRepository {
       });
     } catch (e) {
       print('Error liking post: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -170,7 +170,7 @@ class PostRepository {
       });
     } catch (e) {
       print('Error unliking post: $e');
-      throw e;
+      rethrow;
     }
   }
 

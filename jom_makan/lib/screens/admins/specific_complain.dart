@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/restaurant.dart';
@@ -8,6 +9,7 @@ import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/complain.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class ComplainDetailsScreen extends StatefulWidget {
@@ -57,7 +59,14 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complain Details'),
+        title: Text(
+          'Complain Details',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator()) // Show loading
@@ -94,153 +103,151 @@ class _ComplainDetailsScreenState extends State<ComplainDetailsScreen> {
     return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
   }
 
-Widget _buildFeedbackSection() {
-  // Only show feedback section if feedback is not yet provided
-  if (widget.complain.feedback.isNotEmpty) {
-    return Container(); // Empty if feedback is already provided
-  }
+  Widget _buildFeedbackSection() {
+    // Only show feedback section if feedback is not yet provided
+    if (widget.complain.feedback.isNotEmpty) {
+      return Container(); // Empty if feedback is already provided
+    }
 
-  final TextEditingController feedbackController = TextEditingController();
+    final TextEditingController feedbackController = TextEditingController();
 
-  return GestureDetector(
-    onTap: () => _showFeedbackBottomSheet(feedbackController),
-    child: Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.feedback, color: Colors.blue),
-          SizedBox(width: 8),
-          Text("Provide Feedback",
-              style: TextStyle(fontSize: 16, color: Colors.blue)),
-        ],
-      ),
-    ),
-  );
-}
-
-  void _showFeedbackBottomSheet(TextEditingController feedbackController) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Padding(
+    return GestureDetector(
+      onTap: () => _showFeedbackBottomSheet(feedbackController),
+      child: Container(
+        margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        decoration: BoxDecoration(
+          color: Colors.blue.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Feedback",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            // Feedback TextField
-            TextField(
-              controller: feedbackController,
-              maxLength: 150,
-              maxLines: 6,
-              decoration: InputDecoration(
-                hintText: "Leave your feedback here...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                String feedback = feedbackController.text.trim();
-                if (feedback.isEmpty) {
-                  // Show dialog if feedback is empty
-                  _showEmptyFeedbackDialog();
-                } else {
-                  _showConfirmationDialog(feedbackController, feedback);
-                }
-              },
-              child: const Text("Submit"),
-            ),
+            Icon(Icons.feedback, color: Colors.blue),
+            SizedBox(width: 8),
+            Text("Provide Feedback",
+                style: TextStyle(fontSize: 16, color: Colors.blue)),
           ],
         ),
-      );
-    },
-  );
-}
+      ),
+    );
+  }
 
-void _showEmptyFeedbackDialog() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Feedback Required"),
-        content: const Text("Please enter feedback before submitting."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("OK"),
+  void _showFeedbackBottomSheet(TextEditingController feedbackController) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Feedback",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              // Feedback TextField
+              TextField(
+                controller: feedbackController,
+                maxLength: 150,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  hintText: "Leave your feedback here...",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  String feedback = feedbackController.text.trim();
+                  if (feedback.isEmpty) {
+                    // Show dialog if feedback is empty
+                    _showEmptyFeedbackDialog();
+                  } else {
+                    _showConfirmationDialog(feedbackController, feedback);
+                  }
+                },
+                child: const Text("Submit"),
+              ),
+            ],
           ),
-        ],
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
+  void _showEmptyFeedbackDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Feedback Required"),
+          content: const Text("Please enter feedback before submitting."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showConfirmationDialog(
-    TextEditingController feedbackController, String feedback) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Confirm Feedback Submission"),
-        content: const Text("Are you sure you want to submit this feedback?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              // Update complaint with new feedback data
-              setState(() {
-                widget.complain.feedback = feedback;
-              });
+      TextEditingController feedbackController, String feedback) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirm Feedback Submission"),
+          content: const Text("Are you sure you want to submit this feedback?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Update complaint with new feedback data
+                setState(() {
+                  widget.complain.feedback = feedback;
+                });
 
-              // Call updateComplain in complainProvider
-              Provider.of<ComplainProvider>(context, listen: false)
-                  .updateComplain(widget.complain);
+                // Call updateComplain in complainProvider
+                Provider.of<ComplainProvider>(context, listen: false)
+                    .updateComplain(widget.complain);
 
-              Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Close dialog
                 Navigator.of(context)
                     .push(
                       MaterialPageRoute(
                         builder: (context) => const ComplainsPage(),
                       ),
                     )
-                    .then((_) => Navigator.of(context).pop());              
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Feedback submitted successfully!')),
-              );
-            },
-            child: const Text("Confirm"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+                    .then((_) => Navigator.of(context).pop());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Feedback submitted successfully!')),
+                );
+              },
+              child: const Text("Confirm"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildUserDetails(User? userDetails) {
     if (userDetails == null) return const Text('Loading user details...');

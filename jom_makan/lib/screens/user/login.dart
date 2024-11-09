@@ -85,11 +85,11 @@ class Login extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       text: 'Not part of us yet? ',
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                       children: <TextSpan>[
                         TextSpan(
                           text: 'Sign Up Now!',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
                           ),
@@ -111,11 +111,11 @@ class Login extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SpinKitWanderingCubes(
+                    const SpinKitWanderingCubes(
                       color: AppColors.primary,
                       size: 70.0,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text("Logging you in...",
                         style: GoogleFonts.lato(
                             color: AppColors.primary, fontSize: 20))

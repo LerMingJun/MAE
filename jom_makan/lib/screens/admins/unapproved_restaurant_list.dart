@@ -17,14 +17,16 @@ class UnapprovedRestaurantList extends StatefulWidget {
   State<UnapprovedRestaurantList> createState() => _RestaurantsPageState();
 }
 
-class _RestaurantsPageState extends State<UnapprovedRestaurantList> with SingleTickerProviderStateMixin {
+class _RestaurantsPageState extends State<UnapprovedRestaurantList>
+    with SingleTickerProviderStateMixin {
   bool nearMe = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    final restaurantProvider = Provider.of<RestaurantProvider>(context, listen: false);
+    final restaurantProvider =
+        Provider.of<RestaurantProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       restaurantProvider.fetchAllRestaurants();
     });
@@ -43,103 +45,103 @@ class _RestaurantsPageState extends State<UnapprovedRestaurantList> with SingleT
     setState(() {
       searchText = text;
     });
-    Provider.of<RestaurantProvider>(context, listen: false).searchRestaurants(text);
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .searchRestaurants(text);
   }
 
-// @override
+@override
 Widget build(BuildContext context) {
   final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
   // Filter to get only pending restaurants
   final pendingRestaurants = restaurantProvider.restaurants
-      .where((restaurant) => restaurant.status == 'pending')
+      .where((restaurant) => restaurant.status == 'Pending')
       .toList();
 
   return Scaffold(
     backgroundColor: AppColors.background,
-    body: Padding(
-      padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-      child: RefreshIndicator(
-        onRefresh: () async {
-          await restaurantProvider.fetchAllRestaurants();
-        },
-        edgeOffset: 100,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: AppColors.background,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        Text(
-                          'Pending Restaurants',
-                          style: GoogleFonts.lato(
-                            fontSize: 24,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 40),
-                      child: TextField(
-                        onChanged: (text) {
-                          _searchRestaurants(text);
-                        },
-                        onTapOutside: (event) {
-                          FocusScope.of(context).unfocus();
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search Pending Restaurants',
-                          hintStyle: GoogleFonts.poppins(fontSize: 12),
-                          suffixIcon: const Icon(Icons.search, size: 20),
-                          filled: true,
-                          isDense: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10.0, vertical: 8.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: AppColors.primary),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+    body: Column(
+      children: [
+        // AppBar at the top
+        AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              Text(
+                'Pending Restaurants',
+                style: GoogleFonts.lato(
+                  fontSize: 24,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              pinned: true,
-            ),
-            SliverFillRemaining(
-              child: _buildRestaurantList(pendingRestaurants, restaurantProvider.isLoading),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+        
+        // Search bar below the AppBar
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          child: TextField(
+            onChanged: (text) {
+              _searchRestaurants(text);
+            },
+            decoration: InputDecoration(
+              hintText: 'Search Pending Restaurants',
+              hintStyle: GoogleFonts.poppins(fontSize: 12),
+              suffixIcon: const Icon(Icons.search, size: 20),
+              filled: true,
+              isDense: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: AppColors.primary),
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        ),
+        
+        // Remaining content in an Expanded widget to fill available space
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await restaurantProvider.fetchAllRestaurants();
+            },
+            edgeOffset: 100,
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  child: _buildRestaurantList(pendingRestaurants, restaurantProvider.isLoading),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }
 
+
+  }
+
   Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
     if (isLoading) {
-      return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
+      return const Center(
+          child: CustomLoading(text: 'Fetching Restaurants...'));
     } else if (restaurants.isEmpty) {
       return const Center(
         child: EmptyWidget(
@@ -181,7 +183,7 @@ Widget build(BuildContext context) {
       );
     }
   }
-}
+
 
 class CustomRestaurantCard extends StatefulWidget {
   final String imageUrl;
@@ -227,7 +229,8 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
         setState(() {
-          address = "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+          address =
+              "${placemark.street}, ${placemark.locality}, ${placemark.country}";
         });
       }
     } catch (e) {
@@ -328,7 +331,6 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                       maxLines: 2,
                     ),
                     const SizedBox(height: 4),
-                    
                   ],
                 ),
               ),

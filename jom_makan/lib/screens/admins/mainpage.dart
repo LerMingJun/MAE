@@ -1,5 +1,6 @@
 // lib/screens/mainpage.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
@@ -9,6 +10,8 @@ import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
 import 'package:jom_makan/screens/admins/unapproved_restaurant_list.dart';
 import 'package:jom_makan/screens/admins/users_list.dart';
+import 'package:jom_makan/screens/user/community.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
 
@@ -48,16 +51,18 @@ class _MainPageState extends State<MainPage> {
     final userProvider = Provider.of<UserProvider>(context);
     final complainProvider = Provider.of<ComplainProvider>(context);
     final List<Map<String, String>> pendingApprovals = [
-          {
-      "title": "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
-      "subtitle": "Please check the application status.",
-      "status": "Approval required"
-    },
-    {
-      "title": "Unresolved Complaint (${complainProvider.unresolvedComplainCount})",
-      "subtitle": "Check for pending resolve complaints.",
-      "status": "Complaints review required"
-    },
+      {
+        "title":
+            "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
+        "subtitle": "Please check the application status.",
+        "status": "Approval required"
+      },
+      {
+        "title":
+            "Unresolved Complaint (${complainProvider.unresolvedComplainCount})",
+        "subtitle": "Check for pending resolve complaints.",
+        "status": "Complaints review required"
+      },
       {
         "title": "Update Store Information",
         "subtitle": "Keep details accurate for customer trust.",
@@ -75,16 +80,16 @@ class _MainPageState extends State<MainPage> {
           children: [
             Image.asset('assets/logo.jpg', width: 50, height: 50),
             const SizedBox(width: 8),
-            const Text(
+             Text(
               'JomMakan',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+              style: GoogleFonts.lato(
+                fontSize: 24,
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
-
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -99,39 +104,40 @@ class _MainPageState extends State<MainPage> {
             const SizedBox(height: 16),
 
             // Carousel Section
-SizedBox(
-  height: 130,
-  child: PageView.builder(
-    itemCount: pendingApprovals.length,
-    onPageChanged: (index) {
-      setState(() {
-        _currentCarouselIndex = index;
-      });
-    },
-    itemBuilder: (context, index) {
-      return InkWell(
-        onTap: () {
-          if (index == 0) {
-            // Redirect to Unapproved Restaurant List for the first carousel card
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const UnapprovedRestaurantList()),
-            );
-          } else if (index == 1) {
-            // Redirect to Complaints Page for the second carousel card
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ComplainsPage()),
-            );
-          }
-        },
-        child: _buildCarouselCard(pendingApprovals[index]),
-      );
-    },
-  ),
-),
-
+            SizedBox(
+              height: 130,
+              child: PageView.builder(
+                itemCount: pendingApprovals.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentCarouselIndex = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      if (index == 0) {
+                        // Redirect to Unapproved Restaurant List for the first carousel card
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const UnapprovedRestaurantList()),
+                        );
+                      } else if (index == 1) {
+                        // Redirect to Complaints Page for the second carousel card
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ComplainsPage()),
+                        );
+                      }
+                    },
+                    child: _buildCarouselCard(pendingApprovals[index]),
+                  );
+                },
+              ),
+            ),
 
             // Carousel Indicator
             Row(
@@ -200,7 +206,16 @@ SizedBox(
                     },
                     child: _buildGridItem(Icons.restaurant, 'Restaurant'),
                   ),
-                  _buildGridItem(Icons.group, 'Community'),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Community()),
+                      );
+                    },
+                    child: _buildGridItem(Icons.group, 'Community'),
+                  ),
                   InkWell(
                     onTap: () {
                       Navigator.push(
@@ -268,7 +283,7 @@ SizedBox(
 
   // Helper method to build each grid item
   Widget _buildGridItem(IconData icon, String label) {
-    return Container(
+    return SizedBox(
       width: 60,
       height: 60,
       child: Column(

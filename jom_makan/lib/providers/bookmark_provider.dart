@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/bookmark.dart';
-import 'package:jom_makan/models/project.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:jom_makan/repositories/bookmark_repository.dart';
 
@@ -10,11 +8,11 @@ class BookmarkProvider with ChangeNotifier {
   final BookmarkRepository _bookmarkRepository = BookmarkRepository();
   final AuthRepository _authRepository = AuthRepository();
 
-  List<Bookmark> _bookmarks = [];
+  final List<Bookmark> _bookmarks = [];
   List<Bookmark> _events = [];
   List<Bookmark> _speeches = [];
   bool _isLoading = false;
-  bool _isRemoveDone = false;
+  final bool _isRemoveDone = false;
 
   List<Bookmark> get bookmarks => _bookmarks;
   List<Bookmark> get events => _events;

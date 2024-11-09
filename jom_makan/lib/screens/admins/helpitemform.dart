@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/help_item.dart';
 import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/screens/admins/helpcenter.dart';
+import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 
 class HelpItemFormScreen extends StatefulWidget {
@@ -9,7 +11,8 @@ class HelpItemFormScreen extends StatefulWidget {
   final String? existingSubtitle;
   final String? id;
 
-  const HelpItemFormScreen({super.key,this.id, this.existingTitle, this.existingSubtitle});
+  const HelpItemFormScreen(
+      {super.key, this.id, this.existingTitle, this.existingSubtitle});
 
   @override
   _HelpItemFormScreenState createState() => _HelpItemFormScreenState();
@@ -66,58 +69,71 @@ class _HelpItemFormScreenState extends State<HelpItemFormScreen> {
 
   void _updateTitleCounts(String text) {
     _titleCharCount = text.length;
-    _titleWordCount = text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
+    _titleWordCount =
+        text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
   }
 
   void _updateSubtitleCounts(String text) {
     _subtitleCharCount = text.length;
-    _subtitleWordCount = text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
+    _subtitleWordCount =
+        text.split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
   }
 
-  bool get _isTitleValid => _titleWordCount <= _maxTitleWords && _titleCharCount <= _maxTitleChars;
-  bool get _isSubtitleValid => _subtitleWordCount <= _maxSubtitleWords && _subtitleCharCount <= _maxSubtitleChars;
+  bool get _isTitleValid =>
+      _titleWordCount <= _maxTitleWords && _titleCharCount <= _maxTitleChars;
+  bool get _isSubtitleValid =>
+      _subtitleWordCount <= _maxSubtitleWords &&
+      _subtitleCharCount <= _maxSubtitleChars;
 
-Future<void> _saveFaq() async {
-  // Validate the form
-  if (_formKey.currentState!.validate()) {
-    final newTitle = _titleController.text;
-    final newSubtitle = _subtitleController.text;
-    final helpItemProvider = Provider.of<HelpItemProvider>(context, listen: false);
+  Future<void> _saveFaq() async {
+    // Validate the form
+    if (_formKey.currentState!.validate()) {
+      final newTitle = _titleController.text;
+      final newSubtitle = _subtitleController.text;
+      final helpItemProvider =
+          Provider.of<HelpItemProvider>(context, listen: false);
 
-    HelpItem helpItem = HelpItem(
-      helpItemId: widget.id ?? '',
-      title: newTitle,
-      subtitle: newSubtitle,
-    );
-
-    // Check if the item already exists
-    if (widget.id != null) {
-      await helpItemProvider.updateHelpItems(
-        widget.id!,
-        newTitle,
-        newSubtitle,
+      HelpItem helpItem = HelpItem(
+        helpItemId: widget.id ?? '',
+        title: newTitle,
+        subtitle: newSubtitle,
       );
-    } else {
-      await helpItemProvider.addHelpItems(helpItem);
+
+      // Check if the item already exists
+      if (widget.id != null) {
+        await helpItemProvider.updateHelpItems(
+          widget.id!,
+          newTitle,
+          newSubtitle,
+        );
+      } else {
+        await helpItemProvider.addHelpItems(helpItem);
+      }
+
+      // Navigate back to HelpCenterScreen and remove all previous screens
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                const HelpCenterScreen()), // Change this to your actual HelpCenterScreen widget
+        (route) => false, // Removes all previous routes
+      );
     }
-
-    // Navigate back to HelpCenterScreen and remove all previous screens
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const HelpCenterScreen()), // Change this to your actual HelpCenterScreen widget
-      (route) => false, // Removes all previous routes
-    );
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingTitle == null ? 'Add FAQ' : 'Modify FAQ'),
+        title: Text(
+          widget.existingTitle == null ? 'Add FAQ' : 'Modify FAQ',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.green,
-
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -203,14 +219,18 @@ Future<void> _saveFaq() async {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isTitleValid && _isSubtitleValid ? _saveFaq : null,
+                        onPressed:
+                            _isTitleValid && _isSubtitleValid ? _saveFaq : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: Text(
-                          widget.existingTitle == null ? 'Add FAQ' : 'Save Changes',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          widget.existingTitle == null
+                              ? 'Add FAQ'
+                              : 'Save Changes',
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),

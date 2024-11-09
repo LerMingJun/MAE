@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jom_makan/models/project.dart';
 import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/repositories/speech_repository.dart';
 import 'package:geocoding/geocoding.dart';

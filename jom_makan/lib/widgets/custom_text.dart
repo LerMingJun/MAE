@@ -96,8 +96,8 @@ class CustomIconText extends StatelessWidget {
     required this.icon,
     required this.size,
     this.color = AppColors.secondary,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +108,7 @@ class CustomIconText extends StatelessWidget {
           size: size + 5,
           color: color,
         ),
-        SizedBox(width: 3),
+        const SizedBox(width: 3),
         Expanded(
           child: Text(
             text,
@@ -132,8 +132,8 @@ class CustomLargeIconText extends StatelessWidget {
   const CustomLargeIconText({
     required this.text,
     required this.icon,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +144,7 @@ class CustomLargeIconText extends StatelessWidget {
           size: 20,
           color: AppColors.primary,
         ),
-        SizedBox(width: 3),
+        const SizedBox(width: 3),
         Expanded(
           child: Text(
             text,
@@ -166,8 +166,8 @@ class CustomNumberText extends StatelessWidget {
   const CustomNumberText({
     required this.number,
     required this.text,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,11 +199,11 @@ class CustomDropdown extends StatefulWidget {
   final ValueChanged<List<String>> onChanged;
 
   const CustomDropdown({
-    Key? key,
+    super.key,
     required this.options,
     required this.selectedOptions,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _CustomDropdownState createState() => _CustomDropdownState();
@@ -218,7 +218,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
       builder: (context) {
         return AlertDialog(
           title: Text('Select Options', style: GoogleFonts.poppins()),
-          content: Container(
+          content: SizedBox(
             height: 400, // Fixed height for the dialog
             width: double.maxFinite,
             child: Scrollbar(
@@ -266,7 +266,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
     return GestureDetector(
       onTap: () => _showOptionsDialog(context),
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),

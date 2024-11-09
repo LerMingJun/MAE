@@ -32,8 +32,8 @@ class CommunityPost extends StatelessWidget {
     required this.likes,
     required this.userID,
     this.edit = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +48,15 @@ class CommunityPost extends StatelessWidget {
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(2.0), // Border width
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.all(2.0), // Border width
+                decoration: const BoxDecoration(
                   color: AppColors.primary, // Border color
                   shape: BoxShape.circle,
                 ),
@@ -64,10 +64,10 @@ class CommunityPost extends StatelessWidget {
                   radius: 20,
                   backgroundImage:
                       profileImage != null ? NetworkImage(profileImage!) : null,
-                  child: profileImage == null ? Icon(Icons.person) : null,
+                  child: profileImage == null ? const Icon(Icons.person) : null,
                 ),
               ),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -80,7 +80,7 @@ class CommunityPost extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                     ],
                   ),
                   Text(
@@ -92,7 +92,7 @@ class CommunityPost extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               if (edit ?? false)
                 GestureDetector(
                   onTap: () {
@@ -108,7 +108,7 @@ class CommunityPost extends StatelessWidget {
                       },
                     );
                   },
-                  child: Icon(
+                  child: const Icon(
                     Icons.edit,
                     color: Colors.blue,
                     size: 20,
@@ -119,9 +119,9 @@ class CommunityPost extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               if (postImage != null)
-                Container(
+                SizedBox(
                   width: double.infinity,
                   height: 250,
                   child: Image.network(
@@ -131,14 +131,14 @@ class CommunityPost extends StatelessWidget {
                       if (loadingProgress == null) {
                         return child;
                       } else {
-                        return CustomImageLoading(width: 250);
+                        return const CustomImageLoading(width: 250);
                       }
                     },
                   ),
                 ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             postTitle ?? 'No title', // Fallback for null postTitle
             style: GoogleFonts.lato(
@@ -146,7 +146,7 @@ class CommunityPost extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             postDescription ??
                 'No description available', // Fallback for null postDescription
@@ -155,7 +155,7 @@ class CommunityPost extends StatelessWidget {
               color: AppColors.placeholder,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           // Display tags as a list of chips
           Wrap(
             spacing: 6.0, // Space between tags
@@ -174,7 +174,7 @@ class CommunityPost extends StatelessWidget {
               );
             }).toList(),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               // Comment Input Bar
@@ -187,7 +187,7 @@ class CommunityPost extends StatelessWidget {
                 ),
                 child: TextField(
                   controller: commentController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Add a comment...',
                     border: InputBorder.none, // Remove the default border
                     contentPadding:
@@ -196,7 +196,7 @@ class CommunityPost extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.send, color: AppColors.primary),
+                icon: const Icon(Icons.send, color: AppColors.primary),
                 onPressed: () {
                   String comment = commentController.text.trim();
                   if (comment.isNotEmpty) {
@@ -207,11 +207,11 @@ class CommunityPost extends StatelessWidget {
                   }
                 },
               ),
-              Spacer(),
+              const Spacer(),
               Row(
                 children: [
                   Transform.translate(
-                    offset: Offset(0, 2.5), // Move the count down by 4 pixels
+                    offset: const Offset(0, 2.5), // Move the count down by 4 pixels
                     child: Text(
                       '${likes.length} ',
                       style: GoogleFonts.poppins(

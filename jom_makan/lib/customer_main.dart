@@ -88,26 +88,26 @@ class MyApp extends StatelessWidget {
             // Set initial route based on user authentication state
             initialRoute: authProvider.userData != null ? '/homeScreen' : '/',
             routes: {
-              '/': (context) => OnboardingScreens(), // Onboarding screen
+              '/': (context) => const OnboardingScreens(), // Onboarding screen
               '/login': (context) => Login(), // Login screen
-              '/signup': (context) => SignUp(), // Signup screen
-              '/home': (context) => Home(), // Home screen
-              '/events': (context) => Events(), // Events screen
+              '/signup': (context) => const SignUp(), // Signup screen
+              '/home': (context) => const Home(), // Home screen
+              // '/events': (context) => Events(), // Events screen
               // '/eventDetail': (context) => EventDetail(), // Event details screen
-              '/addPost': (context) => AddPost(), // Add post screen
-              '/community': (context) => Community(), // Community screen
-              '/editProfile': (context) => EditProfile(), // Edit profile screen
-              '/homeScreen': (context) => HomeScreen(), // Home screen for logged-in users
-              '/profile': (context) => Profile(), // User profile screen
-              '/bookmark': (context) => Bookmark(), // Bookmarked items screen
-              '/addRestaurant': (context) => AddRestaurantScreen(), // Add Restaurant screen
+              '/addPost': (context) => const AddPost(), // Add post screen
+              '/community': (context) => const Community(), // Community screen
+              '/editProfile': (context) => const EditProfile(), // Edit profile screen
+              '/homeScreen': (context) => const HomeScreen(), // Home screen for logged-in users
+              '/profile': (context) => const Profile(), // User profile screen
+              '/bookmark': (context) => const Bookmark(), // Bookmarked items screen
+              '/addRestaurant': (context) => const AddRestaurantScreen(), // Add Restaurant screen
               // '/speechDetail': (context) => SpeechDetail(), // Speech details screen
               // '/recording': (context) => Recording(), // Recording screen
-              '/userPost': (context) => UserPost(), // User's posts screen
-              '/editPost': (context) => EditPost(), // Edit post screen
-              '/schedule': (context) => Schedule(), // User schedule screen
-              '/restaurantList': (context) => RestaurantsPage(), // Restaurant list screen
-              '/restaurantManagement': (context) => RestaurantManagementPage(), // Restaurant management screen
+              '/userPost': (context) => const UserPost(), // User's posts screen
+              '/editPost': (context) => const EditPost(), // Edit post screen
+              '/schedule': (context) => const Schedule(), // User schedule screen
+              '/restaurantList': (context) => const RestaurantsPage(), // Restaurant list screen
+              '/restaurantManagement': (context) => const RestaurantManagementPage(), // Restaurant management screen
             },
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/restaurantDetails') {

@@ -15,6 +15,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/screens/user/restaurantDetails.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -27,10 +28,10 @@ class _HomeState extends State<Home> {
   LatLng? _currentLocation;
   bool _isLoadingLocation = false;
   String? _address;
-  bool _showManualLocationEntry = false;
+  final bool _showManualLocationEntry = false;
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentPage = 0;
 
   @override
@@ -116,8 +117,8 @@ class _HomeState extends State<Home> {
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(2.0),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.all(2.0),
+                            decoration: const BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
                             ),
@@ -128,7 +129,7 @@ class _HomeState extends State<Home> {
                                       userPlaceholder),
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
                             'Hello, ${userProvider.userData?.username ?? 'Unknown User'}!',
                             style: GoogleFonts.lato(fontSize: 15),
@@ -139,12 +140,12 @@ class _HomeState extends State<Home> {
                         onPressed: () {
                           Navigator.pushNamed(context, '/schedule');
                         },
-                        icon: Icon(Icons.calendar_today_rounded),
+                        icon: const Icon(Icons.calendar_today_rounded),
                         color: AppColors.primary,
                       ),
                     ],
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   SizedBox(
                     height: 220,
                     child: Stack(
@@ -186,21 +187,20 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Suggested Restaurants Nearby',
                     style: GoogleFonts.lato(fontSize: 20),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   restaurantProvider.isLoading
-                      ? Center(child: CustomLoading(text: 'Loading...'))
+                      ? const Center(child: CustomLoading(text: 'Loading...'))
                       : Column(
                           children: restaurantProvider.restaurants
                               .where((restaurant) =>
                                   _isNearby(restaurant.location) &&
                                   _matchesUserPreferences(
                                       restaurant, userProvider))
-                              .take(5)
                               .map((restaurant) {
                             bool isFavourited =
                                 favoriteProvider.isFavorited(restaurant.id);
@@ -246,7 +246,7 @@ class _HomeState extends State<Home> {
               'Random Restaurant Suggestion',
               style: GoogleFonts.lato(fontSize: 18, color: Colors.white),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: SizedBox(
                 width: double.infinity, // Fill the width
@@ -258,11 +258,11 @@ class _HomeState extends State<Home> {
                               Random().nextInt(nearbyRestaurants.length)];
                           _showRestaurantDetails(randomRestaurant);
                         },
-                  child: Text('Suggest Random Restaurant'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
+                  child: const Text('Suggest Random Restaurant', style: TextStyle(fontSize: 14),),
                 ),
               ),
             ),
@@ -288,49 +288,49 @@ class _HomeState extends State<Home> {
               'Current Location:',
               style: GoogleFonts.lato(fontSize: 18, color: Colors.white),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _isLoadingLocation
-                ? SpinKitThreeBounce(color: AppColors.primary, size: 20.0)
+                ? const SpinKitThreeBounce(color: AppColors.primary, size: 20.0)
                 : Text(
                     _address ?? 'Location not available',
                     style: GoogleFonts.lato(fontSize: 15, color: Colors.white),
                   ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             // First button centered in its own Row
             Center(
               child: SizedBox(
                 width: double.infinity, // Fill the width
                 child: ElevatedButton(
                   onPressed: () => _showAddressDialog(),
-                  child: Text(
-                    'Enter Address Manually',
-                    style: TextStyle(fontSize: 16), // Adjust the font size here
-                  ),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         vertical: 10), // Adjust vertical padding
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
                   ),
+                  child: const Text(
+                    'Enter Address Manually',
+                    style: TextStyle(fontSize: 14), // Adjust the font size here
+                  ),
                 ),
               ),
             ),
-            SizedBox(height: 10), // Spacing between buttons
+            const SizedBox(height: 10), // Spacing between buttons
             // Second button centered in its own Row
             Center(
               child: SizedBox(
                 width: double.infinity, // Fill the width
                 child: ElevatedButton(
                   onPressed: _fetchUserLocation,
-                  child: Text(
-                    'Refresh Location',
-                    style: TextStyle(fontSize: 16), // Adjust the font size here
-                  ),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         vertical: 10), // Adjust vertical padding
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
+                  ),
+                  child: const Text(
+                    'Refresh Location',
+                    style: TextStyle(fontSize: 14), // Adjust the font size here
                   ),
                 ),
               ),
@@ -346,25 +346,25 @@ class _HomeState extends State<Home> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Enter Address'),
+          title: const Text('Enter Address'),
           content: TextField(
             controller:
                 latitudeController, // Use the latitudeController for the address input
-            decoration: InputDecoration(labelText: 'Address'),
+            decoration: const InputDecoration(labelText: 'Address'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 _setManualLocation(); // Set location and close the dialog
                 Navigator.of(context).pop();
               },
-              child: Text('Set Location'),
+              child: const Text('Set Location'),
             ),
           ],
         );
@@ -376,7 +376,7 @@ class _HomeState extends State<Home> {
       TextEditingController controller, String label) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(labelText: label),
     );
   }
@@ -402,13 +402,13 @@ class _HomeState extends State<Home> {
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
               content: Text('Could not find the address. Please try again.')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter a valid address.')),
+        const SnackBar(content: Text('Please enter a valid address.')),
       );
     }
   }
@@ -421,16 +421,30 @@ class _HomeState extends State<Home> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(height: 10),
             Image.network(restaurant.image),
-            SizedBox(height: 10),
-            Text(restaurant.intro),
+            const SizedBox(height: 10),
             Text('Rating: ${restaurant.averageRating}'),
           ],
         ),
         actions: [
+          // New button to navigate to the restaurant details page
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RestaurantDetailsScreen(restaurant: restaurant),
+                ),
+              );
+            },
+            child: const Text('View Details'),
+          ),
+          // Close button
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -439,12 +453,12 @@ class _HomeState extends State<Home> {
 
   bool _isNearby(GeoPoint location) {
     if (_currentLocation == null) return false;
-    final distance = Distance().as(
+    final distance = const Distance().as(
       LengthUnit.Kilometer,
       _currentLocation!,
       LatLng(location.latitude, location.longitude),
     );
-    return distance <= 10.0;
+    return distance <= 50.0;
   }
 
   bool _matchesUserPreferences(Restaurant restaurant, dynamic userProvider) {

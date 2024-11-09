@@ -71,7 +71,7 @@ class CustomTheme {
           shadowColor: AppColors.primary, // Text color of TextButton
         ),
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent
@@ -92,7 +92,7 @@ class CustomTheme {
           shadowColor: AppColors.primary, // Text color of TextButton
         ),
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent

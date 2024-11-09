@@ -9,6 +9,7 @@ import 'package:jom_makan/widgets/custom_cards.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/screens/user/filterOption.dart'; // Import FilterOptions widget
 import 'package:provider/provider.dart';
 
 class RestaurantsPage extends StatefulWidget {
@@ -20,6 +21,11 @@ class RestaurantsPage extends StatefulWidget {
 
 class _RestaurantsPageState extends State<RestaurantsPage> {
   bool nearMe = false;
+  bool isSearching = false;
+  List<String> selectedFilter = [];
+  List<String> selectedTags = [];
+  String sortByRatingDesc = '';
+  String searchText = '';
 
   @override
   void initState() {
@@ -37,14 +43,41 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     });
   }
 
-  String searchText = '';
-
   void _searchRestaurants(String text) {
     setState(() {
       searchText = text;
     });
     Provider.of<RestaurantProvider>(context, listen: false)
         .searchRestaurants(text);
+  }
+
+  void _showFilterOptions() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return FilterOptions(
+          onApplyFilters: (List<String> selectedFilter,
+              List<String> selectedTags, String sortByRatingDesc) {
+            setState(() {
+              this.selectedFilter = selectedFilter;
+              this.selectedTags = selectedTags;
+              this.sortByRatingDesc = sortByRatingDesc;
+            });
+
+            // Apply filters to restaurantProvider and refresh the list
+            Provider.of<RestaurantProvider>(context, listen: false)
+                .applyFilters(selectedFilter, selectedTags, sortByRatingDesc);
+          },
+          selectedFilter: selectedFilter,
+          selectedTags: selectedTags,
+        );
+      },
+    );
   }
 
   @override
@@ -83,18 +116,16 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {
-                              // Optional: Add filter functionality
-                            },
-                            icon: Icon(Icons.filter_list),
+                            onPressed: _showFilterOptions,
+                            icon: const Icon(Icons.filter_list),
                             color: AppColors.primary,
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Expanded(
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(maxHeight: 40),
+                          constraints: const BoxConstraints(maxHeight: 40),
                           child: TextField(
                             onChanged: (text) {
                               _searchRestaurants(text);
@@ -105,18 +136,18 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                             decoration: InputDecoration(
                               hintText: 'Search Restaurants',
                               hintStyle: GoogleFonts.poppins(fontSize: 12),
-                              suffixIcon: Icon(Icons.search, size: 20),
+                              suffixIcon: const Icon(Icons.search, size: 20),
                               filled: true,
                               isDense: true,
                               fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 10.0, vertical: 8.0),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderSide:
-                                    BorderSide(color: AppColors.primary),
+                                    const BorderSide(color: AppColors.primary),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
@@ -128,15 +159,21 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                 ),
                 expandedHeight: 80,
               ),
-              if (restaurantProvider.isLoading)
-                SliverFillRemaining(
+              if (isSearching)
+                const SliverFillRemaining(
+                  child: CustomLoading(text: 'Searching...'),
+                )
+              else if (restaurantProvider.isLoading)
+                const SliverFillRemaining(
                   child: CustomLoading(text: 'Fetching Restaurants...'),
                 )
               else if (restaurantProvider.restaurants.isEmpty)
                 SliverFillRemaining(
                   child: Center(
                     child: EmptyWidget(
-                      text: "No Restaurants Found.\nPlease try again.",
+                      text: searchText.isNotEmpty
+                          ? "No restaurants found for '$searchText'."
+                          : "No restaurants found. Please try again.",
                       image: 'assets/projectEmpty.png',
                     ),
                   ),
@@ -148,13 +185,13 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                       Restaurant restaurant =
                           restaurantProvider.restaurants[index];
 
-                      bool isFavorited = favoriteProvider.isFavorited(restaurant.id);
+                      bool isFavorited =
+                          favoriteProvider.isFavorited(restaurant.id);
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
                         child: GestureDetector(
                           onTap: () {
-                            // Navigate directly to RestaurantDetailsScreen
                             Navigator.push(
                               context,
                               MaterialPageRoute(

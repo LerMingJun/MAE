@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/models/post.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
-import 'package:jom_makan/widgets/custom_loading.dart';
-import 'package:jom_makan/widgets/custom_posts.dart';
 import 'package:provider/provider.dart';
 
 class UserPost extends StatefulWidget {
@@ -36,15 +33,15 @@ class _UserPostState extends State<UserPost> {
             builder: (context) {
               return AlertDialog(
                 backgroundColor: AppColors.background,
-                title: Text('Confirm Delete'),
+                title: const Text('Confirm Delete'),
                 content:
-                    Text('Are you sure you want to Delete your Masterpiece?'),
+                    const Text('Are you sure you want to Delete your Masterpiece?'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                   TextButton(
                     onPressed: () async {
@@ -57,7 +54,7 @@ class _UserPostState extends State<UserPost> {
                       Navigator.of(context).pop(true);
                       Navigator.of(context).pop(true);
                     },
-                    child: Text('Confirm'),
+                    child: const Text('Confirm'),
                   ),
                 ],
               );
@@ -67,8 +64,8 @@ class _UserPostState extends State<UserPost> {
         backgroundColor: Colors.red,
         foregroundColor: Colors.white,
         elevation: 10,
-        shape: CircleBorder(),
-        child: Icon(Icons.delete),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.delete),
       ),
       appBar: AppBar(
         centerTitle: true,

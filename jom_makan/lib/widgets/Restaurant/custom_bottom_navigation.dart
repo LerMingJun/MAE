@@ -36,10 +36,10 @@ class CustomBottomNavigation extends StatelessWidget {
           );
         } else if (index == 2) {
           // Navigate to Voucher page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const VoucherPage()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const VoucherScreen()),
+          );
         } else if (index == 3) {
           // Navigate to Community page
           // Navigator.push(

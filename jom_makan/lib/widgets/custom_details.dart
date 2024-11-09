@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/projectSpeeches.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
@@ -65,8 +64,8 @@ class CustomDetailScreen extends StatelessWidget {
     required this.isJoined,
     required this.toggleJoinStatus,
     this.participants = const [],
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +82,7 @@ class CustomDetailScreen extends StatelessWidget {
               // Picture
               Stack(
                 children: [
-                  Container(
+                  SizedBox(
                     height: 300,
                     child: Image.network(
                       image,
@@ -93,7 +92,7 @@ class CustomDetailScreen extends StatelessWidget {
                         if (loadingProgress == null) {
                           return child;
                         } else {
-                          return CustomImageLoading(width: 250);
+                          return const CustomImageLoading(width: 250);
                         }
                       },
                     ),
@@ -104,37 +103,37 @@ class CustomDetailScreen extends StatelessWidget {
                           right: 30,
                           child: Material(
                             elevation: 10,
-                            child: Container(
+                            child: SizedBox(
                               width: 60,
                               height: 60,
                               child: Image.network(
-                                "https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-${sdg}.jpg",
+                                "https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-$sdg.jpg",
                                 fit: BoxFit.cover,
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
                                   if (loadingProgress == null) {
                                     return child;
                                   } else {
-                                    return CustomImageLoading(width: double.infinity);
+                                    return const CustomImageLoading(width: double.infinity);
                                   }
                                 },
                               ),
                             ),
                           ),
                         )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                 ],
               ),
               // Content
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.background,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
                 ),
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 transform: Matrix4.translationValues(0.0, -30.0, 0.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +145,7 @@ class CustomDetailScreen extends StatelessWidget {
                           style: GoogleFonts.lato(
                               fontSize: 12, color: AppColors.primary),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         IconButton(
                           icon: Icon(
                               onSaved ? Icons.bookmark : Icons.bookmark_border),
@@ -172,6 +171,14 @@ class CustomDetailScreen extends StatelessWidget {
                                   arguments: eventID ?? "",
                                 );
                               },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.tertiary,
+                                foregroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                minimumSize: const Size(100, 30),
+                              ),
                               child: Text(
                                 eventTitle ?? "",
                                 style: GoogleFonts.poppins(
@@ -180,17 +187,9 @@ class CustomDetailScreen extends StatelessWidget {
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.tertiary,
-                                foregroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                minimumSize: Size(100, 30),
-                              ),
                             ),
                           )
-                        : SizedBox(height: 10),
+                        : const SizedBox(height: 10),
                     Text.rich(
                       TextSpan(
                         children: [
@@ -209,17 +208,17 @@ class CustomDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     CustomIconText(
                         text: location, icon: Icons.location_on, size: 12),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     CustomIconText(
                         text: formattedDate,
                         icon: Icons.calendar_month,
                         size: 12),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     participants.isNotEmpty
-                        ? Container(
+                        ? SizedBox(
                             height: 50,
                             child: Row(
                               children: [
@@ -248,8 +247,8 @@ class CustomDetailScreen extends StatelessWidget {
                               ],
                             ),
                           )
-                        : SizedBox.shrink(),
-                    SizedBox(height: 15),
+                        : const SizedBox.shrink(),
+                    const SizedBox(height: 15),
 
                     if (tags.isNotEmpty)
                       Wrap(
@@ -265,18 +264,18 @@ class CustomDetailScreen extends StatelessWidget {
                         ],
                       ),
 
-                    Divider(),
+                    const Divider(),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 15.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomLargeIconText(
+                          const CustomLargeIconText(
                               icon: Icons.info_outlined,
                               text: 'About this Event'),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            "${aboutDescription} ${type == "project" ? "\n\n**Participation adds ${impointsAdd ?? 0} Impoints!" : ""}",
+                            "$aboutDescription ${type == "project" ? "\n\n**Participation adds ${impointsAdd ?? 0} Impoints!" : ""}",
                             textAlign: TextAlign.justify,
                             style: GoogleFonts.poppins(
                                 fontSize: 12, color: AppColors.placeholder),
@@ -284,17 +283,17 @@ class CustomDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Divider(),
+                    const Divider(),
                     if (relatedSpeeches!.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 15.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomLargeIconText(
+                            const CustomLargeIconText(
                                 icon: Icons.record_voice_over_outlined,
                                 text: 'Upcoming Related Speech / Pitch'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: relatedSpeeches!.map((speech) {
@@ -323,7 +322,7 @@ class CustomDetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
                     ],
                     if (type != "speech") ...[
                       Padding(
@@ -331,12 +330,12 @@ class CustomDetailScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomLargeIconText(
+                            const CustomLargeIconText(
                                 icon: Icons.flag_outlined,
                                 text: 'Sustainable Development Goals'),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Text(
-                              'This event tackles SDG ${sdg}',
+                              'This event tackles SDG $sdg',
                               textAlign: TextAlign.justify,
                               style: GoogleFonts.poppins(
                                   fontSize: 12, color: AppColors.placeholder),
@@ -344,12 +343,12 @@ class CustomDetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
                     ],
-                    SizedBox(height: 15),
-                    CustomLargeIconText(
+                    const SizedBox(height: 15),
+                    const CustomLargeIconText(
                         icon: Icons.explore_outlined, text: 'Location'),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     if (center != null && marker != null)
                       Container(
                         height: 200,
@@ -369,7 +368,7 @@ class CustomDetailScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     
                     if (!isJoined) ...[
                       CustomPrimaryButton(
@@ -383,7 +382,7 @@ class CustomDetailScreen extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    'Successfully joined activity!\nMark your calendar on ${formattedDate}!',
+                                    'Successfully joined activity!\nMark your calendar on $formattedDate!',
                                     style: GoogleFonts.poppins(fontSize: 16),
                                   ),
                                   backgroundColor: Colors.green,
@@ -393,7 +392,7 @@ class CustomDetailScreen extends StatelessWidget {
                             } catch (e) {
                               print('Error joining project: $e');
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text('Failed to join project'),
                                   backgroundColor: Colors.red,
                                 ),
@@ -405,7 +404,7 @@ class CustomDetailScreen extends StatelessWidget {
                       Text("*You are joining this activity, to opt out:",
                           style:
                               GoogleFonts.lato(color: AppColors.primary)),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       CustomOptOutButton(
                           onPressed: () async {
                             await showDialog(
@@ -413,15 +412,15 @@ class CustomDetailScreen extends StatelessWidget {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   backgroundColor: AppColors.background,
-                                  title: Text('Confirm Opt Out'),
-                                  content: Text(
+                                  title: const Text('Confirm Opt Out'),
+                                  content: const Text(
                                       'Are you sure you want to opt out? You will miss out on a lot of great experiences.'),
                                   actions: <Widget>[
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop(false);
                                       },
-                                      child: Text('Cancel'),
+                                      child: const Text('Cancel'),
                                     ),
                                     TextButton(
                                       onPressed: () async {
@@ -452,7 +451,7 @@ class CustomDetailScreen extends StatelessWidget {
                                         }
                                         Navigator.of(context).pop(true);
                                       },
-                                      child: Text('Confirm'),
+                                      child: const Text('Confirm'),
                                     ),
                                   ],
                                 );
@@ -484,7 +483,7 @@ class CustomDetailScreen extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   if (type == 'speech' || recordingUrl != null) ...[
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       'To view the recording of the session:',
                       style: GoogleFonts.poppins(
@@ -494,7 +493,7 @@ class CustomDetailScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(

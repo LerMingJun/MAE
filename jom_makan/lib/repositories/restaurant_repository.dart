@@ -91,7 +91,7 @@ class RestaurantRepository {
   Future<List<Restaurant>> fetchUnapprovedRestaurants() async {
     try {
       QuerySnapshot snapshot = await _restaurantCollection
-          .where("status", isEqualTo:  "pending")
+          .where("status", isEqualTo: "Pending")
           .get();
 
       print(
@@ -156,24 +156,38 @@ class RestaurantRepository {
     return restaurantsWithRatings;
   }
 
-
   Future<double> calculateAverageRating(String restaurantId) async {
-    QuerySnapshot reviewSnapshot = await FirebaseFirestore.instance
-        .collection('reviews')
-        .where('restaurantId', isEqualTo: restaurantId)
-        .get();
+    try {
+      // Fetch all reviews for the specific restaurant
+      QuerySnapshot reviewSnapshot = await FirebaseFirestore.instance
+          .collection('reviews')
+          .where('restaurantId', isEqualTo: restaurantId)
+          .get();
 
-    if (reviewSnapshot.docs.isEmpty) {
-      return 0.0; // No reviews found
+      // If no reviews exist for the restaurant, return 0.0
+      if (reviewSnapshot.docs.isEmpty) {
+        return 0.0;
+      }
+
+      double totalRating = 0.0;
+
+      // Iterate through each review and sum up the ratings
+      for (var doc in reviewSnapshot.docs) {
+        Review review = Review.fromFirestore(doc);
+
+        // Ensure rating is a valid number (fallback to 0 if invalid)
+        double rating = review.rating ?? 0.0; // Handle null or missing rating
+        totalRating += rating;
+      }
+
+      // Calculate and return the average rating
+      double averageRating = totalRating / reviewSnapshot.docs.length;
+
+      return averageRating;
+    } catch (e) {
+      // Handle potential errors
+      return 0.0; // Return 0.0 if there was an error
     }
-
-    double totalRating = 0.0;
-    for (var doc in reviewSnapshot.docs) {
-      Review review = Review.fromFirestore(doc);
-      totalRating += review.rating;
-    }
-
-    return totalRating / reviewSnapshot.docs.length; // Calculate average
   }
 
   Future<void> editRestaurant(
@@ -195,10 +209,11 @@ class RestaurantRepository {
 
 
 
-    Future<Restaurant?> getRestaurantData(String uid) async {
+  Future<Restaurant?> getRestaurantData(String uid) async {
     try {
       // Access the restaurant document based on user ID
-      DocumentSnapshot doc = await _firestore.collection('restaurants').doc(uid).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('restaurants').doc(uid).get();
 
       if (doc.exists) {
         // If the document exists, create a Restaurant instance from it
@@ -214,19 +229,19 @@ class RestaurantRepository {
   }
 
   Future<void> updateRestaurantImages({
-      required String restaurantId,
-      required String profileImageUrl,
-      required List<String> menuImageUrls,
-    }) async {
-      try {
-        await _firestore.collection('restaurants').doc(restaurantId).update({
-          'image': profileImageUrl,
-          'menu': menuImageUrls,
-        });
-      } catch (e) {
-        print("Error updating restaurant images: $e");
-      }
+    required String restaurantId,
+    required String profileImageUrl,
+    required List<String> menuImageUrls,
+  }) async {
+    try {
+      await _firestore.collection('restaurants').doc(restaurantId).update({
+        'image': profileImageUrl,
+        'menu': menuImageUrls,
+      });
+    } catch (e) {
+      print("Error updating restaurant images: $e");
     }
+  }
 
   Future<void> updateRestaurant(String restaurantId, Map<String, dynamic> updatedData) async {
     try {
@@ -302,4 +317,57 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
     }
   }
   
+
+  Future<List<Restaurant>> fetchFilteredOrSortedRestaurants(
+      List<String> selectedFilter,
+      List<String> selectedTags,
+      String sortByRatingDesc) async {
+    try {
+      // Start Firestore query for restaurants collection
+      Query query = FirebaseFirestore.instance.collection('restaurants');
+
+      // Apply filter criteria for cuisine type (array-contains-any for multiple cuisines)
+      if (selectedFilter.isNotEmpty) {
+        query = query.where('cuisineType', arrayContainsAny: selectedFilter);
+      }
+      // First query for filtered restaurants by cuisineType and location
+      QuerySnapshot querySnapshot = await query.get();
+
+      List<Restaurant> filteredRestaurants = [];
+      for (var doc in querySnapshot.docs) {
+        Restaurant restaurant = Restaurant.fromFirestore(doc);
+
+        // Apply tag filter manually for AND logic
+        if (selectedTags.isNotEmpty) {
+          bool hasAllTags =
+              selectedTags.every((tag) => restaurant.tags.contains(tag));
+          if (hasAllTags) {
+            filteredRestaurants.add(restaurant);
+          }
+        } else {
+          filteredRestaurants.add(restaurant);
+        }
+      }
+
+      // Fetch ratings and sort by rating if necessary
+      List<Restaurant> restaurants = [];
+      for (var restaurant in filteredRestaurants) {
+        double averageRating = await calculateAverageRating(restaurant.id);
+        restaurant.averageRating = averageRating;
+        restaurants.add(restaurant);
+      }
+
+      // Sort by average rating if requested
+      if (sortByRatingDesc == 'High to Low') {
+        restaurants.sort((a, b) => b.averageRating.compareTo(a.averageRating));
+      } else if (sortByRatingDesc == 'Low to High') {
+        restaurants.sort((a, b) => a.averageRating.compareTo(b.averageRating));
+      }
+
+      return restaurants;
+    } catch (e) {
+      print('Error in fetchFilteredRestaurants in RestaurantRepository: $e');
+      return [];
+    }
+  }
 }

@@ -9,7 +9,7 @@ import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
-  EditProfile({super.key});
+  const EditProfile({super.key});
 
   @override
   State<EditProfile> createState() => _EditProfileState();
@@ -65,18 +65,18 @@ class _EditProfileState extends State<EditProfile> {
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(
+                child: SizedBox(
                   width: 120,
                   child: Stack(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(3.0),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(3.0),
+                        decoration: const BoxDecoration(
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
@@ -97,14 +97,14 @@ class _EditProfileState extends State<EditProfile> {
                             onPressed: () {
                               getImage();
                             },
-                            child: Icon(
-                              Icons.edit_outlined,
-                              color: Colors.white,
-                            ),
                             style: ElevatedButton.styleFrom(
-                              shape: CircleBorder(),
+                              shape: const CircleBorder(),
                               backgroundColor: AppColors.secondary,
                               foregroundColor: AppColors.primary,
+                            ),
+                            child: const Icon(
+                              Icons.edit_outlined,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -113,21 +113,21 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomTextFormField(
                 controller: _fullNameController,
                 placeholderText: 'Full Name',
                 keyboardType: TextInputType.name,
                 onChanged: (value) {},
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               CustomTextFormField(
                 controller: _usernameController,
                 placeholderText: 'Username',
                 keyboardType: TextInputType.name,
                 onChanged: (value) {},
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Displaying email without allowing changes
               CustomTextFormField(
                 controller: _emailController,
@@ -135,9 +135,9 @@ class _EditProfileState extends State<EditProfile> {
                 enabled: false, // Disable editing
                 onChanged: (value) {}, // Keep the onChanged for compatibility
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               // Preferences Selection
-              Align(
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Select Your Preferences:",
@@ -171,7 +171,7 @@ class _EditProfileState extends State<EditProfile> {
                   });
                 },
               ),
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               CustomPrimaryButton(
                   onPressed: () {
                     if (_fullNameController.text.isNotEmpty &&
@@ -179,7 +179,7 @@ class _EditProfileState extends State<EditProfile> {
                       _updateProfile();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Please fill in all fields.'),
                           backgroundColor: Colors.red,
                         ),
@@ -213,7 +213,7 @@ class _EditProfileState extends State<EditProfile> {
     };
     await userProvider.updateUserData(data, _image);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Profile updated successfully'),
         backgroundColor: Colors.green,
       ),

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +90,7 @@ class _ScheduleState extends State<Schedule> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(
             children: [
               TableCalendar(
@@ -107,7 +105,7 @@ class _ScheduleState extends State<Schedule> {
                 rangeSelectionMode: _rangeSelectionMode,
                 eventLoader: (day) => participationProvider.getEventsForDay(day),
                 startingDayOfWeek: StartingDayOfWeek.monday,
-                calendarStyle: CalendarStyle(
+                calendarStyle: const CalendarStyle(
                   outsideDaysVisible: false,
                 ),
                 onDaySelected: _onDaySelected,
@@ -145,7 +143,7 @@ class _ScheduleState extends State<Schedule> {
                                     color: Colors.grey.withOpacity(0.2),
                                     spreadRadius: 2,
                                     blurRadius: 5,
-                                    offset: Offset(
+                                    offset: const Offset(
                                         0, 3),
                                   ),
                                 ],
@@ -160,7 +158,7 @@ class _ScheduleState extends State<Schedule> {
                                           ? Colors.blue
                                           : Colors
                                               .green, // Color based on event type
-                                      borderRadius: BorderRadius.only(
+                                      borderRadius: const BorderRadius.only(
                                         topLeft: Radius.circular(12.0),
                                         bottomLeft: Radius.circular(12.0),
                                       ),
@@ -178,14 +176,14 @@ class _ScheduleState extends State<Schedule> {
                                         );
                                       },
                                       title: Text(
-                                        '${value[index].title}',
+                                        value[index].title,
                                         style: GoogleFonts.merriweather(
                                           fontSize: 13,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       subtitle: Text(
-                                        '${value[index].location}',
+                                        value[index].location,
                                         style: GoogleFonts.poppins(
                                           fontSize: 11,
                                           color: AppColors.placeholder,
@@ -240,12 +238,12 @@ class _ScheduleState extends State<Schedule> {
                   Row(
                     
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.diversity_3_outlined,
                         size: 20,
                         color: Colors.blue,
                       ),
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Text(
                         'Project',
                         style: GoogleFonts.poppins(
@@ -256,15 +254,15 @@ class _ScheduleState extends State<Schedule> {
                       ),
                     ],
                   ),
-                  SizedBox(width: 7),
+                  const SizedBox(width: 7),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.campaign,
                         size: 20,
                         color: AppColors.primary,
                       ),
-                      SizedBox(width: 3),
+                      const SizedBox(width: 3),
                       Text(
                         'Speech',
                         style: GoogleFonts.poppins(

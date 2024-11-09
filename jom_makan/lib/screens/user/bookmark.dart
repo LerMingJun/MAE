@@ -44,10 +44,10 @@ class _BookmarkState extends State<Bookmark>
     return Scaffold(
       backgroundColor: AppColors.background,
       body: bookmarkProvider.isLoading
-          ? Center(child: CustomLoading(text: 'Loading...'))
+          ? const Center(child: CustomLoading(text: 'Loading...'))
           : SafeArea(
               child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -68,14 +68,14 @@ class _BookmarkState extends State<Bookmark>
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Container(
+                    const SizedBox(height: 10),
+                    SizedBox(
                       height: 38.0,
                       child: TabBar(
                         splashFactory: NoSplash.splashFactory,
                         dividerColor: Colors.transparent,
                         controller: _tabController,
-                        indicator: UnderlineTabIndicator(
+                        indicator: const UnderlineTabIndicator(
                           borderSide:
                               BorderSide(width: 2.0, color: AppColors.primary),
                         ),
@@ -88,20 +88,20 @@ class _BookmarkState extends State<Bookmark>
                             child: Container(
                               width: double.infinity,
                               alignment: Alignment.center,
-                              child: Text('Projects'),
+                              child: const Text('Projects'),
                             ),
                           ),
                           Tab(
                             child: Container(
                               width: double.infinity,
                               alignment: Alignment.center,
-                              child: Text('Speech'),
+                              child: const Text('Speech'),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     Expanded(
                       child: TabBarView(
                         controller: _tabController,
@@ -132,7 +132,7 @@ class ProjectContent extends StatelessWidget {
       children: [
         Expanded(
           child: bookmarkProvider.events.isEmpty
-              ? SingleChildScrollView(
+              ? const SingleChildScrollView(
                 child: EmptyWidget(
                     text: 'No Bookmark for Projects as of now.',
                     image: 'assets/no-bookmark.png'),
@@ -157,7 +157,7 @@ class ProjectContent extends StatelessWidget {
                               .removeProjectBookmark(bookmark.activityID);
                           if (parentContext.mounted) {
                             ScaffoldMessenger.of(parentContext).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content:
                                     Text('Removed Bookmark for the Project!'),
                                 backgroundColor: Colors.red,
@@ -168,7 +168,7 @@ class ProjectContent extends StatelessWidget {
                           print('Error removing bookmark: $e');
                           if (parentContext.mounted) {
                             ScaffoldMessenger.of(parentContext).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text('Failed to remove bookmark'),
                                 backgroundColor: Colors.red,
                               ),
@@ -198,7 +198,7 @@ class SpeechContent extends StatelessWidget {
       children: [
         Expanded(
           child: bookmarkProvider.speeches.isEmpty
-              ? SingleChildScrollView(
+              ? const SingleChildScrollView(
                 child: EmptyWidget(
                     text: 'No Bookmark for Speeches as of now.',
                     image: 'assets/no-bookmark.png'),
@@ -223,7 +223,7 @@ class SpeechContent extends StatelessWidget {
                               .removeSpeechBookmark(bookmark.activityID);
                           if (parentContext.mounted) {
                             ScaffoldMessenger.of(parentContext).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content:
                                     Text('Removed Bookmark for the Speech!'),
                                 backgroundColor: Colors.red,
@@ -234,7 +234,7 @@ class SpeechContent extends StatelessWidget {
                           print('Error removing bookmark: $e');
                           if (parentContext.mounted) {
                             ScaffoldMessenger.of(parentContext).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text('Failed to remove bookmark'),
                                 backgroundColor: Colors.red,
                               ),

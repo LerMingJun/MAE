@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/project.dart';
 import 'package:jom_makan/models/projectSpeeches.dart';
 import 'package:jom_makan/models/speech.dart';
@@ -17,7 +16,7 @@ class EventRepository {
       return snapshot.docs.map((doc) => Tag.fromFirestore(doc)).toList();
     } catch (e) {
       print('Error fetching tags: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -41,7 +40,7 @@ class EventRepository {
       return activities;
     } catch (e) {
       print('Error fetching activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -90,7 +89,7 @@ class EventRepository {
       return activities;
     } catch (e) {
       print('Error fetching filtered activities: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -124,7 +123,7 @@ class EventRepository {
       }
     } catch (e) {
       print('Error fetching event: $e');
-      throw e;
+      rethrow;
     }
   }
 

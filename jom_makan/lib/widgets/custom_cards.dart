@@ -25,25 +25,25 @@ class CustomVerticalCard extends StatelessWidget {
     required this.location,
     required this.date,
     required this.circleImageUrl,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       surfaceTintColor: Colors.white,
-      margin: EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 3,
-      child: Container(
+      child: SizedBox(
         height: 100,
         child: Row(
           children: [
             Container(
               width: MediaQuery.of(context).size.width * 0.3,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10),
                   bottomLeft: Radius.circular(10),
@@ -56,7 +56,7 @@ class CustomVerticalCard extends StatelessWidget {
                   if (loadingProgress == null) {
                     return child;
                   } else {
-                    return CustomImageLoading(width: 100);
+                    return const CustomImageLoading(width: 100);
                   }
                 },
               ),
@@ -80,7 +80,7 @@ class CustomVerticalCard extends StatelessWidget {
                         text: location, icon: Icons.location_on, size: 12),
                     CustomIconText(
                         text: date, icon: Icons.calendar_month, size: 12),
-                    Spacer(),
+                    const Spacer(),
                     CircleAvatar(
                       radius: 11,
                       backgroundImage: NetworkImage(circleImageUrl),
@@ -109,15 +109,15 @@ class CustomHorizontalCard extends StatelessWidget {
     required this.location,
     required this.date1,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     DateTime date = date1.toDate();
     String formattedDate = DateFormat('MMMM dd').format(date).toUpperCase();
     return Container(
-      margin: EdgeInsets.only(bottom: 10, right: 16),
+      margin: const EdgeInsets.only(bottom: 10, right: 16),
       width: 200,
       child: InkWell(
         onTap: onTap,
@@ -135,11 +135,11 @@ class CustomHorizontalCard extends StatelessWidget {
               // Image
               Stack(
                 children: [
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: 160,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10)),
                       child: Image.network(
@@ -149,7 +149,7 @@ class CustomHorizontalCard extends StatelessWidget {
                           if (loadingProgress == null) {
                             return child;
                           } else {
-                            return CustomImageLoading(width: 160);
+                            return const CustomImageLoading(width: 160);
                           }
                         },
                       ),
@@ -159,12 +159,12 @@ class CustomHorizontalCard extends StatelessWidget {
                     bottom: 10,
                     right: 10,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 4, horizontal: 8), // Better padding
                       decoration: BoxDecoration(
                         color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black26,
                             blurRadius: 4,
@@ -187,7 +187,7 @@ class CustomHorizontalCard extends StatelessWidget {
               ),
 
               Padding(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -237,8 +237,8 @@ class CustomRestaurantCard extends StatefulWidget {
     required this.rating,
     required this.restaurant,
     required this.isFavourited,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _CustomRestaurantCardState createState() => _CustomRestaurantCardState();
@@ -303,7 +303,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
             Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(10),
                     bottomLeft: Radius.circular(10),
                   ),
@@ -316,7 +316,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                       if (loadingProgress == null) {
                         return child;
                       } else {
-                        return CustomImageLoading(
+                        return const CustomImageLoading(
                           width: 100,
                           height: 100,
                         );
@@ -340,7 +340,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           isLoadingAddress
                               ? 'Fetching address...'
@@ -352,7 +352,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           widget.cuisineTypes.join(', '),
                           style: GoogleFonts.poppins(
@@ -362,7 +362,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           widget.intro,
                           style: GoogleFonts.lato(
@@ -372,15 +372,15 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.star,
                               color: Colors.amber,
                               size: 14,
                             ),
-                            SizedBox(width: 4),
+                            const SizedBox(width: 4),
                             Text(
                               widget.rating.toString(),
                               style: GoogleFonts.poppins(
@@ -441,8 +441,8 @@ class CustomBookingCard extends StatefulWidget {
     required this.onTap,
     required this.status, // Initialize status
     required this.numberOfPeople,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _CustomBookingCardState createState() => _CustomBookingCardState();
@@ -500,7 +500,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
     switch (widget.status) {
       case 'Pending':
         return Colors.blue;
-      case 'Booked':
+      case 'Approved':
         return Colors.green;
       case 'Rejected':
         return Colors.red;
@@ -525,7 +525,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 bottomLeft: Radius.circular(10),
               ),
@@ -536,7 +536,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 },
               ),
             ),
@@ -562,7 +562,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                         ),
                         Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: _getStatusColor(),
                             borderRadius: BorderRadius.circular(5),
@@ -578,7 +578,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       isLoadingAddress
                           ? 'Fetching address...'
@@ -590,7 +590,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       "${widget.numberOfPeople} people",
                       style: GoogleFonts.poppins(
@@ -600,7 +600,7 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       formattedDate,
                       style: GoogleFonts.poppins(

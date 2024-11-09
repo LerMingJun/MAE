@@ -1,18 +1,14 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:jom_makan/models/community.dart';
 import 'package:jom_makan/providers/participation_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/providers/event_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
-import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class AddPost extends StatefulWidget {
@@ -102,7 +98,7 @@ class _AddPostState extends State<AddPost> {
                     TextButton.icon(
                       onPressed: getImage,
                       icon:
-                          Icon(Icons.image_outlined, color: AppColors.primary),
+                          const Icon(Icons.image_outlined, color: AppColors.primary),
                       label: Text(
                         'Pick an Image',
                         style: GoogleFonts.poppins(
@@ -115,7 +111,7 @@ class _AddPostState extends State<AddPost> {
                     ),
                     TextButton.icon(
                       onPressed: getImageFromCamera,
-                      icon: Icon(Icons.camera_alt_outlined,
+                      icon: const Icon(Icons.camera_alt_outlined,
                           color: AppColors.primary),
                       label: Text(
                         'Take A Picture',
@@ -125,15 +121,15 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
-                Divider(color: Colors.black, thickness: 1),
-                Container(
+                const SizedBox(height: 10),
+                const Divider(color: Colors.black, thickness: 1),
+                SizedBox(
                   height: 50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: TextFormField(
                       controller: _titleController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Your Title Here...',
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
@@ -151,12 +147,12 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ),
                 ),
-                Divider(color: Colors.black, thickness: 1),
-                Container(
+                const Divider(color: Colors.black, thickness: 1),
+                SizedBox(
                   height: 200,
                   child: TextFormField(
                     controller: _descriptionController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Description here...',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
@@ -173,14 +169,14 @@ class _AddPostState extends State<AddPost> {
                     },
                   ),
                 ),
-                Divider(color: Colors.black, thickness: 1),
-                Container(
+                const Divider(color: Colors.black, thickness: 1),
+                SizedBox(
                   height: 50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: TextFormField(
                       controller: _tagsController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Tags (comma separated)...',
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
@@ -192,15 +188,15 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ),
                 ),
-                Divider(color: Colors.black, thickness: 1),
-                SizedBox(height: 10),
+                const Divider(color: Colors.black, thickness: 1),
+                const SizedBox(height: 10),
                 CustomPrimaryButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate() && _image != null) {
                       _addPost();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text(
                               'Please fill out all fields and select an image'),
                           backgroundColor: Colors.red,
@@ -261,7 +257,7 @@ class _AddPostState extends State<AddPost> {
         _image, newPost.title, newPost.content, newPost.tags);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Post Shared!'),
         backgroundColor: Colors.green,
       ),

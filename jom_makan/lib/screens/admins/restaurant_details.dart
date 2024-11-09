@@ -10,8 +10,7 @@ import 'package:geocoding/geocoding.dart';
 class RestaurantDetailsScreenAdmin extends StatelessWidget {
   final Restaurant restaurant;
 
-  RestaurantDetailsScreenAdmin({Key? key, required this.restaurant})
-      : super(key: key);
+  RestaurantDetailsScreenAdmin({super.key, required this.restaurant});
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -34,23 +33,23 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
     String statusText;
 
     switch (restaurant.status) {
-      case 'suspend':
+      case 'Suspend':
         statusColor = Colors.orange;
         statusText = 'Suspended';
         break;
-      case 'delete':
+      case 'Delete':
         statusColor = Colors.red;
         statusText = 'Deleted';
         break;
-      case 'active':
+      case 'Active':
         statusColor = Colors.blue;
         statusText = 'Active';
         break;
-      case 'pending':
+      case 'Pending':
         statusColor = Colors.orange;
         statusText = 'Pending Approval';
         break;
-      case 'decline':
+      case 'Decline':
         statusColor = Colors.orange;
         statusText = 'Declined';
         break;
@@ -191,7 +190,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.grey),
                                 )
-                              : Container(
+                              : SizedBox(
                                   height:
                                       150, // Set a fixed height for the review container
                                   child: ListView.builder(
@@ -260,7 +259,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
   List<Widget> _buildActionButtons(BuildContext context, String status) {
     List<Widget> actionButtons = [];
 
-    if (status == 'suspend') {
+    if (status == 'Suspend') {
       actionButtons.addAll([
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -270,7 +269,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'active') {
+    } else if (status == 'Active') {
       actionButtons.addAll([
         _buildButton(context, 'Suspend', Colors.orange, () {
           _showDialogWithTextField(context, 'Suspend', 'Leave Some Comments.');
@@ -279,7 +278,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'pending') {
+    } else if (status == 'Pending') {
       actionButtons.addAll([
         _buildButton(context, 'Approve', Colors.green, () {
           _showConfirmationDialog(context, 'Approve',
@@ -289,7 +288,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Decline', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'decline') {
+    } else if (status == 'Decline') {
       actionButtons.addAll([
         _buildButton(context, 'Approve', Colors.green, () {
           _showConfirmationDialog(context, 'Approve',
@@ -299,7 +298,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'delete') {
+    } else if (status == 'Delete') {
       actionButtons.add(
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -388,7 +387,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                   // Update isApprove field
                   provider.updateRestaurant(
                     restaurant.copyWith(
-                      status: 'delete',
+                      status: 'Delete',
                       commentByAdmin: userInput,
                     ),
                   );
@@ -396,7 +395,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                   // Update isDecline field
                   provider.updateRestaurant(
                     restaurant.copyWith(
-                      status: 'decline',
+                      status: 'Decline',
                       commentByAdmin: userInput,
                     ),
                   );
@@ -404,7 +403,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                   // Update isSuspend field
                   provider.updateRestaurant(
                     restaurant.copyWith(
-                      status: 'suspend',
+                      status: 'Suspend',
                       commentByAdmin: userInput,
                     ),
                   );
@@ -446,7 +445,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
               onPressed: () {
                 provider.updateRestaurant(
                   restaurant.copyWith(
-                    status: 'active',
+                    status: 'Active',
                     commentByAdmin: '',
                   ),
                 );

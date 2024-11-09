@@ -11,9 +11,9 @@ class ParticipationProvider with ChangeNotifier {
   final ParticipationRepository _participationRepository = ParticipationRepository();
   final AuthRepository _authRepository = AuthRepository();
 
-  List<Participation> _participations = [];
-  List<Event> _events = [];
-  List<Speech> _speeches = [];
+  final List<Participation> _participations = [];
+  final List<Event> _events = [];
+  final List<Speech> _speeches = [];
   List<Participation>? _allUserActivities = [];
   List<Participation> _pastActivities = [];
   

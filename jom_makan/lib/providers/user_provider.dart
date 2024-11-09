@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/review.dart';
@@ -25,9 +24,9 @@ class UserProvider with ChangeNotifier {
   List<User>? _allUsers = [];
   List<User> _users = [];
   User? _user;
-  bool _isComplainsLoading = false;
-  List<Complain> _allComplains = [];
-  bool _isLoadingComplains = false;
+  final bool _isComplainsLoading = false;
+  final List<Complain> _allComplains = [];
+  final bool _isLoadingComplains = false;
   List<Map<String, dynamic>> _resolvedComplains = [];
   List<Map<String, dynamic>> _unresolvedComplains = [];
   List<Review> _reviews = [];
@@ -52,11 +51,13 @@ class UserProvider with ChangeNotifier {
 
   UserProvider(auth.User? firebaseUser) {
     _firebaseUser = firebaseUser;
-    print("CURRENT: " + _firebaseUser.toString());
+    print("CURRENT: $_firebaseUser");
     if (_firebaseUser != null) {
       fetchUserDatabyUid(_firebaseUser!.uid);
     }
   }
+
+
 
   Future<void> initialize(auth.User? firebaseUser) async {
     _firebaseUser = firebaseUser;
@@ -65,6 +66,39 @@ class UserProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
+Future<Map<String, dynamic>> findTopUsers() async {
+  String? topUserByPosts;
+  String? topUserByLikes;
+  int maxPosts = 0;
+  int maxLikes = 0;
+
+  // Iterate through all users to find the top users by post and like counts
+  for (var user in _allUsers!) {
+    // Parse the postCount and likeCount from strings to integers
+    final postCount = int.tryParse(await _userRepository.fetchPostCount(user.userID)) ?? 0; // Default to 0 if parsing fails
+    final likeCount = int.tryParse(await _userRepository.fetchLikeCount(user.userID)) ?? 0; // Default to 0 if parsing fails
+    print('User: ${user.fullName}, Post Count: $postCount, Like Count: $likeCount');
+
+    // Find the top user by post count
+    if (postCount > maxPosts) {
+      maxPosts = postCount;
+      topUserByPosts = user.fullName;
+    }
+
+    // Find the top user by like count
+    if (likeCount > maxLikes) {
+      maxLikes = likeCount;
+      topUserByLikes = user.fullName;
+    }
+  }
+  return {
+    'topUserByPosts': topUserByPosts,
+    'topUserByLikes': topUserByLikes,
+    'maxPosts': maxPosts,
+    'maxLikes': maxLikes,
+  };
+}
 
   Future<void> fetchAllUsers() async {
     _isLoading = true;

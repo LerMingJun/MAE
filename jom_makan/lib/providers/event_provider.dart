@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:jom_makan/models/activity.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/project.dart';
 import 'package:jom_makan/models/projectSpeeches.dart';
-import 'package:jom_makan/models/speech.dart';
 import 'package:jom_makan/models/tag.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:jom_makan/repositories/event_repository.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class EventProvider with ChangeNotifier {
   final EventRepository _eventRepository = EventRepository();
   final AuthRepository _authRepository = AuthRepository();
 
-  List<Event> _events = [];
+  final List<Event> _events = [];
   Event? _event;
   List<Activity>? _activities = [];
   List<Activity>? _allActivities = [];

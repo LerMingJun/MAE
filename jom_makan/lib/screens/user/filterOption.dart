@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:jom_makan/models/tag.dart';
-import 'package:jom_makan/providers/event_provider.dart';
+import 'package:jom_makan/constants/options.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class FilterOptions extends StatefulWidget {
-  final Function(String, List<String>, List<String>, DateTime?, DateTime?)
-      onApplyFilters;
-  final String selectedFilter;
+  final Function(List<String>, List<String>, String) onApplyFilters;
+  final List<String> selectedFilter;
   final List<String> selectedTags;
-  final List<String> selectedTagIDs;
-  final DateTime? selectedStartDate;
-  final DateTime? selectedEndDate;
+  final String sortByRatingDesc;
 
-  FilterOptions({
+  const FilterOptions({super.key, 
     required this.onApplyFilters,
     required this.selectedFilter,
     required this.selectedTags,
-    required this.selectedTagIDs,
-    this.selectedStartDate,
-    this.selectedEndDate,
+    this.sortByRatingDesc = 'High to Low',
   });
 
   @override
@@ -30,177 +22,206 @@ class FilterOptions extends StatefulWidget {
 }
 
 class _FilterOptionsState extends State<FilterOptions> {
-  String _selectedFilter = 'All';
+  List<String> _selectedFilter = [];
   List<String> _selectedTags = [];
-  List<String> _selectedTagIDs = [];
-  DateTime? _selectedStartDate;
-  DateTime? _selectedEndDate;
+  String _sortByRatingDesc = 'High to Low'; // Update to String
+  bool _isCuisineExpanded = false;
+  bool _isTagsExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedFilter = widget.selectedFilter;
+    _selectedFilter = List.from(widget.selectedFilter);
     _selectedTags = List.from(widget.selectedTags);
-    _selectedTagIDs = List.from(widget.selectedTagIDs);
-    _selectedStartDate = widget.selectedStartDate;
-    _selectedEndDate = widget.selectedEndDate;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<EventProvider>(context, listen: false).fetchAllTags();
-    });
-  }
-
-  void _clearDate() {
-    setState(() {
-      _selectedStartDate = null;
-      _selectedEndDate = null;
-    });
+    _sortByRatingDesc = widget.sortByRatingDesc;
   }
 
   @override
   Widget build(BuildContext context) {
-    final eventProvider = Provider.of<EventProvider>(context);
-    final List<Tag> tags = eventProvider.tags;
-
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Filter by Type',
-                style: GoogleFonts.lato(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
-            Column(
-              children: ['All', 'Project', 'Speech'].map((String filter) {
-                return RadioListTile(
-                  title: Text(filter),
-                  value: filter,
-                  activeColor: AppColors.primary,
-                  groupValue: _selectedFilter,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFilter = value.toString();
-                    });
-                  },
-                );
-              }).toList(),
+            Text(
+              'Filter by Type',
+              style:
+                  GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            Divider(),
-            Text('Filter by Tags',
-                style: GoogleFonts.lato(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
-            Wrap(
-              spacing: 8.0,
-              children: tags.map((tag) {
-                final bool isSelected = _selectedTags.contains(tag.name);
-                return ChoiceChip(
-                  label: Text(tag.name,
-                      style: GoogleFonts.poppins(
-                          color:
-                              isSelected ? Colors.white : AppColors.primary)),
-                  side: BorderSide(width: 0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
+            // Cuisine Type Toggle Section
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isCuisineExpanded = !_isCuisineExpanded;
+                });
+              },
+              child: Column(
+                children: [
+                  const SizedBox(height: 10), // Add SizedBox before the options
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Cuisine Type',
+                        style: GoogleFonts.lato(fontSize: 16),
+                      ),
+                      Icon(_isCuisineExpanded
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down)
+                    ],
                   ),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedTags.remove(tag.name);
-                        _selectedTagIDs.remove(tag.tagID);
-                      } else {
-                        _selectedTagIDs.add(tag.tagID);
-                        _selectedTags.add(tag.name);
-                      }
-                    });
-                  },
-                  selectedColor: AppColors.primary,
-                  checkmarkColor: Colors.white,
-                );
-              }).toList(),
-            ),
-            Divider(),
-            Text('Filter by Date Range',
-                style: GoogleFonts.lato(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Start Date',
-                      suffixIcon: Icon(Icons.calendar_today),
+                  if (_isCuisineExpanded)
+                    const SizedBox(height: 10), // Add some space after the drop-down
+                  if (_isCuisineExpanded)
+                    Wrap(
+                      spacing: 8.0,
+                      children: cuisineOptions.map((cuisine) {
+                        final bool isSelected =
+                            _selectedFilter.contains(cuisine);
+                        return ChoiceChip(
+                          label: Text(cuisine,
+                              style: GoogleFonts.poppins(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.primary)),
+                          side: const BorderSide(width: 0),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              if (isSelected) {
+                                _selectedFilter.remove(cuisine);
+                              } else {
+                                _selectedFilter.add(cuisine);
+                              }
+                            });
+                          },
+                          selectedColor: AppColors.primary,
+                          checkmarkColor: Colors.white,
+                        );
+                      }).toList(),
                     ),
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedStartDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null) {
-                        setState(() {
-                          _selectedStartDate = pickedDate;
-                        });
-                      }
-                    },
-                    controller: TextEditingController(
-                      text: _selectedStartDate != null
-                          ? DateFormat('yyyy-MM-dd').format(_selectedStartDate!)
-                          : '',
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'End Date',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedEndDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null) {
-                        setState(() {
-                          _selectedEndDate = pickedDate;
-                        });
-                      }
-                    },
-                    controller: TextEditingController(
-                      text: _selectedEndDate != null
-                          ? DateFormat('yyyy-MM-dd').format(_selectedEndDate!)
-                          : '',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            TextButton(
-              onPressed: _clearDate,
-              child: Text(
-                'Clear Dates',
-                style: TextStyle(
-                  color: Colors.red,
-                ),
+                ],
               ),
             ),
-            SizedBox(height: 40),
+            const Divider(),
+            // Tags Toggle Section
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isTagsExpanded = !_isTagsExpanded;
+                });
+              },
+              child: Column(
+                children: [
+                  const SizedBox(height: 10), // Add SizedBox before the options
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tags',
+                        style: GoogleFonts.lato(fontSize: 16),
+                      ),
+                      Icon(_isTagsExpanded
+                          ? Icons.arrow_drop_up
+                          : Icons.arrow_drop_down)
+                    ],
+                  ),
+                  if (_isTagsExpanded)
+                    const SizedBox(height: 10), // Add some space after the drop-down
+                  if (_isTagsExpanded)
+                    Wrap(
+                      spacing: 8.0,
+                      children: tagOptions.map((tag) {
+                        final bool isSelected = _selectedTags.contains(tag);
+                        return ChoiceChip(
+                          label: Text(tag,
+                              style: GoogleFonts.poppins(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.primary)),
+                          side: const BorderSide(width: 0),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              if (isSelected) {
+                                _selectedTags.remove(tag);
+                              } else {
+                                _selectedTags.add(tag);
+                              }
+                            });
+                          },
+                          selectedColor: AppColors.primary,
+                          checkmarkColor: Colors.white,
+                        );
+                      }).toList(),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(),
+            // Sort by Rating Section
+            Text(
+              'Sort by Rating',
+              style:
+                  GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Row(
+              children: [
+                Radio<String>(
+                  value: 'High to Low',
+                  groupValue: _sortByRatingDesc,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _sortByRatingDesc = value!;
+                    });
+                  },
+                  activeColor: AppColors.primary,
+                ),
+                const Text('High to Low'),
+                Radio<String>(
+                  value: 'Low to High',
+                  groupValue: _sortByRatingDesc,
+                  onChanged: (String? value) {
+                    setState(() {
+                      _sortByRatingDesc = value!;
+                    });
+                  },
+                  activeColor: AppColors.primary,
+                ),
+                const Text('Low to High'),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Button to clear all filters
+            CustomPrimaryButton(
+              text: 'Clear All Filters',
+              onPressed: () {
+                widget.onApplyFilters(
+                  [],
+                  [],
+                  'High to Low', // Default value
+                );
+                Navigator.of(context).pop();
+              },
+            ),
+            const SizedBox(height: 40),
+            // Button to apply selected filters
             CustomPrimaryButton(
               text: 'Apply Filters',
               onPressed: () {
-                widget.onApplyFilters(_selectedFilter, _selectedTags,
-                    _selectedTagIDs, _selectedStartDate, _selectedEndDate);
-
+                widget.onApplyFilters(
+                  _selectedFilter,
+                  _selectedTags,
+                  _sortByRatingDesc,
+                );
                 Navigator.of(context).pop();
               },
             ),

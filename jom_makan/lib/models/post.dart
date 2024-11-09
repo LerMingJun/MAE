@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:jom_makan/models/activity.dart';
 import 'package:jom_makan/models/user.dart';
 
 class Post {

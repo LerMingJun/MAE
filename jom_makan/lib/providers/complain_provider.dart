@@ -33,8 +33,8 @@ int get unresolvedComplainCount => _unresolvedComplains.length;
     print('Total combined complains: ${combinedComplains.length}'); // Debug print for combined complains
  
     // Classify complains into resolved and unresolved
-    _resolvedComplains = combinedComplains.where((complain) => complain.feedback?.isNotEmpty ?? false).toList();
-    _unresolvedComplains = combinedComplains.where((complain) => complain.feedback == null || complain.feedback!.isEmpty).toList();
+    _resolvedComplains = combinedComplains.where((complain) => complain.feedback.isNotEmpty ?? false).toList();
+    _unresolvedComplains = combinedComplains.where((complain) => complain.feedback.isEmpty).toList();
    
     print('Resolved complains count: ${_resolvedComplains.length}'); // Debug print for resolved complains
     print('Unresolved complains count: ${_unresolvedComplains.length}'); // Debug print for unresolved complains

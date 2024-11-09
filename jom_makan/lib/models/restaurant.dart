@@ -71,7 +71,7 @@ class Restaurant {
     return Restaurant(
       id: doc.id,
       name: data['name'] ?? '',
-      location: data['location'] ?? GeoPoint(0, 0), // Default to (0,0) if missing
+      location: data['location'] ?? const GeoPoint(0, 0), // Default to (0,0) if missing
       cuisineType: cuisineType,
       menu: menu,
       operatingHours: operatingHours,

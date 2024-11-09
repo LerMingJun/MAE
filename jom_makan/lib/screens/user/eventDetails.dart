@@ -34,7 +34,7 @@ class _EventDetailState extends State<EventDetail> {
       isJoined = !isJoined;
     });
 
-    print('toggle called' + isJoined.toString());
+    print('toggle called$isJoined');
   }
 
   @override
@@ -77,11 +77,11 @@ class _EventDetailState extends State<EventDetail> {
           future: eventProvider.fetchEventByID(eventID),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CustomLoading(text: 'Loading Details...'));
+              return const Center(child: CustomLoading(text: 'Loading Details...'));
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
-              return Center(child: Text('Event not found'));
+              return const Center(child: Text('Event not found'));
             } else {
               Event event = snapshot.data!;
 
@@ -133,7 +133,7 @@ class _EventDetailState extends State<EventDetail> {
           isSaved = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Saved to Bookmark!'),
             backgroundColor: Colors.green,
           ),
@@ -141,7 +141,7 @@ class _EventDetailState extends State<EventDetail> {
       } catch (e) {
         print('Error adding bookmark: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Failed to add bookmark'),
             backgroundColor: Colors.red,
           ),
@@ -154,7 +154,7 @@ class _EventDetailState extends State<EventDetail> {
           isSaved = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Removed Bookmark!'),
             backgroundColor: Colors.red,
           ),
@@ -162,7 +162,7 @@ class _EventDetailState extends State<EventDetail> {
       } catch (e) {
         print('Error removing bookmark: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Failed to remove bookmark'),
             backgroundColor: Colors.red,
           ),
