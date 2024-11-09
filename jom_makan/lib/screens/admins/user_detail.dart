@@ -37,15 +37,15 @@ String? postCount = userProvider.postCount;
 String? reviewCount = userProvider.reviewCount; 
 
     switch (user.status) {
-      case 'suspend':
+      case 'Suspend':
         statusColor = Colors.orange;
         statusText = 'Suspended';
         break;
-      case 'delete':
+      case 'Delete':
         statusColor = Colors.red;
         statusText = 'Deleted';
         break;
-      case 'active':
+      case 'Active':
         statusColor = Colors.blue;
         statusText = 'Active';
         break;
@@ -154,7 +154,7 @@ String? reviewCount = userProvider.reviewCount;
   List<Widget> _buildActionButtons(BuildContext context, String status) {
     List<Widget> actionButtons = [];
 
-    if (status == 'suspend') {
+    if (status == 'Suspend') {
       actionButtons.addAll([
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -164,7 +164,7 @@ String? reviewCount = userProvider.reviewCount;
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'active') {
+    } else if (status == 'Active') {
       actionButtons.addAll([
         _buildButton(context, 'Suspend', Colors.orange, () {
           _showDialogWithTextField(context, 'Suspend', 'Leave Some Comments.');
@@ -173,7 +173,7 @@ String? reviewCount = userProvider.reviewCount;
           _showDialogWithTextField(context, 'Delete', 'Leave Some Comments.');
         }),
       ]);
-    } else if (status == 'delete') {
+    } else if (status == 'Delete') {
       actionButtons.add(
         _buildButton(context, 'Recover', Colors.green, () {
           _showConfirmationDialog(context, 'Recover',
@@ -289,7 +289,7 @@ String? reviewCount = userProvider.reviewCount;
               onPressed: () {
                 if (title == 'Recover') {
                   provider.updateUser(
-                      widget.user.copyWith(status: 'active', commentByAdmin: ''));
+                      widget.user.copyWith(status: 'Active', commentByAdmin: ''));
                 }
                 Navigator.of(context).pop();
               },
