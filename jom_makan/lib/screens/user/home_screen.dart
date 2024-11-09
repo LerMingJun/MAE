@@ -57,8 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 60.0,
         items: const <Widget>[
           Icon(Icons.home, size: 30, color: AppColors.primary),
-          Icon(Icons.grid_view, size: 30, color: AppColors.primary),
-          Icon(Icons.bookmark_outline, size: 30, color: AppColors.primary),
+          Icon(Icons.restaurant, size: 30, color: AppColors.primary),
+          Icon(Icons.event_note, size: 30, color: AppColors.primary),
           Icon(Icons.groups, size: 30, color: AppColors.primary),
           Icon(Icons.person, size: 30, color: AppColors.primary),
         ],

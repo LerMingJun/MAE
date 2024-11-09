@@ -21,7 +21,6 @@ class UserRepository {
   // Get the current user
   auth.User? get currentUser => _firebaseAuth.currentUser;
 
-
   // Fetch user data from Firestore
   Future<User?> getUserData(String uid) async {
     try {
@@ -60,7 +59,7 @@ class UserRepository {
       print('Error updating preferences: $e');
     }
   }
-  
+
   // Fetch user data from Firestore
   Future<void> updateUserData(
       String uid, Map<String, dynamic> data, XFile? imageFile) async {
@@ -90,7 +89,7 @@ class UserRepository {
 
     try {
       QuerySnapshot postSnapshot =
-          await userCollection.doc(userID).collection(postSubCollection).get();
+          await postCollection.where('userID', isEqualTo: userID).get();
 
       postCount = postSnapshot.size.toString();
     } catch (e) {
@@ -106,7 +105,7 @@ class UserRepository {
 
     try {
       QuerySnapshot postSnapshot =
-          await userCollection.doc(userID).collection(postSubCollection).get();
+          await postCollection.where('userID', isEqualTo: userID).get();
 
       for (var doc in postSnapshot.docs) {
         List<dynamic> likes = doc['likes'];
@@ -120,39 +119,35 @@ class UserRepository {
     return likeCount;
   }
 
-Future<String> fetchReviewCount(String userID) async {
-  String reviewCount = '0';
-
-  try {
-    QuerySnapshot reviewSnapshot = await reviewCollection
-        .where('userId', isEqualTo: userID)
-        .get();
-
-    reviewCount = reviewSnapshot.size.toString();
-  } catch (e) {
-    print('Error fetching reviewCount: $e');
-  }
-
-  return reviewCount;
-}
-
-  Future<String> fetchParticipationCount(String userID) async {
-    String participationCount = '0';
+  Future<String> fetchReviewCount(String userID) async {
+    String reviewCount = '0';
 
     try {
-      QuerySnapshot participationSnapshot = await userCollection
-          .doc(userID)
-          .collection(participationSubCollection)
-          .get();
+      QuerySnapshot reviewSnapshot =
+          await reviewCollection.where('userId', isEqualTo: userID).get();
 
-      participationCount = participationSnapshot.size.toString();
+      reviewCount = reviewSnapshot.size.toString();
+    } catch (e) {
+      print('Error fetching reviewCount: $e');
+    }
+
+    return reviewCount;
+  }
+
+  Future<String> fecthBookingCount(String userID) async {
+    String bookingCount = '0';
+
+    try {
+      QuerySnapshot bookingSnapshot =
+          await bookingCollection.where('userId', isEqualTo: userID).get();
+
+      bookingCount = bookingSnapshot.size.toString();
     } catch (e) {
       print('Error fetching postCount: $e');
     }
 
-    return participationCount;
+    return bookingCount;
   }
-
 
   Future<List<User>> fetchAllUsers() async {
     try {
@@ -242,21 +237,18 @@ Future<String> fetchReviewCount(String userID) async {
     return classifiedcomplains;
   }
 
-    Future<void> editUser(User user
-  ) async {
-  try {
-    Map<String, dynamic> updatedData = {
-      'status': user.status,
-      'commentByAdmin': user.commentByAdmin,
-    };
+  Future<void> editUser(User user) async {
+    try {
+      Map<String, dynamic> updatedData = {
+        'status': user.status,
+        'commentByAdmin': user.commentByAdmin,
+      };
 
-    // Update the store document in Firestore
-    await _firestore.collection('users').doc(user.userID).update(updatedData);
-  } catch (e) {
-    print('Error updating store: $e');
-    throw Exception('Error updating store: $e');
+      // Update the store document in Firestore
+      await _firestore.collection('users').doc(user.userID).update(updatedData);
+    } catch (e) {
+      print('Error updating store: $e');
+      throw Exception('Error updating store: $e');
+    }
   }
-}
-
-
 }

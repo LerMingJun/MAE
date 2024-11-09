@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/constants/placeholderURL.dart';
+import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/providers/auth_provider.dart';
+import 'package:jom_makan/providers/complain_provider.dart';
+import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
@@ -129,7 +132,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         Row(
                           children: [
                             const Icon(
-                              Icons.park_outlined,
+                              Icons.visibility,
                               color: AppColors.primary,
                             ),
                             const SizedBox(width: 8),
@@ -145,7 +148,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             //IconButton(onPressed: _handleRefresh, icon: Icon(Icons.refresh)),
                             InkWell(
                               onTap: _handleRefresh,
-                              borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
                               splashColor: AppColors.secondary,
                               child: const Icon(Icons.autorenew),
                             )
@@ -165,8 +169,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 number: '${userProvider.likeCount ?? 0}',
                                 text: 'Likes'),
                             CustomNumberText(
-                                number: '${userProvider.participationCount ?? 0}',
-                                text: 'Participations'),
+                                number: '${userProvider.bookingCount ?? 0}',
+                                text: 'Bookings'),
+                            CustomNumberText(
+                                number: '${userProvider.reviewCount ?? 0}',
+                                text: 'Reviews'),
                           ],
                         ),
                       ],
@@ -193,31 +200,30 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                         child: Container(
                           width: double.infinity,
                           alignment: Alignment.center,
-                          child: const Text('Posts'),
+                          child: const Text('Faqs'),
                         ),
                       ),
                       Tab(
                         child: Container(
                           width: double.infinity,
                           alignment: Alignment.center,
-                          child: const Text('History'),
+                          child: const Text('Complains'),
                         ),
                       ),
                     ],
                   ),
                 ),
-                 SizedBox(
+                SizedBox(
                   width: double.infinity,
                   height: 500,
-                   child: TabBarView(
-                      controller: _tabController,
-                      children: const [
-                        PostContent(),
-                        // HistoryContent(),
-                      ],
-                    ),
-                 ),
-                
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: const [
+                      FaqContent(),
+                      Complains(),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -229,154 +235,238 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 }
 
-class PostContent extends StatelessWidget {
-  const PostContent({super.key});
+class FaqContent extends StatefulWidget {
+  const FaqContent({super.key});
+
+  @override
+  _FaqContentState createState() => _FaqContentState();
+}
+
+class _FaqContentState extends State<FaqContent> {
+  // Store the index of the selected FAQ to toggle the subtitle visibility
+  int? _expandedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      Provider.of<HelpItemProvider>(context, listen: false).fetchAllHelpItems();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final postProvider = Provider.of<PostProvider>(context);
+    return Consumer<HelpItemProvider>(
+      builder: (context, helpItemProvider, _) {
+        final helpItems = helpItemProvider.helpItems;
 
-    if (postProvider.isLoading) {
-      return const Center(child: CustomLoading(text: "Fetching Posts..."));
-    } else if (postProvider.postsByUserID?.isEmpty ?? false) {
-      return const EmptyWidget(
-          text:
-              'No Posts Added Yet.\nLooking forward for your first post in Folks!',
-          image: 'assets/no-post.png');
-    } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: GridView.builder(
-          padding: const EdgeInsets.all(4.0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // 3 images per row
-            crossAxisSpacing: 7.0, // Horizontal spacing between images
-            mainAxisSpacing: 7.0, // Vertical spacing between images
-          ),
-          itemCount: postProvider.postsByUserID?.length ?? 0,
+        if (helpItems.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          itemCount: helpItems.length,
           itemBuilder: (context, index) {
-            final post = postProvider.postsByUserID![index];
-            return null;
-            // return InkWell(
-            //   onTap: () {
-            //     Navigator.pushNamed(context, '/userPost',
-            //         arguments: post.postID);
-            //   },
-            //   // child: Ink.image(
-            //   //   fit: BoxFit.cover,
-            //   //   image: NetworkImage(post.postImage),
-            //   // ),
-            //   child: Image.network(
-            //     post.postImage,
-            //     fit: BoxFit.cover,
-            //     loadingBuilder: (context, child, loadingProgress) {
-            //       if (loadingProgress == null) {
-            //         return child;
-            //       } else {
-            //         return CustomImageLoading(width: 30);
-            //       }
-            //     },
-            //   ),
-            // );
-            // );
+            final item = helpItems[index];
+
+            return Card(
+              elevation: 3,
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                title: Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    // Toggle subtitle visibility
+                    _expandedIndex = _expandedIndex == index ? null : index;
+                  });
+                },
+                subtitle: _expandedIndex == index
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          item.subtitle,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      )
+                    : null,
+              ),
+            );
           },
-        ),
-      );
-    }
+        );
+      },
+    );
   }
 }
 
-// class HistoryContent extends StatelessWidget {
-//   const HistoryContent({super.key});
+class Complains extends StatefulWidget {
+  const Complains({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final userProvider = Provider.of<UserProvider>(context);
+  @override
+  State<Complains> createState() => _ComplainsState();
+}
 
-//     if (userProvider.isHistoryLoading ?? false) {
-//       return const Center(child: CustomLoading(text: "Fetching History..."));
-//     } else if (userProvider.history?.isEmpty ?? false) {
-//       return const EmptyWidget(
-//           text:
-//               'Oops! Looks like you have not participated in any activities yet.',
-//           image: 'assets/oops.png');
-//     } else {
-//       return Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 10),
-//         child: ListView.builder(
-//           padding: const EdgeInsets.only(top: 15),
-//           scrollDirection: Axis.vertical,
-//           itemCount: userProvider.history?.length ?? 0,
-//           itemBuilder: (context, index) {
-//             final history = userProvider.history![index];
+class _ComplainsState extends State<Complains> {
+  final _complainController = TextEditingController();
 
-//             DateTime date = history.hostDate.toDate();
-//             String formattedDate =
-//                 DateFormat('dd MMMM yyyy, HH:mm').format(date);
-//             return Card(
-//               color: Colors.white,
-//               surfaceTintColor: Colors.white,
-//               margin: const EdgeInsets.symmetric(vertical: 5),
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               elevation: 3,
-//               child: Container(
-//                 padding: const EdgeInsets.symmetric(horizontal: 10),
-//                 height: 80,
-//                 child: Row(
-//                   children: [
-//                      Image.network(
-//                         history.image,
-//                         width:100,
-//                         height: 70,
-//                         fit: BoxFit.cover,
-//                         loadingBuilder: (context, child, loadingProgress) {
-//                           if (loadingProgress == null) {
-//                             return child;
-//                           } else {
-//                             return const CustomImageLoading(width: 100);
-//                           }
-//                         },
-//                       ),
-                    
+  @override
+  void initState() {
+    super.initState();
+    // Schedule the data fetch to be called after the first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      Provider.of<ComplainProvider>(context, listen: false)
+          .fetchComplainByUserId(userProvider.userData!.userID);
+    });
+  }
 
-//                     Expanded(
-//                       child: Padding(
-//                         padding: const EdgeInsets.symmetric(
-//                             horizontal: 10.0, vertical: 5.0),
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               history.title,
-//                               style: GoogleFonts.lato(
-//                                 fontSize: 15,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                               overflow: TextOverflow.ellipsis,
-//                               maxLines: 1,
-//                             ),
-//                             const SizedBox(height: 5),
-//                             Text(
-//                               "** You participated this activity on $formattedDate!",
-//                               style: GoogleFonts.poppins(
-//                                   fontSize: 12, color: AppColors.placeholder),
-//                               overflow: TextOverflow.ellipsis,
-//                               maxLines: 3,
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-                    
-//                   ],
-//                 ),
-//               ),
-//             );
-//           },
-//         ),
-//       );
-//     }
-//   }
-// }
+  Future<void> _showCreateComplainDialog(BuildContext context) async {
+    final complainProvider =
+        Provider.of<ComplainProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    String userID = userProvider.userData!.userID;
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Create a Complaint"),
+          content: TextField(
+            controller: _complainController,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              hintText: "Enter your complaint",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              child: const Text('Submit'),
+              onPressed: () async {
+                if (_complainController.text.isNotEmpty) {
+                  Complain newComplain = Complain(
+                    id: '',
+                    userID: userID,
+                    userType: "user",
+                    description: _complainController.text,
+                    feedback: '',
+                  );
+
+                  await context
+                      .read<ComplainProvider>()
+                      .addComplain(newComplain);
+                  Navigator.of(context).pop();
+                  _complainController.clear();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Complaint Sent!'),
+                      // backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: Consumer<ComplainProvider>(
+              builder: (context, provider, child) {
+                final complains = provider.userComplains;
+
+                if (complains.isEmpty) {
+                  return const Center(
+                    child: EmptyWidget(
+                      text: "No Complaints Found.",
+                      image: 'assets/projectEmpty.png',
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: complains.length,
+                  itemBuilder: (context, index) {
+                    final complain = complains[index];
+                    return Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
+                      child: ExpansionTile(
+                        title: Text(
+                          complain.description ?? 'No description available.',
+                          style: GoogleFonts.lato(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Text(
+                              complain.feedback.isNotEmpty
+                                  ? complain.feedback
+                                  : 'No feedback available.',
+                              style: GoogleFonts.lato(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _showCreateComplainDialog(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              child: const Text(
+                'Create Complaint',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

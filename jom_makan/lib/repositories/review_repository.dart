@@ -12,7 +12,7 @@ class ReviewRepository {
           .collection('reviews')
           .where('restaurantId', isEqualTo: restaurantId)
           .orderBy('timestamp', descending: true) // Most recent reviews first
-          .limit(3) // Limit to 3 reviews for initial display
+          // .limit(3) // Limit to 3 reviews for initial display
           .get();
 
       return snapshot.docs.map((doc) => Review.fromFirestore(doc)).toList();
@@ -44,6 +44,28 @@ class ReviewRepository {
     } catch (e) {
       print('Error fetching all reviews: $e');
       return [];
+    }
+  }
+
+  Future<bool> deleteReview(String reviewId) async {
+    try {
+      final reviewDocRef =
+          FirebaseFirestore.instance.collection('reviews').doc(reviewId);
+
+      // Delete all replies in the subcollection 'replies'
+      final repliesSnapshot = await reviewDocRef.collection('replies').get();
+      for (var replyDoc in repliesSnapshot.docs) {
+        await replyDoc.reference.delete();
+      }
+
+      // After deleting all replies, delete the review itself
+      await reviewDocRef.delete();
+
+      print('Review and its replies deleted successfully');
+      return true;
+    } catch (e) {
+      print('Error deleting review or replies: $e');
+      return false;
     }
   }
 }

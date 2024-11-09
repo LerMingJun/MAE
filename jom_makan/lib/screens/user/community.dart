@@ -19,17 +19,16 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community> {
   final TextEditingController searchController = TextEditingController();
   List<Post> filteredPosts = [];
+  bool showUserPostsOnly = false; // Toggle to filter user-specific posts
 
   @override
   void initState() {
     super.initState();
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    // Fetch posts when the page is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       postProvider.fetchAllPosts().then((_) {
         setState(() {
-          filteredPosts =
-              postProvider.posts ?? []; // Initialize filteredPosts here
+          filteredPosts = postProvider.posts ?? [];
         });
       });
     });
@@ -37,19 +36,37 @@ class _CommunityState extends State<Community> {
 
   void filterPosts(String query) {
     final postProvider = Provider.of<PostProvider>(context, listen: false);
-    if (query.isEmpty) {
-      setState(() {
-        filteredPosts = postProvider.posts ?? []; // Reset to all posts
-      });
-    } else {
-      setState(() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    setState(() {
+      if (query.isEmpty) {
+        filteredPosts = postProvider.posts ?? [];
+      } else {
         filteredPosts = postProvider.posts?.where((post) {
-              return post.title.toLowerCase().contains(query.toLowerCase()) ||
-                  post.description.toLowerCase().contains(query.toLowerCase());
+              return (post.title.toLowerCase().contains(query.toLowerCase()) ||
+                      post.description
+                          .toLowerCase()
+                          .contains(query.toLowerCase())) &&
+                  (!showUserPostsOnly ||
+                      post.userID == userProvider.userData!.userID);
             }).toList() ??
             [];
-      });
-    }
+      }
+    });
+  }
+
+  void toggleUserPostsFilter() {
+    final postProvider = Provider.of<PostProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    setState(() {
+      showUserPostsOnly = !showUserPostsOnly;
+      filteredPosts = postProvider.posts?.where((post) {
+            return !showUserPostsOnly ||
+                post.userID == userProvider.userData!.userID;
+          }).toList() ??
+          [];
+    });
   }
 
   @override
@@ -75,22 +92,25 @@ class _CommunityState extends State<Community> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Heading
+              // Heading and Filter Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Community',
-                          style: GoogleFonts.lato(
-                              fontSize: 24,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                  Text(
+                    'Community',
+                    style: GoogleFonts.lato(
+                      fontSize: 24,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      showUserPostsOnly ? Icons.person : Icons.person_outline,
+                      color: AppColors.primary,
+                    ),
+                    onPressed: toggleUserPostsFilter,
+                    tooltip: 'Show only my posts',
                   ),
                 ],
               ),
@@ -107,7 +127,8 @@ class _CommunityState extends State<Community> {
                     borderSide: const BorderSide(color: Colors.blue),
                   ),
                   suffixIcon: const Icon(Icons.search, color: Colors.blue),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10.0),
                 ),
               ),
               const SizedBox(height: 10),
@@ -131,15 +152,16 @@ class _CommunityState extends State<Community> {
                     onRefresh: () async {
                       await postProvider.fetchAllPosts();
                       setState(() {
-                        filteredPosts =
-                            postProvider.posts ?? []; // Reset after refresh
+                        filteredPosts = postProvider.posts ?? [];
                       });
                     },
                     child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 80.0),
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
-                        final post = filteredPosts[index];
-                        final isEditable = post.userID == userProvider.userData!.userID;
+                        final post = postProvider.posts![index];
+                        final isEditable =
+                            post.userID == userProvider.userData!.userID;
                         return CommunityPost(
                           postID: post.postId,
                           profileImage:

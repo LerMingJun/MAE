@@ -136,13 +136,7 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/schedule');
-                        },
-                        icon: const Icon(Icons.calendar_today_rounded),
-                        color: AppColors.primary,
-                      ),
+
                     ],
                   ),
                   const SizedBox(height: 30),
@@ -286,7 +280,7 @@ class _HomeState extends State<Home> {
           children: [
             Text(
               'Current Location:',
-              style: GoogleFonts.lato(fontSize: 18, color: Colors.white),
+              style: GoogleFonts.lato(fontSize: 18, color: Colors.white,fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             _isLoadingLocation

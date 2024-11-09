@@ -25,4 +25,11 @@ class Complain {
       userID: userID, 
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'description': description,
+      'feedback': feedback,
+    };
+  }
 }

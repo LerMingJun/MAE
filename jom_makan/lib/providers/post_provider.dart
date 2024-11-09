@@ -112,14 +112,28 @@ class PostProvider with ChangeNotifier {
 
   Future<void> likePost(String postID) async {
     await _postRepository.likePost(postID, _authRepository.currentUser!.uid);
-    await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    await fetchAllPosts();
+    // Directly update the like status of the post in the provider
+    _posts?.forEach((post) {
+      if (post.postId == postID) {
+        post.likes.add(_authRepository
+            .currentUser!.uid); // Add the current user's UID to the likes list
+      }
+    });
+    await fetchAllPosts(); // You may still want to refetch posts to sync data
+    notifyListeners(); // Notify listeners to update the UI
   }
 
   Future<void> unlikePost(String postID) async {
     await _postRepository.unlikePost(postID, _authRepository.currentUser!.uid);
-    await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    await fetchAllPosts();
+    // Directly update the like status of the post in the provider
+    _posts?.forEach((post) {
+      if (post.postId == postID) {
+        post.likes.remove(_authRepository.currentUser!
+            .uid); // Remove the current user's UID from the likes list
+      }
+    });
+    await fetchAllPosts(); // You may still want to refetch posts to sync data
+    notifyListeners(); // Notify listeners to update the UI
   }
 
   Future<List<Post>> searchPosts(String query) async {

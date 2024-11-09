@@ -1,9 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/models/favorite.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/auth_provider.dart';
+import 'package:jom_makan/providers/complain_provider.dart';
 import 'package:jom_makan/providers/favorite_provider.dart';
+import 'package:jom_makan/providers/helpitem_provider.dart';
 import 'package:jom_makan/providers/post_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
@@ -65,6 +68,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
+        ChangeNotifierProvider(create: (_) => HelpItemProvider()),
+        ChangeNotifierProvider(create: (_) => ComplainProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
