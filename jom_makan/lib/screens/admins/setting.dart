@@ -286,7 +286,7 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Exit Program', style: TextStyle(color: Colors.red)),
+            title: const Text('Log Out', style: TextStyle(color: Colors.red)),
             onTap: () {
               // Perform any cleanup operations (e.g., clearing user data, tokens, etc.)
               SystemNavigator.pop(); // This will close the app

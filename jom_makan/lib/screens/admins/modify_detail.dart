@@ -247,9 +247,6 @@ class _ModifyDetailScreenState extends State<ModifyDetailScreen> {
                     ),
                     foregroundColor: WidgetStateProperty.resolveWith<Color>(
                       (Set<WidgetState> states) {
-                        if (states.contains(WidgetState.disabled)) {
-                          return Colors.grey;
-                        }
                         return Colors.white;
                       },
                     ),
