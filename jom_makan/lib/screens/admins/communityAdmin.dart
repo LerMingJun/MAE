@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +12,6 @@ import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 
 class Community extends StatefulWidget {
-  const Community({super.key});
 
   @override
   State<Community> createState() => _CommunityState();
@@ -107,7 +108,8 @@ class _CommunityState extends State<Community> {
                     borderSide: const BorderSide(color: Colors.blue),
                   ),
                   suffixIcon: const Icon(Icons.search, color: Colors.blue),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10.0),
                 ),
               ),
               const SizedBox(height: 10),
@@ -139,7 +141,8 @@ class _CommunityState extends State<Community> {
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
                         final post = filteredPosts[index];
-                        final isEditable = post.userID == userProvider.userData!.userID;
+                        final isEditable =
+                            post.userID == userProvider.userData!.userID;
                         return CommunityPost(
                           postID: post.postId,
                           profileImage:

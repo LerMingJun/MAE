@@ -252,6 +252,10 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
   void initState() {
     super.initState();
     _getAddressFromCoordinates();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.fetchUserData();
+    });
   }
 
   Future<void> _getAddressFromCoordinates() async {
@@ -262,17 +266,21 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
       );
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
-        setState(() {
-          address =
-              "${placemark.street}, ${placemark.locality}, ${placemark.country}";
-          isLoadingAddress = false; // Update loading state
-        });
+        if (mounted) {
+          setState(() {
+            address =
+                "${placemark.street}, ${placemark.locality}, ${placemark.country}";
+            isLoadingAddress = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() {
-        address = "Address not available";
-        isLoadingAddress = false; // Update loading state
-      });
+      if (mounted) {
+        setState(() {
+          address = "Address not available";
+          isLoadingAddress = false;
+        });
+      }
     }
   }
 
@@ -280,7 +288,7 @@ class _CustomRestaurantCardState extends State<CustomRestaurantCard> {
   Widget build(BuildContext context) {
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);
-    final String? userId = userProvider.firebaseUser?.uid;
+    final String? userId = userProvider.userData?.userID;
 
     return GestureDetector(
       onTap: () {
@@ -561,8 +569,8 @@ class _CustomBookingCardState extends State<CustomBookingCard> {
                           ),
                         ),
                         Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: _getStatusColor(),
                             borderRadius: BorderRadius.circular(5),

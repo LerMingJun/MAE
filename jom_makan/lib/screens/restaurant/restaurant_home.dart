@@ -399,6 +399,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
       bottomNavigationBar: CustomBottomNavigation(
         selectedIndex: _selectedIndex,
         onItemSelected: _onItemTapped,
+        restaurantId: widget.restaurantId,
       ),
     );
   }

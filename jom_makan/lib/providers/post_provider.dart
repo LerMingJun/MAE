@@ -11,6 +11,7 @@ class PostProvider with ChangeNotifier {
   final UserRepository _userRepository = UserRepository();
 
   bool _isLoading = false;
+  bool isAddingPost = false;
   List<Post>? _posts;
   List<Post>? _postsByUserID;
   Post? _userPost;
@@ -22,22 +23,22 @@ class PostProvider with ChangeNotifier {
 
   Future<void> addPost(XFile? imageFile, String title, String description,
       List<String> tags) async {
-    _isLoading = true;
+    isAddingPost = true;
     notifyListeners();
 
     try {
       await _postRepository.addPost(_authRepository.currentUser!.uid, imageFile,
           title, description, tags);
       await fetchAllPosts();
-
-      _isLoading = false;
-      notifyListeners();
     } catch (e) {
-      _isLoading = false;
+      isAddingPost = false;
       notifyListeners();
       print('Error in PostProvider: $e');
       throw Exception('Error adding post');
     }
+
+    isAddingPost = false;
+    notifyListeners();
   }
 
   Future<void> updatePost(String postID, XFile? imageFile, String title,
@@ -112,14 +113,28 @@ class PostProvider with ChangeNotifier {
 
   Future<void> likePost(String postID) async {
     await _postRepository.likePost(postID, _authRepository.currentUser!.uid);
-    await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    await fetchAllPosts();
+    // Directly update the like status of the post in the provider
+    _posts?.forEach((post) {
+      if (post.postId == postID) {
+        post.likes.add(_authRepository
+            .currentUser!.uid); // Add the current user's UID to the likes list
+      }
+    });
+    await fetchAllPosts(); // You may still want to refetch posts to sync data
+    notifyListeners(); // Notify listeners to update the UI
   }
 
   Future<void> unlikePost(String postID) async {
     await _postRepository.unlikePost(postID, _authRepository.currentUser!.uid);
-    await _userRepository.getUserData(_authRepository.currentUser!.uid);
-    await fetchAllPosts();
+    // Directly update the like status of the post in the provider
+    _posts?.forEach((post) {
+      if (post.postId == postID) {
+        post.likes.remove(_authRepository.currentUser!
+            .uid); // Remove the current user's UID from the likes list
+      }
+    });
+    await fetchAllPosts(); // You may still want to refetch posts to sync data
+    notifyListeners(); // Notify listeners to update the UI
   }
 
   Future<List<Post>> searchPosts(String query) async {

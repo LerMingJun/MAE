@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/user.dart';
 
 class Post {
@@ -12,6 +13,7 @@ class Post {
   final String postImage;
   final Timestamp createdAt;
   User? user;
+  Restaurant? restaurant;
 
   Post({
     required this.postId,
@@ -24,6 +26,7 @@ class Post {
     required this.createdAt,
     required this.postImage,
     this.user,
+    this.restaurant,
   });
 
   // Method to create an instance from a JSON object

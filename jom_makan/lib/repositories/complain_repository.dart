@@ -45,6 +45,43 @@ class ComplainRepository {
     return complains;
   }
 
+  Future<List<Complain>> fetchUserComplainsByUserId(String userId) async {
+    List<Complain> complains = [];
+
+    // Get the user document by userId from the 'users' collection
+    DocumentSnapshot userDoc = await _userCollection.doc(userId).get();
+
+    // Check if the user exists
+    if (userDoc.exists) {
+      // Access the 'complain' subcollection for the specific user
+      CollectionReference complainCollection =
+          userDoc.reference.collection('complain');
+
+      // Fetch documents from the 'complain' subcollection
+      QuerySnapshot complainSnapshot = await complainCollection.get();
+
+      // Check if any complains were found
+      for (QueryDocumentSnapshot complainDoc in complainSnapshot.docs) {
+        Map<String, dynamic> complainData =
+            complainDoc.data() as Map<String, dynamic>;
+
+        // Get the user's name from the user document
+        String userName = userDoc['fullName'];
+
+        // Create a Complain instance with the user name
+        complains.add(Complain.fromMap(
+          complainData,
+          complainDoc.id,
+          userDoc.id,
+          'user',
+          userName,
+        ));
+      }
+    }
+
+    return complains;
+  }
+
   Future<List<Complain>> fetchRestaurantComplains() async {
     List<Complain> complains = [];
 

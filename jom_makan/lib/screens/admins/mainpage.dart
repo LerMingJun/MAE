@@ -211,7 +211,7 @@ class _MainPageState extends State<MainPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Community()),
+                            builder: (context) => Community(userId: '',userRole: "Admin",)),
                       );
                     },
                     child: _buildGridItem(Icons.group, 'Community'),

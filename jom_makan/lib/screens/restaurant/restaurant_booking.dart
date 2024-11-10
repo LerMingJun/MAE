@@ -213,6 +213,7 @@ class _ManageBookingState extends State<ManageBooking> {
       bottomNavigationBar: CustomBottomNavigation(
         selectedIndex: _selectedIndex,
         onItemSelected: _onItemTapped,
+        restaurantId: widget.restaurantId,
       ),
     );
   }

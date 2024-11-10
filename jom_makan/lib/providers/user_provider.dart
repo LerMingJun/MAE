@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/models/complain.dart';
-import 'package:jom_makan/models/participation.dart';
 import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,9 +17,8 @@ class UserProvider with ChangeNotifier {
   bool? _isHistoryLoading;
   bool _isLoading = false;
   String _postCount = "0";
-  String? _likeCount;
-  String? _participationCount;
-  List<Participation>? _history = [];
+  String? _likeCount = "0";
+  String? _bookingCount = "0";
   List<User>? _allUsers = [];
   List<User> _users = [];
   User? _user;
@@ -44,8 +42,7 @@ class UserProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get postCount => _postCount;
   String? get likeCount => _likeCount;
-  String? get participationCount => _participationCount;
-  List<Participation>? get history => _history;
+  String? get bookingCount => _bookingCount;
   List<Review> get reviews => _reviews;
   String? get reviewCount => _reviewCount;
 
@@ -126,7 +123,6 @@ Future<Map<String, dynamic>> findTopUsers() async {
     notifyListeners();
 
     await fetchUserDatabyUid(_authRepository.currentUser!.uid);
-    await _fetchUserHistory();
     await _fetchUserStats();
 
     _isLoading = false;
@@ -167,26 +163,17 @@ Future<Map<String, dynamic>> findTopUsers() async {
     notifyListeners();
   }
 
-  Future<void> _fetchUserHistory() async {
-    try {
-      _history = await _userRepository
-          .fetchUserHistory(_authRepository.currentUser!.uid);
-    } catch (e) {
-      _history = [];
-      print('Error in EventProvider: $e');
-    }
-  }
-
   Future<void> _fetchUserStats() async {
     try {
       _postCount = await _userRepository
           .fetchPostCount(_authRepository.currentUser!.uid);
       _likeCount = await _userRepository
           .fetchLikeCount(_authRepository.currentUser!.uid);
-      _participationCount = await _userRepository
-          .fetchParticipationCount(_authRepository.currentUser!.uid);
+      _bookingCount = await _userRepository
+          .fecthBookingCount(_authRepository.currentUser!.uid);
+      _reviewCount = await _userRepository
+          .fetchReviewCount(_authRepository.currentUser!.uid);
     } catch (e) {
-      _history = [];
       print('Error in EventProvider: $e');
     }
   }

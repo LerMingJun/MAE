@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CommunityPost {
   final String postId;
-  final String userId;
-  final String userRole;
+  final String? userId;
+  final String? userRole;
   final String title;
   final String content;
   final int likes;

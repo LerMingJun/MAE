@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // For date and time formatting
 import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore
 import 'package:jom_makan/models/booking.dart'; // Assuming you have a Booking model
-import 'package:jom_makan/models/restaurant.dart'; // Assuming you have a Restaurant model
+import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/screens/user/restaurantDetails.dart'; // Assuming you have a Restaurant model
 
 class AddBookingScreen extends StatefulWidget {
   final Restaurant restaurant;
@@ -23,14 +24,19 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
   DateTime? _selectedDateTime;
 
   Future<void> _submitBooking() async {
-    if (_numberOfPeopleController.text.isEmpty || _selectedDateTime == null) {
-      // Show an error if fields are empty
+    final int? numberOfPeople = int.tryParse(_numberOfPeopleController.text);
+
+    if (numberOfPeople == null ||
+        numberOfPeople < 1 ||
+        numberOfPeople > 20 ||
+        _selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(
+            content: Text(
+                'Please enter a valid number of people (1-20) and select a date and time.')),
       );
       return;
     }
-
     // Create a Booking object
     final booking = Booking(
       bookingId: '', // Firestore will auto-generate an ID
@@ -47,8 +53,20 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
         .collection('bookings')
         .add(booking.toFirestore());
 
-    // Navigate back or show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Booking submitted successfully!')),
+    );
+
     Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RestaurantDetailsScreen(
+          restaurant:
+              widget.restaurant, // Pass the updated restaurant if needed
+        ),
+      ),
+    );
   }
 
   void _selectDateTime(BuildContext context) async {
@@ -138,8 +156,8 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                     borderSide:
                         const BorderSide(color: Colors.blueAccent, width: 1.5),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 12.0),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -152,7 +170,8 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                     color: Colors.grey[700],
                     fontSize: 16,
                   ),
-                  prefixIcon: const Icon(Icons.message, color: Colors.blueAccent),
+                  prefixIcon:
+                      const Icon(Icons.message, color: Colors.blueAccent),
                   filled: true,
                   fillColor: Colors.grey[200], // Light background color
                   border: OutlineInputBorder(
@@ -164,8 +183,8 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
                     borderSide:
                         const BorderSide(color: Colors.blueAccent, width: 1.5),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 12.0),
                 ),
               ),
               const SizedBox(height: 16),

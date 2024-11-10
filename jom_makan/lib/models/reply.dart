@@ -5,8 +5,8 @@ class Reply {
   final String reviewId;
   final String replyText;
   final Timestamp timestamp;
-  final String? restaurantId;  // Optional
-  final String? userId;  // Optional
+  final String? restaurantId; // Optional
+  final String? userId; // Optional
 
   Reply({
     required this.replyId,
@@ -38,5 +38,16 @@ class Reply {
       'restaurantId': restaurantId,
       'userId': userId,
     };
+  }
+
+  Reply copyWith({String? replyText}) {
+    return Reply(
+      replyId: this.replyId,
+      reviewId: this.reviewId,
+      replyText: replyText ??
+          this.replyText, // If replyText is provided, use it, otherwise keep the old one
+      userId: this.userId,
+      timestamp: this.timestamp,
+    );
   }
 }

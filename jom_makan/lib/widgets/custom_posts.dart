@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/post_provider.dart';
+import 'package:jom_makan/screens/user/community.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,7 @@ class CommunityPost extends StatelessWidget {
   final List<String> tags;
   final String userID;
   final bool? edit;
+  final VoidCallback? deletePost;
 
   const CommunityPost({
     required this.postID,
@@ -33,6 +35,7 @@ class CommunityPost extends StatelessWidget {
     required this.userID,
     this.edit = false,
     super.key,
+    this.deletePost,
   });
 
   @override
@@ -108,10 +111,20 @@ class CommunityPost extends StatelessWidget {
                       },
                     );
                   },
-                  child: const Icon(
-                    Icons.edit,
-                    color: Colors.blue,
-                    size: 20,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.edit,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: deletePost,
+                        color: Colors.red,
+                        tooltip: 'Delete Post',
+                      ),
+                    ],
                   ),
                 ),
             ],
@@ -176,42 +189,24 @@ class CommunityPost extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Row(
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween, // Distribute the space
             children: [
-              // Comment Input Bar
-              Container(
-                width: screenWidth * 0.68, // Set width to 80% of screen width
-                height: 40, // Adjust the height as needed
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Background color
-                  borderRadius: BorderRadius.circular(20), // Rounded corners
+              // Left side: Display the message with the number of likes
+              Text(
+                '${likes.length} ${likes.length == 1 ? 'person' : 'people'} like${likes.length == 1 ? 's' : ''} this post!',
+                style: GoogleFonts.poppins(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
                 ),
-                child: TextField(
-                  controller: commentController,
-                  decoration: const InputDecoration(
-                    hintText: 'Add a comment...',
-                    border: InputBorder.none, // Remove the default border
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send, color: AppColors.primary),
-                onPressed: () {
-                  String comment = commentController.text.trim();
-                  if (comment.isNotEmpty) {
-                    // Add logic to submit the comment
-                    // postProvider.addComment(postID, comment);
-                    commentController
-                        .clear(); // Clear the input after submission
-                  }
-                },
               ),
               const Spacer(),
               Row(
                 children: [
                   Transform.translate(
-                    offset: const Offset(0, 2.5), // Move the count down by 4 pixels
+                    offset:
+                        const Offset(0, 2.5), // Move the count down by 4 pixels
                     child: Text(
                       '${likes.length} ',
                       style: GoogleFonts.poppins(

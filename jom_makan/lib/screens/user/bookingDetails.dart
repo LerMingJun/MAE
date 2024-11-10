@@ -5,10 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/booking.dart';
 import 'package:jom_makan/screens/user/restaurantManage.dart';
+import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:provider/provider.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 
-class BookingDetailsPage extends StatelessWidget {
+class BookingDetailsPage extends StatefulWidget {
   final Restaurant restaurant;
   final Booking booking;
   final bool isPastBooking;
@@ -20,7 +21,23 @@ class BookingDetailsPage extends StatelessWidget {
     required this.isPastBooking,
   });
 
-  // Method to get the address from latitude and longitude
+  @override
+  _BookingDetailsPageState createState() => _BookingDetailsPageState();
+}
+
+class _BookingDetailsPageState extends State<BookingDetailsPage> {
+  bool isLoading = false;
+
+  Future<void> _showLoadingDialog(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents closing by tapping outside
+      builder: (BuildContext context) {
+        return CustomLoading(text: 'Processing...');
+      },
+    );
+  }
+
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     try {
@@ -48,181 +65,168 @@ class BookingDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate =
-        DateFormat('MMMM dd, yyyy – hh:mm a').format(booking.timeSlot.toDate());
+    String formattedDate = DateFormat('MMMM dd, yyyy – hh:mm a')
+        .format(widget.booking.timeSlot.toDate());
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          restaurant.name,
+          widget.restaurant.name,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite_border),
-            onPressed: () {
-              // Handle favorite button press
-            },
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Restaurant Image
-              restaurant.image.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: Image.network(
-                        restaurant.image,
-                        height: 200,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Center(child: Text('No Image Available')),
+      body: isLoading
+          ? const CustomLoading(text: 'Processing...')
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Restaurant Image
+                    widget.restaurant.image.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Image.network(
+                              widget.restaurant.image,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Container(
+                            height: 200,
+                            color: Colors.grey[300],
+                            child:
+                                const Center(child: Text('No Image Available')),
+                          ),
+                    const SizedBox(height: 16),
+
+                    // Cuisine Type
+                    Text(
+                      "Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-              const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
-              // Cuisine Type
-              Text(
-                "Cuisine: ${restaurant.cuisineType.join(', ')}",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
+                    // Location
+                    FutureBuilder<String>(
+                      future: getAddressFromCoordinates(
+                        widget.restaurant.location.latitude,
+                        widget.restaurant.location.longitude,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        } else {
+                          return Text(
+                            'Location: ${snapshot.data}',
+                            style: const TextStyle(fontSize: 16),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 8),
 
-              // Location
-              FutureBuilder<String>(
-                future: getAddressFromCoordinates(
-                  restaurant.location.latitude,
-                  restaurant.location.longitude,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else {
-                    return Text(
-                      'Location: ${snapshot.data}',
+                    // Tags
+                    if (widget.restaurant.tags.isNotEmpty) ...[
+                      const Text("Tags:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      Wrap(
+                        spacing: 8.0,
+                        children: widget.restaurant.tags.map((tag) {
+                          return Chip(label: Text(tag));
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Booking Details
+                    const Divider(),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Booking Date: $formattedDate',
                       style: const TextStyle(fontSize: 16),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-
-              // Tags
-              if (restaurant.tags.isNotEmpty) ...[
-                const Text("Tags:",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Wrap(
-                  spacing: 8.0,
-                  children: restaurant.tags.map((tag) {
-                    return Chip(label: Text(tag));
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Booking Details
-              const Divider(),
-              const SizedBox(height: 10),
-              Text(
-                'Booking Date: $formattedDate',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Number of People: ${booking.numberOfPeople}',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Special Requests: ${booking.specialRequests == '' ? 'No Special Requests' : booking.specialRequests}',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(booking.status).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  booking.status,
-                  style: TextStyle(
-                    color: _getStatusColor(booking.status),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Edit and Cancel Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (isPastBooking == false) ...[
-                    if (booking.status == 'Pending' ||
-                        booking.status == 'pending') ...[
-                      ElevatedButton(
-                        onPressed: () {
-                          _showEditBookingDialog(context, booking);
-                        },
-                        child: const Text('Edit Booking'),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Number of People: ${widget.booking.numberOfPeople}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Special Requests: ${widget.booking.specialRequests == '' ? 'No Special Requests' : widget.booking.specialRequests}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(widget.booking.status)
+                            .withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _cancelBooking(context, booking.bookingId);
-                        },
-                        child: const Text('Cancel Booking'),
+                      child: Text(
+                        widget.booking.status,
+                        style: TextStyle(
+                          color: _getStatusColor(widget.booking.status),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ],
-                    // Show only the Cancel button if the status is Approved
-                    if (booking.status == 'Approved' ||
-                        booking.status == 'approved') ...[
-                      ElevatedButton(
-                        onPressed: () {
-                          _cancelBooking(context, booking.bookingId);
-                        },
-                        child: const Text('Cancel Booking'),
-                      ),
-                    ],
-                    // Do not show any buttons if the status is Cancelled or Completed
-                    if (booking.status == 'Cancelled' ||
-                        booking.status == 'Completed') ...[
-                      // No buttons to display
-                    ],
-                  ]
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (widget.isPastBooking == false) ...[
+                          if (widget.booking.status == 'Pending') ...[
+                            ElevatedButton(
+                              onPressed: () {
+                                _showEditBookingDialog(context, widget.booking);
+                              },
+                              child: const Text('Edit Booking'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _cancelBooking(
+                                    context, widget.booking.bookingId);
+                              },
+                              child: const Text('Cancel Booking'),
+                            ),
+                          ],
+                          if (widget.booking.status == 'Approved') ...[
+                            ElevatedButton(
+                              onPressed: () {
+                                _cancelBooking(
+                                    context, widget.booking.bookingId);
+                              },
+                              child: const Text('Cancel Booking'),
+                            ),
+                          ],
+                        ]
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 
-  // Method to show the edit booking dialog
-  void _showEditBookingDialog(BuildContext context, Booking booking) {
+  Future<void> _showEditBookingDialog(BuildContext context, Booking booking) async {
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
-    // Create controllers for editable fields
     final TextEditingController peopleController =
         TextEditingController(text: booking.numberOfPeople.toString());
     final TextEditingController requestController =
         TextEditingController(text: booking.specialRequests);
     DateTime selectedDateTime = booking.timeSlot.toDate();
 
-    // Function to show date and time picker
     Future<void> pickDateTime(BuildContext context) async {
       DateTime? pickedDate = await showDatePicker(
         context: context,
@@ -308,7 +312,11 @@ class BookingDetailsPage extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                // Show loading dialog before saving
+                _showLoadingDialog(context);
+
+                setState(() => isLoading = true);
                 final updatedPeople = int.tryParse(peopleController.text) ??
                     booking.numberOfPeople;
                 final updatedRequests = requestController.text;
@@ -324,29 +332,42 @@ class BookingDetailsPage extends StatelessWidget {
                   status: booking.status,
                 );
 
+                // Use Future.delayed to safely access context and show the SnackBar
                 bookingProvider.updateBooking(updatedBooking).then((_) {
-                  // After the update, navigate back and refresh the data
-                  Navigator.pop(context); // Close the edit dialog
-                  // Push the page again with the updated data
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BookingDetailsPage(
-                        restaurant:
-                            restaurant, // Pass the updated restaurant if needed
-                        booking: updatedBooking,
-                        isPastBooking: false,
+                  if (mounted) {
+                    // Delay the SnackBar to ensure context is still valid
+                    Future.delayed(Duration.zero, () {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Booking updated successfully')),
+                        );
+                      }
+                    });
+
+                    Navigator.pop(context); // Close the edit dialog
+                    Navigator.pop(context); // Close the loading dialog
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingDetailsPage(
+                          restaurant: widget.restaurant,
+                          booking: updatedBooking,
+                          isPastBooking: false,
+                        ),
                       ),
-                    ),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Booking updated successfully')),
-                  );
+                    );
+                  }
                 }).catchError((error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to update booking')),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to update booking')),
+                    );
+                  }
+                }).whenComplete(() {
+                  if (mounted) {
+                    setState(() => isLoading = false);
+                  }
                 });
               },
               child: const Text('Save Changes'),
@@ -361,7 +382,6 @@ class BookingDetailsPage extends StatelessWidget {
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
 
-    // Show a confirmation dialog before proceeding
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -370,32 +390,32 @@ class BookingDetailsPage extends StatelessWidget {
           content: const Text('Are you sure you want to cancel this booking?'),
           actions: [
             TextButton(
-              onPressed: () {
-                // Proceed with the cancellation
+              onPressed: () async {
+                setState(() => isLoading = true);
+                _showLoadingDialog(context);
                 final updatedBooking = Booking(
                   bookingId: bookingId,
-                  userId: booking.userId,
-                  restaurantId: booking.restaurantId,
-                  timeSlot: booking.timeSlot,
-                  numberOfPeople: booking.numberOfPeople,
-                  specialRequests: booking.specialRequests,
+                  userId: widget.booking.userId,
+                  restaurantId: widget.booking.restaurantId,
+                  timeSlot: widget.booking.timeSlot,
+                  numberOfPeople: widget.booking.numberOfPeople,
+                  specialRequests: widget.booking.specialRequests,
                   status: "Cancelled",
                 );
 
-                // Call the cancelBooking method from the provider
                 bookingProvider.updateBooking(updatedBooking).then((_) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Booking Cancelled')),
                   );
-
+                  Navigator.pop(context);
+                  Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => BookingDetailsPage(
-                        restaurant:
-                            restaurant, // Pass the updated restaurant if needed
+                        restaurant: widget.restaurant,
                         booking: updatedBooking,
-                        isPastBooking: true,
+                        isPastBooking: false,
                       ),
                     ),
                   );
@@ -403,16 +423,14 @@ class BookingDetailsPage extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Failed to cancel booking')),
                   );
+                }).whenComplete(() {
+                  setState(() => isLoading = false);
                 });
-
-                // Close the dialog
-                Navigator.pop(context);
               },
               child: const Text('Yes'),
             ),
             TextButton(
               onPressed: () {
-                // Close the dialog without doing anything
                 Navigator.pop(context);
               },
               child: const Text('No'),

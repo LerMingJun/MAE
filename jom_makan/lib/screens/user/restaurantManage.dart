@@ -30,7 +30,9 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
     _tabController = TabController(length: 3, vsync: this); // Three tabs
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final String? userId = userProvider.firebaseUser?.uid;
+      userProvider.fetchUserData();
+      final String? userId = userProvider.userData?.userID;
+      print("User ID: $userId");
       Provider.of<FavoriteProvider>(context, listen: false)
           .fetchFavorites(userId!);
     });
@@ -115,7 +117,8 @@ class _BookedRestaurantContentState extends State<BookedRestaurantContent> {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final bookingProvider =
           Provider.of<BookingProvider>(context, listen: false);
-      final userId = userProvider.firebaseUser?.uid;
+                  userProvider.fetchUserData();
+      final String? userId = userProvider.userData?.userID;
 
       if (userId != null) {
         bookingProvider.fetchBookings(userId).then((_) {
@@ -204,7 +207,8 @@ class _BookingHistoryContentState extends State<BookingHistoryContent> {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final bookingProvider =
           Provider.of<BookingProvider>(context, listen: false);
-      final userId = userProvider.firebaseUser?.uid;
+            userProvider.fetchUserData();
+      final String? userId = userProvider.userData?.userID;
 
       if (userId != null) {
         bookingProvider.fetchBookings(userId).then((_) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart'; // Change from Tag to Review
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/repositories/auth_repository.dart';
 import 'package:jom_makan/repositories/restaurant_repository.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,7 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class RestaurantProvider with ChangeNotifier {
   final RestaurantRepository _restaurantRepository = RestaurantRepository();
   final AuthRepository _authRepository = AuthRepository();
-
+  auth.User? _firebaseUser;
   Map<String, dynamic>? _highestRatingPartner;
   Map<String, dynamic>? _lowestRatingPartner;
   Map<String, dynamic>? get highestRatingPartner => _highestRatingPartner;
@@ -23,6 +24,7 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? _center;
   Marker? _marker;
   List<Restaurant> _unapprovedRestaurants = [];
+  Restaurant? _restaurantData;
 
   List<Restaurant> get restaurants => _restaurants;
   List<Review> get reviews => _reviews;
@@ -31,12 +33,19 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? get center => _center;
   Marker? get marker => _marker;
   List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
+  Restaurant? get restaurantData => _restaurantData;
   Restaurant? _highestRatingRestaurant;
   Restaurant? _lowestRatingRestaurant;
-
+  auth.User? get firebaseUser => _firebaseUser;
   // Getter methods
   Restaurant? get highestRatingRestaurant => _highestRatingRestaurant;
   Restaurant? get lowestRatingRestaurant => _lowestRatingRestaurant;
+
+
+  Future<void> fetchRestaurantDataById(String uid) async {
+    _restaurantData = await _restaurantRepository.getRestaurantById(uid);
+    notifyListeners(); // Notify listeners after fetching user data
+  }
 
   Future<void> fetchAllReviews(String restaurantId) async {
     notifyListeners();

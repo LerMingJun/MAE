@@ -6,16 +6,18 @@ import 'package:jom_makan/screens/restaurant/restaurant_booking.dart'; // Bookin
 // import 'package:jom_makan/screens/restaurant/community.dart'; // Community screen
 // import 'package:jom_makan/screens/restaurant/profile.dart'; // Profile screen
 import 'package:jom_makan/screens/restaurant/restaurant_profile.dart';
-import 'package:jom_makan/screens/restaurant/add_promotion.dart'; // Profile screen
+import 'package:jom_makan/screens/user/community.dart'; // Profile screen
 
 class CustomBottomNavigation extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
+  final String restaurantId;
 
   const CustomBottomNavigation({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
+    required this.restaurantId,
   });
 
   @override
@@ -27,31 +29,36 @@ class CustomBottomNavigation extends StatelessWidget {
           // Navigate to Home page
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const RestaurantHome(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
+            MaterialPageRoute(
+                builder: (context) =>
+                    RestaurantHome(restaurantId: restaurantId)),
           );
         } else if (index == 1) {
           // Navigate to Booking page
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageBooking(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
+            MaterialPageRoute(
+                builder: (context) =>
+                    ManageBooking(restaurantId: restaurantId)),
           );
         } else if (index == 2) {
-          // Navigate to Voucher page
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddPromotionScreen(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
-          );
-        } else if (index == 3) {
-          // Navigate to Community page
+          // // Navigate to Voucher page
           // Navigator.push(
           //   context,
-          //   MaterialPageRoute(builder: (context) => const CommunityPage()),
+          //   MaterialPageRoute(builder: (context) => const VoucherScreen()),
           // );
+        } else if (index == 3) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Community(userId: restaurantId,userRole: "Restaurant",)),
+          );
         } else if (index == 4) {
           // Navigate to Profile page
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ManageProfilePage(restaurantId: "VpAo3OFD3kSJJoj85pA8rH49PdL2")),
+            MaterialPageRoute(
+                builder: (context) =>
+                    ManageProfilePage(restaurantId: restaurantId)),
             //  MaterialPageRoute(builder: (context) => const StoreDetailsPage()),
           );
         } else {
