@@ -7,6 +7,8 @@ import 'package:jom_makan/screens/restaurant/restaurant_booking.dart'; // Bookin
 // import 'package:jom_makan/screens/restaurant/profile.dart'; // Profile screen
 import 'package:jom_makan/screens/restaurant/restaurant_profile.dart';
 import 'package:jom_makan/screens/user/community.dart'; // Profile screen
+// import 'package:jom_makan/screens/restaurant/add_promotion.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_promotion.dart';
 
 class CustomBottomNavigation extends StatelessWidget {
   final int selectedIndex;
@@ -42,11 +44,11 @@ class CustomBottomNavigation extends StatelessWidget {
                     ManageBooking(restaurantId: restaurantId)),
           );
         } else if (index == 2) {
-          // // Navigate to Voucher page
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const VoucherScreen()),
-          // );
+          // Navigate to Voucher page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PromotionPage(restaurantId:restaurantId)),
+          );
         } else if (index == 3) {
           Navigator.push(
             context,
@@ -78,7 +80,7 @@ class CustomBottomNavigation extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.local_offer),
-          label: 'Voucher',
+          label: 'Promotion',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.people),

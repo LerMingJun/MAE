@@ -15,6 +15,8 @@ import 'package:jom_makan/widgets/Restaurant/custom_loading.dart';  // Import th
 import 'package:jom_makan/screens/restaurant/restaurant_report.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_review.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_support.dart';
+import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
+
 
 
 class RestaurantHome extends StatefulWidget {
@@ -232,6 +234,17 @@ class _RestaurantHomeState extends State<RestaurantHome> {
     }
   }
 
+  Future<void> _logout() async {
+  try {
+    await FirebaseAuth.instance.signOut();  // Sign out from Firebase
+    Navigator.pushReplacementNamed(context, '/login');  // Redirect to the login page
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error logging out: $e')),
+    );
+  }
+}
+
   // Show dialog to confirm image deletion
   void _showDeleteDialog(String imageUrl) {
     if (_menuImageUrls != null && _menuImageUrls!.length == 1) {
@@ -307,10 +320,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Notification action
-            },
+            icon: const Icon(Icons.exit_to_app, color: Colors.black),
+            onPressed: _logout,
           ),
         ],
       ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/booking.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:jom_makan/widgets/restaurant/custom_bottom_navigation.dart';
+// import 'package:jom_makan/widgets/restaurant/custom_bottom_navigation.dart';
 
 class ManageBooking extends StatefulWidget {
   final String restaurantId;
@@ -14,7 +14,7 @@ class ManageBooking extends StatefulWidget {
 }
 
 class _ManageBookingState extends State<ManageBooking> {
-  int _selectedIndex = 0; // For tracking the selected tab in the bottom navigation
+  // int _selectedIndex = 0; // For tracking the selected tab in the bottom navigation
   String _selectedCategory = 'Pending'; // Default category to display
   ScrollController _scrollController = ScrollController(); // Controller for horizontal scroll
 
@@ -28,19 +28,19 @@ class _ManageBookingState extends State<ManageBooking> {
     });
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
 
-    // Handle navigation based on the selected index
-    // You can add more cases if the bottom bar should navigate to other pages.
-    if (index == 0) {
-      Navigator.pushNamed(context, '/restaurantHome');
-    } else if (index == 1) {
-      // Handle other navigation logic
-    }
-  }
+  //   // Handle navigation based on the selected index
+  //   // You can add more cases if the bottom bar should navigate to other pages.
+  //   if (index == 0) {
+  //     Navigator.pushNamed(context, '/restaurantHome');
+  //   } else if (index == 1) {
+  //     // Handle other navigation logic
+  //   }
+  // }
 
   // Method to change the selected category
   void _changeCategory(String category) {
@@ -210,11 +210,6 @@ class _ManageBookingState extends State<ManageBooking> {
                 ),
               ),
             ),
-      bottomNavigationBar: CustomBottomNavigation(
-        selectedIndex: _selectedIndex,
-        onItemSelected: _onItemTapped,
-        restaurantId: widget.restaurantId,
-      ),
     );
   }
 

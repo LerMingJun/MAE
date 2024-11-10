@@ -36,6 +36,7 @@ import 'package:jom_makan/screens/user/restaurantManage.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:jom_makan/providers/promotion_provider.dart';
 
 void main() async {
   // Ensure widget binding is initialized before running the app
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserProvider(null)),
         ChangeNotifierProvider(create: (_) => StoreProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => PromotionProvider()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {

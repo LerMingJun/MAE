@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:jom_makan/constants/options.dart';
 
 class RestaurantSignUp extends StatefulWidget {
   const RestaurantSignUp({super.key});
@@ -55,20 +56,22 @@ class _RestaurantSignUpState extends State<RestaurantSignUp> {
     'Sunday': null,
   };
 
-  final List<String> _cuisineOptions = [
-    'Italian', 'Chinese', 'Indian', 'Mexican', 'Thai', 
-    'Japanese', 'French', 'Mediterranean', 'American', 'Lebanese', 
-    'Spanish', 'Greek', 'Turkish', 'Korean', 'Vietnamese',
-    'Brazilian', 'Moroccan', 'Caribbean', 'German', 'Russian'
-  ];
+  final List<String> _cuisineOptions = cuisineOptions;
+  // [
+  //   'Italian', 'Chinese', 'Indian', 'Mexican', 'Thai', 
+  //   'Japanese', 'French', 'Mediterranean', 'American', 'Lebanese', 
+  //   'Spanish', 'Greek', 'Turkish', 'Korean', 'Vietnamese',
+  //   'Brazilian', 'Moroccan', 'Caribbean', 'German', 'Russian'
+  // ];
 
-  final List<String> _tagOptions = [
-  'Fish Allergic Free', 'Prawn Allergic Free', 'Pork Free', 'Halal', 
-  'Vegetarian', 'Vegan', 'Gluten Free', 'Nut Free', 
-  'Dairy Free', 'Egg Free', 'Soy Free', 'Kosher', 
-  'Organic', 'Locally Sourced', 'Low Carb', 'Low Sugar',
-  'Keto Friendly', 'High Protein', 'Family Friendly', 'Pet Friendly'
-  ];
+  final List<String> _tagOptions = tagOptions;
+  // [
+  // 'Fish Allergic Free', 'Prawn Allergic Free', 'Pork Free', 'Halal', 
+  // 'Vegetarian', 'Vegan', 'Gluten Free', 'Nut Free', 
+  // 'Dairy Free', 'Egg Free', 'Soy Free', 'Kosher', 
+  // 'Organic', 'Locally Sourced', 'Low Carb', 'Low Sugar',
+  // 'Keto Friendly', 'High Protein', 'Family Friendly', 'Pet Friendly'
+  // ];
 
   Future<void> _selectOpenTime(BuildContext context, String day) async {
     final TimeOfDay? selectedTime = await showTimePicker(
