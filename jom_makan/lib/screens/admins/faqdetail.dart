@@ -24,7 +24,7 @@ class FaqDetailScreen extends StatelessWidget {
           'Faq Detail',
           style: GoogleFonts.lato(
             fontSize: 24,
-            color: AppColors.primary,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),

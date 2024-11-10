@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/providers/auth_provider.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
+import 'package:jom_makan/screens/user/signup.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
 import 'package:jom_makan/widgets/custom_text.dart';
@@ -115,7 +116,10 @@ class Login extends StatelessWidget {
                               decoration: TextDecoration.underline),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Navigator.pushNamed(context, '/signUp');
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return const SignUp();
+                              }));
                             },
                         ),
                       ],
