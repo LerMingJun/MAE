@@ -164,50 +164,52 @@ class _CommunityState extends State<Community> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: widget.userRole == "restaurant" || widget.userRole == "admin"
+            ? BackButton(
+                // color: AppColors.primary, // Set the color of the back icon
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            : null,
+        title: Text(
+          'Community',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: widget.userRole == "user" ? AppColors.primary : Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              showUserPostsOnly ? Icons.person : Icons.person_outline,
+              color:
+                  widget.userRole == "user" ? AppColors.primary : Colors.black,
+            ),
+            onPressed: toggleUserPostsFilter,
+            tooltip: 'Show only my posts',
+          ),
+          IconButton(
+            icon: Icon(
+              isDescending ? Icons.arrow_downward : Icons.arrow_upward,
+              color:
+                  widget.userRole == "user" ? AppColors.primary : Colors.black,
+            ),
+            onPressed: toggleSortOrder,
+            tooltip: isDescending ? 'Sort Ascending' : 'Sort Descending',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Community',
-                    style: GoogleFonts.lato(
-                      fontSize: 24,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          showUserPostsOnly
-                              ? Icons.person
-                              : Icons.person_outline,
-                          color: AppColors.primary,
-                        ),
-                        onPressed: toggleUserPostsFilter,
-                        tooltip: 'Show only my posts',
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          isDescending
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
-                          color: AppColors.primary,
-                        ),
-                        onPressed: toggleSortOrder,
-                        tooltip:
-                            isDescending ? 'Sort Ascending' : 'Sort Descending',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
               const SizedBox(height: 10),
               TextField(
                 controller: searchController,
