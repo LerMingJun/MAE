@@ -366,7 +366,9 @@ class _ReviewPageState extends State<ReviewPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Restaurant', // Add "Restaurant" before the timestamp
+                                            (reply.restaurantId != null && reply.restaurantId!.isNotEmpty)
+                                                ? 'Restaurant'
+                                                : 'User',
                                             style: const TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey,
