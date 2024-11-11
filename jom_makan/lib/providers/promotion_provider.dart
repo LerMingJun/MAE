@@ -10,24 +10,6 @@ class PromotionProvider with ChangeNotifier {
    bool _isLoading = false;
    bool get isLoading => _isLoading;
 
-
-  Future<void> updatepromotion(Promotion promotion) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    await _promotionRepository.editPromotion(promotion);
-
-    _isLoading = false;
-    notifyListeners();
-  } catch (e) {
-    _isLoading = false;
-    notifyListeners();
-    print('Error in StoreProvider: $e');
-    throw Exception('Error updating store');
-  }
-}
-
   Future<void> submitpromotion(Promotion promotion ) async {
   try {
     await _promotionRepository.addPromotion(promotion);  // Call the repository to add the new promotion
@@ -37,6 +19,43 @@ class PromotionProvider with ChangeNotifier {
     throw Exception('Error submitting promotion: $e');
   }
 }
+  Future<List<Promotion>> getPromotionsByRestaurantId(String restaurantId) async {
+    try {
+      return await _promotionRepository.fetchPromotions(restaurantId);
+    } catch (e) {
+      print('Error fetching promotions: $e');
+      throw Exception('Error fetching promotions');
+    }
+  }
+
+  Future<void> deletePromotion(String promotionId, String restaurantId) async {
+  try {
+    await _promotionRepository.deletePromotion(promotionId, restaurantId);
+    notifyListeners();
+  } catch (e) {
+    print('Error deleting promotion: $e');
+    throw Exception('Error deleting promotion: $e');
+  }
+}
+    // Update Existing Promotion
+  Future<void> updatePromotion(Promotion updatedPromotion, String promotionId, String restaurantId) async {
+  try {
+    print('Updating promotion with ID: $promotionId, Restaurant ID: $restaurantId');
+    
+    // Check if promotionId and restaurantId are empty
+    if (promotionId.isEmpty || restaurantId.isEmpty) {
+      throw Exception('Promotion ID or Restaurant ID is empty');
+    }
+
+    await _promotionRepository.editPromotion(updatedPromotion, promotionId, restaurantId); // Pass promotionId to repository
+    notifyListeners();
+  } catch (e) {
+    print('Error updating promotion: $e');
+    throw Exception('Error updating promotion: $e');
+  }
+}
+
+
 
 }
  

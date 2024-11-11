@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/promotion.dart';
 import 'package:jom_makan/providers/promotion_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:jom_makan/screens/restaurant/restaurant_promotion.dart';
 
 class AddPromotionScreen extends StatefulWidget {
   final String restaurantId;
@@ -38,6 +39,7 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
             discountValue: discountValue.toString(),
             isPercentage: isPercentage,
             isActive: isActive,
+            onPromotionConfirmed: _resetForm,
           ),
         ),
       );
@@ -50,11 +52,21 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
     );
   }
 
+  void _resetForm() {
+    titleController.clear();
+    descriptionController.clear();
+    discountController.clear();
+    setState(() {
+      isPercentage = true;
+      isActive = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Set Voucher Details"),
+        title: const Text("Set Promotion Details"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
@@ -177,13 +189,14 @@ class _AddPromotionScreenState extends State<AddPromotionScreen> {
   }
 }
 
-class NextScreen extends StatelessWidget {
+class NextScreen extends StatefulWidget {
   final String restaurantId;
   final String title;
   final String description;
   final String discountValue;
   final bool isPercentage;
   final bool isActive;
+  final VoidCallback onPromotionConfirmed;
 
   const NextScreen({
     super.key,
@@ -193,8 +206,14 @@ class NextScreen extends StatelessWidget {
     required this.discountValue,
     required this.isPercentage,
     required this.isActive,
+    required this.onPromotionConfirmed,
   });
 
+  @override
+  _NextScreenState createState() => _NextScreenState();
+}
+
+class _NextScreenState extends State<NextScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,13 +230,13 @@ class NextScreen extends StatelessWidget {
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Text("Title: $title"),
+            Text("Title: ${widget.title}"),
             const SizedBox(height: 8),
-            Text("Description: $description"),
+            Text("Description: ${widget.description}"),
             const SizedBox(height: 8),
-            Text("Discount Value: ${isPercentage ? "$discountValue%" : "RM $discountValue"}"),
+            Text("Discount Value: ${widget.isPercentage ? "${widget.discountValue}%" : "RM ${widget.discountValue}"}"),
             const SizedBox(height: 8),
-            Text("Status: ${isActive ? "Active" : "Inactive"}"),
+            Text("Status: ${widget.isActive ? "Active" : "Inactive"}"),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -242,8 +261,8 @@ class NextScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirm Voucher"),
-          content: const Text("Are you sure you want to confirm this voucher?"),
+          title: const Text("Confirm Promotion"),
+          content: const Text("Are you sure you want to confirm this Promotion?"),
           actions: [
             TextButton(
               onPressed: () {
@@ -253,10 +272,7 @@ class NextScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
                 _addPromotion(context); // Call addPromotion function
-                Navigator.of(context).pop(); // Close the dialog
-
               },
               child: const Text("Confirm"),
             ),
@@ -266,27 +282,41 @@ class NextScreen extends StatelessWidget {
     );
   }
 
-  void _addPromotion(BuildContext context) {
-    final promotionProvider =
-        Provider.of<PromotionProvider>(context, listen: false);
 
-    Promotion promotion = Promotion(
-      id: "",
-      restaurantId: restaurantId,
-      title: title,
-      description: description,
-      discountAmount: isPercentage ? '$discountValue%' : 'RM $discountValue',
-      status: isActive,
+  void _addPromotion(BuildContext context) {
+  final promotionProvider = Provider.of<PromotionProvider>(context, listen: false);
+
+  Promotion promotion = Promotion(
+    id: "",
+    restaurantId: widget.restaurantId,
+    title: widget.title,
+    description: widget.description,
+    discountAmount: widget.isPercentage ? '${widget.discountValue}%' : 'RM ${widget.discountValue}',
+    status: widget.isActive,
+  );
+
+  promotionProvider.submitpromotion(promotion).then((_) {
+    // Check if the widget is still mounted before showing SnackBar
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Promotion confirmed!")),
+      );
+    }
+
+    // Navigate directly to the PromotionPage with the restaurantId
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => PromotionPage(restaurantId: widget.restaurantId),
+      ),
     );
-    promotionProvider.submitpromotion(promotion).then((_) {
+  }).catchError((error) {
+    // Check if the widget is still mounted before showing SnackBar
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Voucher confirmed!")),
+        SnackBar(content: Text("Failed to confirm promotion: $error")),
       );
-      Navigator.of(context).pop(); // Navigate back or to a different screen
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to confirm voucher: $error")),
-      );
-    });
-  }
+    }
+  });
+}
+
 }
