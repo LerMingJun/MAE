@@ -6,6 +6,7 @@ import 'package:jom_makan/models/review.dart';
 import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/reply_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
+import 'package:jom_makan/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class AllReviewsScreen extends StatefulWidget {
@@ -30,8 +31,8 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    print("Current User ID: ${widget.user?.userID}");
     final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
 // Fetch reviews and replies after the first frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!reviewProvider.isLoading) {
@@ -111,6 +112,18 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
     );
   }
 
+  Future<User> _getUserById(String userId) async {
+    final userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+    if (userSnapshot.exists) {
+      return User.fromFirestore(
+          userSnapshot); // Assuming `User` has a `fromFirestore` method.
+    } else {
+      throw Exception('User not found');
+    }
+  }
+
   Widget _buildReviewCard(
       String userName,
       String feedback,
@@ -123,187 +136,209 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
     // Access the specific controller for this review
     final replyController = _replyControllers[review.reviewId]!;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(userProfileImage),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  userName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  "${date.difference(DateTime.now()).inDays.abs()} days ago",
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-                if (isUserReview) ...[
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () async {
-                      // Show a confirmation dialog before deleting
-                      bool? confirmDelete = await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Confirm Deletion'),
-                            content: const Text(
-                              'Are you sure you want to delete this review?',
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(false); // User cancels
-                                },
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pop(true); // User confirms
-                                },
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+    return FutureBuilder<User>(
+      future: _getUserById(review.userId), // Fetch user data by userId
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Display loading indicator while fetching user data
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          User user = snapshot.data!;
 
-                      if (confirmDelete == true) {
-                        // Proceed with deletion if user confirms
-                        final reviewProvider =
-                            Provider.of<ReviewProvider>(context, listen: false);
-
-                        bool success =
-                            await reviewProvider.deleteReview(review.reviewId);
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Review deleted successfully')),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Failed to delete review')),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: List.generate(
-                5,
-                (starIndex) => Icon(
-                  starIndex < rating ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: 16,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(feedback, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 8),
-
-            // Display the replies below the review
-            if (review.replies.isNotEmpty)
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: review.replies.length,
-                itemBuilder: (context, index) {
-                  final reply = review.replies[index];
-                  final replyAuthor = reply.userId == widget.user?.userID
-                      ? widget.user?.username ?? 'You'
-                      : restaurantName; // Assuming it's a restaurant reply for non-user replies
-                  final replyDate = reply.timestamp.toDate();
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              replyAuthor,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                            const Spacer(),
-                            Text(
-                              "${replyDate.difference(DateTime.now()).inDays.abs()} days ago",
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 12),
-                            ),
-                          ],
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage:
+                            NetworkImage(user.profileImage ?? userPlaceholder),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        user.username,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                reply.replyText,
-                                style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey),
-                              ),
-                            ),
-                            if (reply.userId == widget.user?.userID) ...[
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  // Edit reply logic
-                                  _editReply(reply);
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () async {
-                                  // Delete reply logic
-                                  await _deleteReply(reply);
-                                },
-                              ),
-                            ],
-                          ],
+                      ),
+                      const Spacer(),
+                      Text(
+                        "${date.difference(DateTime.now()).inDays.abs()} days ago",
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                      if (isUserReview) ...[
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () async {
+                            // Show a confirmation dialog before deleting
+                            bool? confirmDelete = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirm Deletion'),
+                                  content: const Text(
+                                    'Are you sure you want to delete this review?',
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(false); // User cancels
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(true); // User confirms
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (confirmDelete == true) {
+                              // Proceed with deletion if user confirms
+                              final reviewProvider =
+                                  Provider.of<ReviewProvider>(context,
+                                      listen: false);
+
+                              bool success = await reviewProvider
+                                  .deleteReview(review.reviewId);
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Review deleted successfully')),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Failed to delete review')),
+                                );
+                              }
+                            }
+                          },
                         ),
                       ],
-                    ),
-                  );
-                },
-              ),
-
-            // Reply Section
-            if (isUserReview) // Only show reply section if the user is logged in
-              TextField(
-                controller: replyController, // Use the specific controller
-                decoration: InputDecoration(
-                  labelText: 'Write a reply...',
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      _submitReply(review, replyController);
-                    },
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(
+                      5,
+                      (starIndex) => Icon(
+                        starIndex < rating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(feedback, style: const TextStyle(fontSize: 14)),
+                  const SizedBox(height: 8),
+
+                  // Display the replies below the review
+                  if (review.replies.isNotEmpty)
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: review.replies.length,
+                      itemBuilder: (context, index) {
+                        final reply = review.replies[index];
+                        final replyAuthor = reply.userId == widget.user?.userID
+                            ? widget.user?.username ?? 'You'
+                            : restaurantName; // Assuming it's a restaurant reply for non-user replies
+                        final replyDate = reply.timestamp.toDate();
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    replyAuthor,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "${replyDate.difference(DateTime.now()).inDays.abs()} days ago",
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      reply.replyText,
+                                      style: const TextStyle(
+                                          fontSize: 14, color: Colors.grey),
+                                    ),
+                                  ),
+                                  if (reply.userId == widget.user?.userID) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        // Edit reply logic
+                                        _editReply(reply);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        // Delete reply logic
+                                        await _deleteReply(reply);
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+
+                  // Reply Section
+                  if (isUserReview) // Only show reply section if the user is logged in
+                    TextField(
+                      controller:
+                          replyController, // Use the specific controller
+                      decoration: InputDecoration(
+                        labelText: 'Write a reply...',
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.send),
+                          onPressed: () {
+                            _submitReply(review, replyController);
+                          },
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                ],
               ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+            ),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 

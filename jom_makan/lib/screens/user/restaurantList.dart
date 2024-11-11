@@ -33,7 +33,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     final restaurantProvider =
         Provider.of<RestaurantProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      restaurantProvider.fetchAllRestaurants();
+      restaurantProvider.fetchActiveRestaurants();
       final userProvider = Provider.of<UserProvider>(context, listen: false);
                  userProvider.fetchUserData();
       final String? userId = userProvider.userData?.userID;
@@ -92,7 +92,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
         padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
         child: RefreshIndicator(
           onRefresh: () async {
-            await restaurantProvider.fetchAllRestaurants();
+            await restaurantProvider.fetchActiveRestaurants();
           },
           edgeOffset: 100,
           child: CustomScrollView(
@@ -168,7 +168,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
                 const SliverFillRemaining(
                   child: CustomLoading(text: 'Fetching Restaurants...'),
                 )
-              else if (restaurantProvider.restaurants.isEmpty)
+              else if (restaurantProvider.activeRestaurants.isEmpty)
                 SliverFillRemaining(
                   child: Center(
                     child: EmptyWidget(

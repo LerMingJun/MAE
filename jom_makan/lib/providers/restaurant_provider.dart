@@ -1,15 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jom_makan/constants/collections.dart';
+import 'package:jom_makan/models/promotion.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart'; // Change from Tag to Review
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/repositories/auth_repository.dart';
+import 'package:jom_makan/repositories/promotion_repository.dart';
 import 'package:jom_makan/repositories/restaurant_repository.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RestaurantProvider with ChangeNotifier {
   final RestaurantRepository _restaurantRepository = RestaurantRepository();
+  final PromotionRepository _promotionRepository = PromotionRepository();
   final AuthRepository _authRepository = AuthRepository();
   auth.User? _firebaseUser;
   Map<String, dynamic>? _highestRatingPartner;
@@ -24,6 +27,7 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? _center;
   Marker? _marker;
   List<Restaurant> _unapprovedRestaurants = [];
+  List<Restaurant> _activeRestaurants = [];
   Restaurant? _restaurantData;
 
   List<Restaurant> get restaurants => _restaurants;
@@ -33,6 +37,7 @@ class RestaurantProvider with ChangeNotifier {
   LatLng? get center => _center;
   Marker? get marker => _marker;
   List<Restaurant> get unapprovedRestaurants => _unapprovedRestaurants;
+  List<Restaurant> get activeRestaurants => _activeRestaurants;
   Restaurant? get restaurantData => _restaurantData;
   Restaurant? _highestRatingRestaurant;
   Restaurant? _lowestRatingRestaurant;
@@ -40,7 +45,6 @@ class RestaurantProvider with ChangeNotifier {
   // Getter methods
   Restaurant? get highestRatingRestaurant => _highestRatingRestaurant;
   Restaurant? get lowestRatingRestaurant => _lowestRatingRestaurant;
-
 
   Future<void> fetchRestaurantDataById(String uid) async {
     _restaurantData = await _restaurantRepository.getRestaurantById(uid);
@@ -134,9 +138,9 @@ class RestaurantProvider with ChangeNotifier {
 
   void searchRestaurants(String searchText) {
     if (searchText.isEmpty) {
-      _restaurants = _allRestaurants!;
+      _restaurants = _activeRestaurants!;
     } else {
-      _restaurants = _allRestaurants!.where((restaurant) {
+      _restaurants = _activeRestaurants!.where((restaurant) {
         return restaurant.name.toLowerCase().contains(searchText.toLowerCase());
       }).toList();
     }
@@ -155,6 +159,35 @@ class RestaurantProvider with ChangeNotifier {
     } catch (e) {
       print('Error fetching unapproved restaurants: $e');
       _unapprovedRestaurants = [];
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchActiveRestaurants() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _activeRestaurants = await _restaurantRepository.fetchActiveRestaurants();
+      _restaurants = _activeRestaurants ?? [];
+
+      for (var restaurant in _restaurants) {
+        // Fetch and set the average rating for the restaurant
+        double averageRating =
+            await _restaurantRepository.calculateAverageRating(restaurant.id);
+        restaurant.averageRating =
+            double.parse(averageRating.toStringAsFixed(2));
+
+        // Fetch and set the list of promotions for the restaurant
+        List<Promotion> promotions = await _promotionRepository
+            .getPromotionsByRestaurantId(restaurant.id);
+        restaurant.promotions =
+            promotions; // Assuming 'promotions' is a List<Promotion> in Restaurant model
+      }
+    } catch (e) {
+      print('Error fetching active restaurants: $e');
+      _activeRestaurants = [];
     }
     _isLoading = false;
     notifyListeners();

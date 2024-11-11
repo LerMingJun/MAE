@@ -18,7 +18,6 @@ class RestaurantRepository {
 
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        print('Restaurant data: $data'); // Print each restaurant's data
         return Restaurant.fromFirestore(
             doc); // Updated to use DocumentSnapshot directly
       }).toList();
@@ -109,7 +108,25 @@ class RestaurantRepository {
       return [];
     }
   }
+  // Fetch restaurants with isApprove set to false
+  Future<List<Restaurant>> fetchActiveRestaurants() async {
+    try {
+      QuerySnapshot snapshot = await _restaurantCollection
+          .where("status", isEqualTo: "Active")
+          .get();
 
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        print(
+            'Unapproved Restaurant data: $data'); // Print each unapproved restaurant's data
+        return Restaurant.fromFirestore(doc);
+      }).toList();
+    } catch (e) {
+      print(
+          'Error fetching unapproved restaurants: $e'); // This will show the exact error
+      return [];
+    }
+  }
 // Method to get average rating of a specific restaurant
   Future<double> getAverageRating(String restaurantId) async {
     try {
@@ -324,7 +341,7 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
       String sortByRatingDesc) async {
     try {
       // Start Firestore query for restaurants collection
-      Query query = FirebaseFirestore.instance.collection('restaurants');
+      Query query = FirebaseFirestore.instance.collection('restaurants').where('status', isEqualTo: 'Active');
 
       // Apply filter criteria for cuisine type (array-contains-any for multiple cuisines)
       if (selectedFilter.isNotEmpty) {
@@ -354,6 +371,7 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
       for (var restaurant in filteredRestaurants) {
         double averageRating = await calculateAverageRating(restaurant.id);
         restaurant.averageRating = averageRating;
+        restaurant.averageRating = double.parse(restaurant.averageRating.toStringAsFixed(2));
         restaurants.add(restaurant);
       }
 

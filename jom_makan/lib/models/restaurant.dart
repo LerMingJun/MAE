@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/promotion.dart';
 // import 'operatingHours.dart';
 
 class Restaurant {
@@ -15,6 +16,7 @@ class Restaurant {
   final String commentByAdmin;
   final String email;
   double averageRating;
+  List <Promotion> promotions = [];
 
   Restaurant({
     required this.id,
@@ -30,6 +32,7 @@ class Restaurant {
     required this.commentByAdmin,
     required this.email,
     this.averageRating = 0.0,
+    this.promotions = const [],
   });
 
   // Factory constructor to create Restaurant from Firestore data
