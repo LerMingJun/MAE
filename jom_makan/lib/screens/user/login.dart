@@ -25,6 +25,7 @@ class Login extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: Stack(

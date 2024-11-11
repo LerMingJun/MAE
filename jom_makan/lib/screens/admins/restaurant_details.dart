@@ -4,13 +4,33 @@ import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
+import 'package:jom_makan/screens/admins/allreview.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 
-class RestaurantDetailsScreenAdmin extends StatelessWidget {
+class RestaurantDetailsScreenAdmin extends StatefulWidget {
   final Restaurant restaurant;
 
   RestaurantDetailsScreenAdmin({super.key, required this.restaurant});
+
+  @override
+  _RestaurantDetailsScreenAdminState createState() =>
+      _RestaurantDetailsScreenAdminState();
+}
+
+class _RestaurantDetailsScreenAdminState
+    extends State<RestaurantDetailsScreenAdmin> {
+  late Future<String> _restaurantAddress;
+  bool _reviewsFetched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _restaurantAddress = getAddressFromCoordinates(
+      widget.restaurant.location.latitude,
+      widget.restaurant.location.longitude,
+    );
+  }
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -20,20 +40,18 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
     return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
   }
 
-  bool _reviewsFetched = false;
-
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-                userProvider.fetchUserData();
-      final String? userId = userProvider.userData?.userID;
+    userProvider.fetchUserData();
+    final String? userId = userProvider.userData?.userID;
     final reviewProvider = Provider.of<ReviewProvider>(context);
 
     // Status banner properties
     Color statusColor;
     String statusText;
 
-    switch (restaurant.status) {
+    switch (widget.restaurant.status) {
       case 'Suspend':
         statusColor = Colors.orange;
         statusText = 'Suspended';
@@ -64,14 +82,14 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_reviewsFetched) {
         reviewProvider.clearReviews();
-        reviewProvider.fetchReviews(restaurant.id);
+        reviewProvider.fetchReviews(widget.restaurant.id);
         _reviewsFetched = true;
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(restaurant.name),
+        title: Text(widget.restaurant.name),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -98,11 +116,11 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Restaurant Image
-                  restaurant.image.isNotEmpty
+                  widget.restaurant.image.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
                           child: Image.network(
-                            restaurant.image,
+                            widget.restaurant.image,
                             height: 200,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -115,15 +133,14 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                               const Center(child: Text('No Image Available')),
                         ),
                   const SizedBox(height: 16),
-                  Text(restaurant.intro, style: const TextStyle(fontSize: 16)),
+                  Text(widget.restaurant.intro,
+                      style: const TextStyle(fontSize: 16)),
                   const SizedBox(height: 8),
-                  Text("Cuisine: ${restaurant.cuisineType.join(', ')}",
+                  Text("Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   FutureBuilder<String>(
-                    future: getAddressFromCoordinates(
-                        restaurant.location.latitude,
-                        restaurant.location.longitude),
+                    future: _restaurantAddress,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
@@ -141,42 +158,45 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: restaurant.operatingHours.entries.map((entry) {
+                    children:
+                        widget.restaurant.operatingHours.entries.map((entry) {
                       return Text(
                           "${entry.key}: ${entry.value.open} - ${entry.value.close}");
                     }).toList(),
                   ),
                   const SizedBox(height: 16),
-                  if (restaurant.tags.isNotEmpty) ...[
+                  if (widget.restaurant.tags.isNotEmpty) ...[
                     const Text("Tags:",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     Wrap(
                       spacing: 8.0,
-                      children: restaurant.tags.map((tag) {
+                      children: widget.restaurant.tags.map((tag) {
                         return Chip(label: Text(tag));
                       }).toList(),
                     ),
                     const SizedBox(height: 16),
                   ],
                   const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Reviews:', style: TextStyle(fontSize: 20)),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/allReviews',
-                            arguments: restaurant.id,
-                          );
-                        },
-                        child: const Text('View All Reviews'),
-                      ),
-                    ],
-                  ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Reviews:', style: TextStyle(fontSize: 20)),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AllReviewsScreen(
+                        restaurantId: widget.restaurant.id,
+                        restaurantName: widget.restaurant.name,
+                        user: null,
+                      )),
+                    );
+                  },
+                  child: const Text('View All Reviews'),
+                ),
+              ],
+            ),
                   const SizedBox(height: 8),
-
                   // Horizontal scrollable reviews
                   Consumer<ReviewProvider>(
                     builder: (context, reviewProvider, _) {
@@ -239,14 +259,14 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 16),
-
 // Action Buttons
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     childAspectRatio: 3,
-                    children: _buildActionButtons(context, restaurant.status),
+                    children:
+                        _buildActionButtons(context, widget.restaurant.status),
                   ),
                 ],
               ),
@@ -387,7 +407,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                 if (title == 'Delete') {
                   // Update isApprove field
                   provider.updateRestaurant(
-                    restaurant.copyWith(
+                    widget.restaurant.copyWith(
                       status: 'Delete',
                       commentByAdmin: userInput,
                     ),
@@ -395,7 +415,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                 } else if (title == 'Decline') {
                   // Update isDecline field
                   provider.updateRestaurant(
-                    restaurant.copyWith(
+                    widget.restaurant.copyWith(
                       status: 'Decline',
                       commentByAdmin: userInput,
                     ),
@@ -403,7 +423,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
                 } else if (title == 'Suspend') {
                   // Update isSuspend field
                   provider.updateRestaurant(
-                    restaurant.copyWith(
+                    widget.restaurant.copyWith(
                       status: 'Suspend',
                       commentByAdmin: userInput,
                     ),
@@ -445,7 +465,7 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
             TextButton(
               onPressed: () {
                 provider.updateRestaurant(
-                  restaurant.copyWith(
+                  widget.restaurant.copyWith(
                     status: 'Active',
                     commentByAdmin: '',
                   ),
@@ -465,4 +485,6 @@ class RestaurantDetailsScreenAdmin extends StatelessWidget {
       },
     );
   }
+  
 }
+

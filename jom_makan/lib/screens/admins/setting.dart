@@ -7,6 +7,7 @@ import 'package:jom_makan/screens/admins/helpcenter.dart';
 import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
 import 'package:jom_makan/screens/admins/users_list.dart';
+import 'package:jom_makan/screens/user/login.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -284,14 +285,17 @@ class _StoreProfilePageState extends State<StoreProfilePage> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Log Out', style: TextStyle(color: Colors.red)),
-            onTap: () {
-              // Perform any cleanup operations (e.g., clearing user data, tokens, etc.)
-              SystemNavigator.pop(); // This will close the app
-            },
-          ),
+         ListTile(
+           leading: const Icon(Icons.logout, color: Colors.red),
+           title: const Text('Log Out', style: TextStyle(color: Colors.red)),
+           onTap: () {
+             // Perform any cleanup operations (e.g., clearing user data, tokens, etc.)
+             Navigator.pushReplacement(
+               context,
+               MaterialPageRoute(builder: (context) => Login()),
+             );
+           },
+         ),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigation(

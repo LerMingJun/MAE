@@ -39,20 +39,17 @@ class ComplainProvider with ChangeNotifier {
     ];
     print(
         'Total combined complains: ${combinedComplains.length}'); // Debug print for combined complains
-
     // Classify complains into resolved and unresolved
     _resolvedComplains = combinedComplains
-        .where((complain) => complain.feedback.isNotEmpty ?? false)
+        .where((complain) => complain.feedback.isNotEmpty)
         .toList();
     _unresolvedComplains = combinedComplains
         .where((complain) => complain.feedback.isEmpty)
         .toList();
-
     print(
         'Resolved complains count: ${_resolvedComplains.length}'); // Debug print for resolved complains
     print(
         'Unresolved complains count: ${_unresolvedComplains.length}'); // Debug print for unresolved complains
-
     // Notify listeners of the changes
     notifyListeners();
   }
