@@ -27,11 +27,33 @@ class _CommunityState extends State<Community> {
   bool showUserPostsOnly = false;
   bool isDescending = true;
 
+  String? userId;
+  String? userRole;
+
   @override
   void initState() {
     super.initState();
-    print("Current User ID: ${widget.userId}");
-    _fetchPosts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchPosts();
+      if (widget.userId == null && widget.userRole == "user") {
+        // Fetch user data asynchronously and update state
+        _fetchUserData();
+      } else {
+        // If userId and userRole are provided, use them directly
+        userId = widget.userId;
+        userRole = widget.userRole;
+      }
+    });
+  }
+
+  Future<void> _fetchUserData() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.fetchUserData();
+
+    setState(() {
+      userId = userProvider.userData?.userID;
+      userRole = "user";
+    });
   }
 
   @override
@@ -58,12 +80,13 @@ class _CommunityState extends State<Community> {
       if (query.isEmpty) {
         filteredPosts = postProvider.posts ?? [];
       } else {
+        print("User ID from filter: $userId");
         filteredPosts = postProvider.posts?.where((post) {
               return (post.title.toLowerCase().contains(query.toLowerCase()) ||
                       post.description
                           .toLowerCase()
                           .contains(query.toLowerCase())) &&
-                  (!showUserPostsOnly || post.userID == widget.userId);
+                  (!showUserPostsOnly || post.userID == userId);
             }).toList() ??
             [];
       }
@@ -77,7 +100,7 @@ class _CommunityState extends State<Community> {
     setState(() {
       showUserPostsOnly = !showUserPostsOnly;
       filteredPosts = postProvider.posts?.where((post) {
-            return !showUserPostsOnly || post.userID == widget.userId;
+            return !showUserPostsOnly || post.userID == userId;
           }).toList() ??
           [];
       sortPosts();
@@ -179,7 +202,9 @@ class _CommunityState extends State<Community> {
           'Community',
           style: GoogleFonts.lato(
             fontSize: 24,
-            color: widget.userRole == "user" ? AppColors.primary : Colors.black,
+            color: widget.userRole == "restaurant" || widget.userRole == "admin"
+                ? Colors.black
+                : AppColors.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -188,7 +213,9 @@ class _CommunityState extends State<Community> {
             icon: Icon(
               showUserPostsOnly ? Icons.person : Icons.person_outline,
               color:
-                  widget.userRole == "user" ? AppColors.primary : Colors.black,
+                  widget.userRole == "restaurant" || widget.userRole == "admin"
+                      ? Colors.black
+                      : AppColors.primary,
             ),
             onPressed: toggleUserPostsFilter,
             tooltip: 'Show only my posts',
@@ -197,7 +224,9 @@ class _CommunityState extends State<Community> {
             icon: Icon(
               isDescending ? Icons.arrow_downward : Icons.arrow_upward,
               color:
-                  widget.userRole == "user" ? AppColors.primary : Colors.black,
+                  widget.userRole == "restaurant" || widget.userRole == "admin"
+                      ? Colors.black
+                      : AppColors.primary,
             ),
             onPressed: toggleSortOrder,
             tooltip: isDescending ? 'Sort Ascending' : 'Sort Descending',
@@ -255,7 +284,8 @@ class _CommunityState extends State<Community> {
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
                         final post = filteredPosts[index];
-                        final isEditable = widget.userId == post.userID;
+
+                        final isEditable = userId == post.userID;
                         return CommunityPost(
                           postID: post.postId,
                           profileImage: post.user?.profileImage ??

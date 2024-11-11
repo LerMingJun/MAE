@@ -218,7 +218,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Future<void> _showEditBookingDialog(BuildContext context, Booking booking) async {
+  Future<void> _showEditBookingDialog(
+      BuildContext context, Booking booking) async {
     final bookingProvider =
         Provider.of<BookingProvider>(context, listen: false);
     final TextEditingController peopleController =
@@ -313,12 +314,23 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
             TextButton(
               onPressed: () async {
+                // Perform validation
+                final updatedPeople = int.tryParse(peopleController.text);
+                if (updatedPeople == null ||
+                    updatedPeople < 1 ||
+                    updatedPeople > 20) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Please enter a valid number of people (1-20)')),
+                  );
+                  return;
+                }
                 // Show loading dialog before saving
                 _showLoadingDialog(context);
 
                 setState(() => isLoading = true);
-                final updatedPeople = int.tryParse(peopleController.text) ??
-                    booking.numberOfPeople;
+
                 final updatedRequests = requestController.text;
                 final updatedDateTime = Timestamp.fromDate(selectedDateTime);
 

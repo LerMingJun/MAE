@@ -54,8 +54,6 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-
-
   Future<void> initialize(auth.User? firebaseUser) async {
     _firebaseUser = firebaseUser;
     if (_firebaseUser != null) {
@@ -64,38 +62,43 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-Future<Map<String, dynamic>> findTopUsers() async {
-  String? topUserByPosts;
-  String? topUserByLikes;
-  int maxPosts = 0;
-  int maxLikes = 0;
+  Future<Map<String, dynamic>> findTopUsers() async {
+    String? topUserByPosts;
+    String? topUserByLikes;
+    int maxPosts = 0;
+    int maxLikes = 0;
 
-  // Iterate through all users to find the top users by post and like counts
-  for (var user in _allUsers!) {
-    // Parse the postCount and likeCount from strings to integers
-    final postCount = int.tryParse(await _userRepository.fetchPostCount(user.userID)) ?? 0; // Default to 0 if parsing fails
-    final likeCount = int.tryParse(await _userRepository.fetchLikeCount(user.userID)) ?? 0; // Default to 0 if parsing fails
-    print('User: ${user.fullName}, Post Count: $postCount, Like Count: $likeCount');
+    // Iterate through all users to find the top users by post and like counts
+    for (var user in _allUsers!) {
+      // Parse the postCount and likeCount from strings to integers
+      final postCount =
+          int.tryParse(await _userRepository.fetchPostCount(user.userID)) ??
+              0; // Default to 0 if parsing fails
+      final likeCount =
+          int.tryParse(await _userRepository.fetchLikeCount(user.userID)) ??
+              0; // Default to 0 if parsing fails
+      print(
+          'User: ${user.fullName}, Post Count: $postCount, Like Count: $likeCount');
 
-    // Find the top user by post count
-    if (postCount > maxPosts) {
-      maxPosts = postCount;
-      topUserByPosts = user.fullName;
+      // Find the top user by post count
+      if (postCount > maxPosts) {
+        maxPosts = postCount;
+        topUserByPosts = user.fullName;
+      }
+
+      // Find the top user by like count
+      if (likeCount > maxLikes) {
+        maxLikes = likeCount;
+        topUserByLikes = user.fullName;
+      }
     }
-
-    // Find the top user by like count
-    if (likeCount > maxLikes) {
-      maxLikes = likeCount;
-      topUserByLikes = user.fullName;
-    }
+    return {
+      'topUserByPosts': topUserByPosts,
+      'topUserByLikes': topUserByLikes,
+      'maxPosts': maxPosts,
+      'maxLikes': maxLikes,
+    };
   }
-  return {
-    'topUserByPosts': topUserByPosts,
-    'topUserByLikes': topUserByLikes,
-    'maxPosts': maxPosts,
-    'maxLikes': maxLikes,
-  };
-}
 
   Future<void> fetchAllUsers() async {
     _isLoading = true;
@@ -131,10 +134,10 @@ Future<Map<String, dynamic>> findTopUsers() async {
 
   Future<void> updateUserData(
       Map<String, dynamic> data, XFile? imageFile) async {
-    if (_firebaseUser != null) {
-      await _userRepository.updateUserData(_firebaseUser!.uid, data, imageFile);
+    if (userData != null) {
+      await _userRepository.updateUserData(userData!.userID, data, imageFile);
       // Fetch the updated user data to reflect changes
-      await fetchUserDatabyUid(_firebaseUser!.uid);
+      fetchUserData();
     } else {
       print('No user is signed in.');
     }

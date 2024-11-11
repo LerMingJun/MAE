@@ -27,16 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.fetchUserData();
-
-    userProvider.fetchUserData();
     final String? userId = userProvider.userData?.userID;
     _pages = [
       const Home(),
       const RestaurantsPage(),
       const RestaurantManagementPage(),
       Community(
-        userId: userProvider.userData!.userID,
-        userRole: "User",
+        userId: userId,
+        userRole: "user",
       ),
       const Profile(),
     ];

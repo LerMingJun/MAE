@@ -28,7 +28,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   @override
   void initState() {
     super.initState();
-
+    print("Current Restaurant ID: ${widget.restaurant.id}");
     // Fetch user data
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     if (userProvider.userData == null) {
@@ -54,20 +54,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
       });
     }
 
-    // Fetch reviews only once
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_reviewsFetched) {
-        Provider.of<ReviewProvider>(context, listen: false)
-            .fetchReviews(widget.restaurant.id)
-            .then((_) {
-          if (mounted) {
-            setState(() {
-              _reviewsFetched = true;
-            });
-          }
-        });
-      }
-    });
   }
 
   Future<String> getAddressFromCoordinates(
@@ -81,8 +67,15 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final reviewProvider = Provider.of<ReviewProvider>(context);
-    final favoriteProvider = Provider.of<FavoriteProvider>(context);
 
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    // Fetch user data
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (userProvider.userData == null) {
+      userProvider.fetchUserData();
+    }
+    // userProvider.fetchUserData();
+    final String? userId = userProvider.userData?.userID;
     bool isFavorited = _favoritesFetched
         ? favoriteProvider.isFavorited(widget.restaurant.id)
         : false;
@@ -97,9 +90,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
               color: isFavorited ? Colors.red : null,
             ),
             onPressed: () {
-              final userId = Provider.of<UserProvider>(context, listen: false)
-                  .firebaseUser
-                  ?.uid;
               if (userId != null) {
                 if (isFavorited) {
                   favoriteProvider.removeFavorite(userId, widget.restaurant.id);
@@ -303,6 +293,14 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   Widget _buildReviewsSection(ReviewProvider reviewProvider) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_reviewsFetched) {
+        reviewProvider.fetchAllReviewsAndReplies(widget.restaurant.id);
+        setState(() {
+          _reviewsFetched = true;
+        });
+      }
+    });
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final User? user = userProvider.userData;
 
@@ -395,8 +393,13 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
   }
 
   Widget _buildActionButtons() {
-    final userId =
-        Provider.of<UserProvider>(context, listen: false).firebaseUser?.uid;
+    // Fetch user data
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (userProvider.userData == null) {
+      userProvider.fetchUserData();
+    }
+    // userProvider.fetchUserData();
+    final String? userId = userProvider.userData?.userID;
 
     return GridView.count(
       crossAxisCount: 2,

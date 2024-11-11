@@ -7,6 +7,7 @@ import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_buttons.dart';
 import 'package:jom_makan/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
+import 'package:jom_makan/constants/options.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -21,30 +22,11 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _fullnameController = TextEditingController();
   List<String> _selectedOptions = [];
-  final List<String> _options = [
-    'Italian',
-    'Chinese',
-    'Indian',
-    'Mexican',
-    'Thai',
-    'French',
-    'Japanese',
-    'Korean',
-    'Vietnamese',
-    'Vegetarian',
-    'Vegan',
-    'Gluten-free',
-    'Prawn Allergy',
-    'Egg Allergy',
-    'Fish Allergy',
-    'Shellfish Allergy',
-    'Dairy Allergy',
-    'Soy Allergy',
-    // Add more options as needed
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final Set<String> combinedOptions = {...cuisineOptions, ...tagOptions};
+    final List<String> _options = combinedOptions.toList();
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
@@ -60,7 +42,7 @@ class _SignUpState extends State<SignUp> {
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 child: Column(
                   children: [
-                    Text("Greetings, Register to Join The Folks!",
+                    Text("Greetings, Register to Join Jom Makan!",
                         style: AppTextStyles.authHead),
                     const SizedBox(height: 70),
                     CustomTextFormField(
