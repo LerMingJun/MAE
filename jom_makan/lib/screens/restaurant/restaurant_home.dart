@@ -2,22 +2,22 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jom_makan/models/restaurant.dart';
+import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:jom_makan/models/booking.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:jom_makan/widgets/restaurant/custom_bottom_navigation.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';  // Import the smooth_page_indicator package
-import 'package:image_picker/image_picker.dart';  // Import image picker package
-import 'package:firebase_storage/firebase_storage.dart';  // Import Firebase Storage
-import 'package:jom_makan/widgets/Restaurant/custom_loading.dart';  // Import the loading dialog
+import 'package:smooth_page_indicator/smooth_page_indicator.dart'; // Import the smooth_page_indicator package
+import 'package:image_picker/image_picker.dart'; // Import image picker package
+import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
+import 'package:jom_makan/widgets/Restaurant/custom_loading.dart'; // Import the loading dialog
 import 'package:jom_makan/screens/restaurant/restaurant_report.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_review.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_support.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
-
-
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
 class RestaurantHome extends StatefulWidget {
   final String restaurantId;
@@ -32,16 +32,53 @@ class _RestaurantHomeState extends State<RestaurantHome> {
   int _selectedIndex = 0;
   int _currentCarouselIndex = 0;
   List<String>? _menuImageUrls; // List to hold menu image URLs
-  final PageController pageController = PageController(); // Define the PageController
+  final PageController pageController =
+      PageController(); // Define the PageController
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchMenuImages();
+      final restaurantProvider =
+          Provider.of<RestaurantProvider>(context, listen: false);
+      restaurantProvider.fetchRestaurantByID(widget.restaurantId).then((_) {
+        _checkAndShowStatusDialog(restaurantProvider);
+        _fetchMenuImages();
+      });
       Provider.of<BookingProvider>(context, listen: false)
           .fetchPendingBookings(widget.restaurantId);
     });
+  }
+
+  void _checkAndShowStatusDialog(RestaurantProvider restaurantProvider) {
+    final status = restaurantProvider.restaurant?.status;
+    if (status == "pending" || status == "Pending") {
+      _showStatusDialog('Pending Approval',
+          'Your restaurant is pending approval. Please wait for approval.');
+    } else if (status == "delete" || status == "Delete" 
+    || status == "suspend" || status == "Suspend") {
+      _showStatusDialog('Rejected Approval',
+          'Your restaurant is rejected. Please contact admin and read the comment given by admin: ${restaurantProvider.restaurant?.commentByAdmin}');
+    }
+  }
+
+  void _showStatusDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void dispose() {
@@ -101,12 +138,15 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                       imageProvider: NetworkImage(_menuImageUrls![index]),
                       minScale: PhotoViewComputedScale.contained,
                       maxScale: PhotoViewComputedScale.covered,
-                      heroAttributes: PhotoViewHeroAttributes(tag: _menuImageUrls![index]),
+                      heroAttributes:
+                          PhotoViewHeroAttributes(tag: _menuImageUrls![index]),
                     );
                   },
                   scrollPhysics: const BouncingScrollPhysics(),
-                  backgroundDecoration: const BoxDecoration(color: Colors.black),
-                  pageController: pageController, // Use the globally defined PageController
+                  backgroundDecoration:
+                      const BoxDecoration(color: Colors.black),
+                  pageController:
+                      pageController, // Use the globally defined PageController
                 ),
                 Positioned(
                   top: 8.0,
@@ -114,7 +154,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   child: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      final currentImageUrl = _menuImageUrls![pageController.page!.round()];
+                      final currentImageUrl =
+                          _menuImageUrls![pageController.page!.round()];
                       _showDeleteDialog(currentImageUrl);
                     },
                   ),
@@ -148,7 +189,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      CustomLoading.show(context);  // Show loading dialog
+      CustomLoading.show(context); // Show loading dialog
       try {
         final fileName = pickedFile.name;
         final storageRef = FirebaseStorage.instance
@@ -170,16 +211,15 @@ class _RestaurantHomeState extends State<RestaurantHome> {
           _menuImageUrls?.add(downloadUrl);
         });
 
-        CustomLoading.hide(context);  // Hide loading dialog
+        CustomLoading.hide(context); // Hide loading dialog
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Image uploaded successfully')),
         );
 
         // Navigate back to the main page
         Navigator.of(context).pop();
-
       } catch (e) {
-        CustomLoading.hide(context);  // Hide loading dialog
+        CustomLoading.hide(context); // Hide loading dialog
         print("Error uploading image: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to upload image')),
@@ -191,14 +231,12 @@ class _RestaurantHomeState extends State<RestaurantHome> {
   // Delete image from Firestore and Firebase Storage
   Future<void> _deleteImage(String imageUrl) async {
     if (_menuImageUrls != null && _menuImageUrls!.length > 1) {
-      CustomLoading.show(context);  // Show loading dialog
+      CustomLoading.show(context); // Show loading dialog
       try {
         final Uri url = Uri.parse(imageUrl);
         final String imageFileName = url.pathSegments.last;
 
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child(imageFileName);
+        final storageRef = FirebaseStorage.instance.ref().child(imageFileName);
 
         await storageRef.delete();
         await FirebaseFirestore.instance
@@ -212,16 +250,15 @@ class _RestaurantHomeState extends State<RestaurantHome> {
           _menuImageUrls?.remove(imageUrl);
         });
 
-        CustomLoading.hide(context);  // Hide loading dialog
+        CustomLoading.hide(context); // Hide loading dialog
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Image deleted successfully')),
         );
 
         // Navigate back to the main page
         Navigator.of(context).pop();
-
       } catch (e) {
-        CustomLoading.hide(context);  // Hide loading dialog
+        CustomLoading.hide(context); // Hide loading dialog
         print("Error deleting image: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to delete image')),
@@ -235,15 +272,16 @@ class _RestaurantHomeState extends State<RestaurantHome> {
   }
 
   Future<void> _logout() async {
-  try {
-    await FirebaseAuth.instance.signOut();  // Sign out from Firebase
-    Navigator.pushReplacementNamed(context, '/login');  // Redirect to the login page
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error logging out: $e')),
-    );
+    try {
+      await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+      Navigator.pushReplacementNamed(
+          context, '/login'); // Redirect to the login page
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error logging out: $e')),
+      );
+    }
   }
-}
 
   // Show dialog to confirm image deletion
   void _showDeleteDialog(String imageUrl) {
@@ -297,7 +335,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
   Widget build(BuildContext context) {
     final bookingProvider = Provider.of<BookingProvider>(context);
     List<Booking> pendingBookings = bookingProvider.bookings
-        .where((booking) => booking.status == 'Pending') // Filter pending bookings
+        .where(
+            (booking) => booking.status == 'Pending') // Filter pending bookings
         .toList();
 
     return Scaffold(
@@ -379,7 +418,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReportPage(restaurantId: widget.restaurantId),
+                      builder: (context) =>
+                          ReportPage(restaurantId: widget.restaurantId),
                     ),
                   );
                 }),
@@ -388,7 +428,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReviewPage(restaurantId: widget.restaurantId),
+                      builder: (context) =>
+                          ReviewPage(restaurantId: widget.restaurantId),
                     ),
                   );
                 }),
@@ -397,11 +438,11 @@ class _RestaurantHomeState extends State<RestaurantHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SupportPage(restaurantId: widget.restaurantId),
+                      builder: (context) =>
+                          SupportPage(restaurantId: widget.restaurantId),
                     ),
                   );
                 }),
-                
               ],
             ),
           ],
@@ -434,7 +475,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
               Expanded(
                 child: Text(
                   'Booking ID: ${booking.bookingId}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -463,7 +505,7 @@ class _RestaurantHomeState extends State<RestaurantHome> {
       ),
     );
   }
-  
+
   Widget _buildGridItem(IconData icon, String title, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,

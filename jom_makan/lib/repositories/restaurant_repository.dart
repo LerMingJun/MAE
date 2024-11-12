@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/constants/collections.dart';
+import 'package:jom_makan/models/promotion.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/review.dart';
 
@@ -18,7 +19,6 @@ class RestaurantRepository {
 
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        print('Restaurant data: $data'); // Print each restaurant's data
         return Restaurant.fromFirestore(
             doc); // Updated to use DocumentSnapshot directly
       }).toList();
@@ -56,16 +56,40 @@ class RestaurantRepository {
     }
   }
 
-  // Fetch a single restaurant by ID
   Future<Restaurant?> getRestaurantById(String restaurantID) async {
     try {
+      // Fetch the restaurant document
       DocumentSnapshot snapshot =
           await _restaurantCollection.doc(restaurantID).get();
+
       if (snapshot.exists) {
-        return Restaurant.fromFirestore(
-            snapshot); // Return Restaurant object directly
+        // Fetch the promotion subcollection for the specific restaurant
+        QuerySnapshot promotionSnapshot = await _restaurantCollection
+            .doc(restaurantID)
+            .collection('promotion') // The subcollection name
+            .get();
+
+        // Retrieve promotion data as a list of Promotion objects
+        List<Promotion> promotions = [];
+        if (promotionSnapshot.docs.isNotEmpty) {
+          promotions = promotionSnapshot.docs.map((doc) {
+            // Assuming each promotion document has fields like 'details', 'startDate', 'endDate', etc.
+            return Promotion.fromFirestore(doc); // Map to Promotion object
+          }).toList();
+        }
+
+        // Calculate the average rating for the restaurant
+        double averageRating = await calculateAverageRating(restaurantID);
+        averageRating = double.parse(averageRating.toStringAsFixed(2));
+
+        // Create a Restaurant instance from Firestore data
+        Restaurant restaurant = Restaurant.fromFirestore(snapshot);
+        restaurant.averageRating = averageRating; // Set average rating
+        restaurant.promotions = promotions; // Set the promotions list
+
+        return restaurant;
       } else {
-        return null; // Return null if restaurant is not found
+        return null; // Return null if the restaurant is not found
       }
     } catch (e) {
       print('Error fetching restaurant by ID: $e');
@@ -96,6 +120,26 @@ class RestaurantRepository {
 
       print(
           'Fetched ${snapshot.docs.length} unapproved restaurants'); // Debugging line
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        print(
+            'Unapproved Restaurant data: $data'); // Print each unapproved restaurant's data
+        return Restaurant.fromFirestore(doc);
+      }).toList();
+    } catch (e) {
+      print(
+          'Error fetching unapproved restaurants: $e'); // This will show the exact error
+      return [];
+    }
+  }
+
+  // Fetch restaurants with isApprove set to false
+  Future<List<Restaurant>> fetchActiveRestaurants() async {
+    try {
+      QuerySnapshot snapshot = await _restaurantCollection
+          .where("status", isEqualTo: "Active")
+          .get();
 
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
@@ -190,9 +234,7 @@ class RestaurantRepository {
     }
   }
 
-  Future<void> editRestaurant(
-  Restaurant restaurant
-    ) async {
+  Future<void> editRestaurant(Restaurant restaurant) async {
     try {
       Map<String, dynamic> updatedData = {
         'status': restaurant.status,
@@ -200,14 +242,15 @@ class RestaurantRepository {
       };
 
       // Update the store document in Firestore
-      await _firestore.collection('restaurants').doc(restaurant.id).update(updatedData);
+      await _firestore
+          .collection('restaurants')
+          .doc(restaurant.id)
+          .update(updatedData);
     } catch (e) {
       print('Error updating store: $e');
       throw Exception('Error updating store: $e');
     }
   }
-
-
 
   Future<Restaurant?> getRestaurantData(String uid) async {
     try {
@@ -243,7 +286,8 @@ class RestaurantRepository {
     }
   }
 
-  Future<void> updateRestaurant(String restaurantId, Map<String, dynamic> updatedData) async {
+  Future<void> updateRestaurant(
+      String restaurantId, Map<String, dynamic> updatedData) async {
     try {
       await _restaurantCollection.doc(restaurantId).update(updatedData);
     } catch (e) {
@@ -252,62 +296,69 @@ class RestaurantRepository {
     }
   }
 
-Future<bool> updateRestaurantProfile({
-  required String restaurantId,
-  required String name,
-  required GeoPoint location,
-  required List<String> cuisineType,
-  required Map<String, OperatingHours> operatingHours,
-  required String intro,
-  required List<String> tags,
-}) async {
-  try {
-    // Log the parameters to check if they are passed correctly
-    print('Updating restaurant profile...');
-    print('Restaurant ID: $restaurantId');
-    print('Name: $name');
-    print('Location: $location');
-    print('Cuisine Type: $cuisineType');
-    print('Operating Hours: $operatingHours');
-    print('Intro: $intro');
-    print('Tags: $tags');
-    
-    // Convert OperatingHours instances to Map<String, dynamic> for Firestore
-    Map<String, Map<String, dynamic>> serializedOperatingHours = {};
-    operatingHours.forEach((day, hours) {
-      serializedOperatingHours[day] = hours.toMap(); // Convert OperatingHours to Map
-    });
+  Future<bool> updateRestaurantProfile({
+    required String restaurantId,
+    required String name,
+    required GeoPoint location,
+    required List<String> cuisineType,
+    required Map<String, OperatingHours> operatingHours,
+    required String intro,
+    required List<String> tags,
+  }) async {
+    try {
+      // Log the parameters to check if they are passed correctly
+      print('Updating restaurant profile...');
+      print('Restaurant ID: $restaurantId');
+      print('Name: $name');
+      print('Location: $location');
+      print('Cuisine Type: $cuisineType');
+      print('Operating Hours: $operatingHours');
+      print('Intro: $intro');
+      print('Tags: $tags');
 
-    final restaurantRef = FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
-    print('Firestore Document Reference: $restaurantRef');
-    
-    // Perform Firestore update
-    await restaurantRef.update({
-      'name': name,
-      'location': location,
-      'cuisineType': cuisineType,
-      'operatingHours': serializedOperatingHours, // Send serialized operating hours map
-      'intro': intro,
-      'tags': tags,
-    });
+      // Convert OperatingHours instances to Map<String, dynamic> for Firestore
+      Map<String, Map<String, dynamic>> serializedOperatingHours = {};
+      operatingHours.forEach((day, hours) {
+        serializedOperatingHours[day] =
+            hours.toMap(); // Convert OperatingHours to Map
+      });
 
-    print('Profile updated successfully');
-    return true;
-  } catch (e) {
-    // Catch any errors and log them
-    print("Error updating profile: $e");
-    return false;
+      final restaurantRef = FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurantId);
+      print('Firestore Document Reference: $restaurantRef');
+
+      // Perform Firestore update
+      await restaurantRef.update({
+        'name': name,
+        'location': location,
+        'cuisineType': cuisineType,
+        'operatingHours':
+            serializedOperatingHours, // Send serialized operating hours map
+        'intro': intro,
+        'tags': tags,
+      });
+
+      print('Profile updated successfully');
+      return true;
+    } catch (e) {
+      // Catch any errors and log them
+      print("Error updating profile: $e");
+      return false;
+    }
   }
-}
 
-Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUrl) async {
+  Future<void> updateRestaurantProfileImage(
+      String restaurantId, String newImageUrl) async {
     try {
       // Reference to the restaurant document in Firestore
-      DocumentReference restaurantRef =  FirebaseFirestore.instance.collection('restaurants').doc(restaurantId);
+      DocumentReference restaurantRef = FirebaseFirestore.instance
+          .collection('restaurants')
+          .doc(restaurantId);
 
       // Update the image URL in the restaurant document
       await restaurantRef.update({
-        'image': newImageUrl,  // The field where the image URL is stored
+        'image': newImageUrl, // The field where the image URL is stored
       });
 
       print("Restaurant image updated successfully.");
@@ -316,7 +367,6 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
       throw Exception("Failed to update restaurant image.");
     }
   }
-  
 
   Future<List<Restaurant>> fetchFilteredOrSortedRestaurants(
       List<String> selectedFilter,
@@ -324,7 +374,9 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
       String sortByRatingDesc) async {
     try {
       // Start Firestore query for restaurants collection
-      Query query = FirebaseFirestore.instance.collection('restaurants');
+      Query query = FirebaseFirestore.instance
+          .collection('restaurants')
+          .where('status', isEqualTo: 'Active');
 
       // Apply filter criteria for cuisine type (array-contains-any for multiple cuisines)
       if (selectedFilter.isNotEmpty) {
@@ -354,6 +406,8 @@ Future<void> updateRestaurantProfileImage(String restaurantId, String newImageUr
       for (var restaurant in filteredRestaurants) {
         double averageRating = await calculateAverageRating(restaurant.id);
         restaurant.averageRating = averageRating;
+        restaurant.averageRating =
+            double.parse(restaurant.averageRating.toStringAsFixed(2));
         restaurants.add(restaurant);
       }
 

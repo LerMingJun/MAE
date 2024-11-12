@@ -37,18 +37,59 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchUserLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.fetchUserData();
+
+      // Fetch user data first (async operation)
+      await userProvider.fetchUserData();
+
+      // Perform status check after user data is loaded
+      final String? status = userProvider.userData?.status;
+      final String? commentByAdmin = userProvider.userData?.commentByAdmin;
+      _checkAndShowStatusDialog(status, commentByAdmin);
+
       final String? userId = userProvider.userData?.userID;
       if (userId != null) {
         Provider.of<FavoriteProvider>(context, listen: false)
             .fetchFavorites(userId);
       }
+
+      // After checking status, fetch restaurants and user location
+      _fetchUserLocation();
       Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchAllRestaurants();
+          .fetchActiveRestaurants();
     });
+  }
+
+  void _checkAndShowStatusDialog(String? status, String? commentByAdmin) {
+    if (status == "delete" ||
+        status == "Delete" ||
+        status == "suspend" ||
+        status == "Suspend") {
+      _showStatusDialog(
+        'Your account is deactivated',
+        'Your account is $status. Please contact admin and read the comment given by admin: $commentByAdmin',
+      );
+    }
+  }
+
+  void _showStatusDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -207,7 +248,7 @@ class _HomeState extends State<Home> {
                   restaurantProvider.isLoading
                       ? const Center(child: CustomLoading(text: 'Loading...'))
                       : Column(
-                          children: restaurantProvider.restaurants
+                          children: restaurantProvider.activeRestaurants
                               .where((restaurant) =>
                                   _isNearby(restaurant.location) &&
                                   _matchesUserPreferences(
@@ -238,7 +279,8 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildRandomRestaurantPage(RestaurantProvider restaurantProvider) {
-    final List<Restaurant> nearbyRestaurants = restaurantProvider.restaurants
+    final List<Restaurant> nearbyRestaurants = restaurantProvider
+        .activeRestaurants
         .where((restaurant) => _isNearby(restaurant.location))
         .toList();
 

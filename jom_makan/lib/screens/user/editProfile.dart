@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jom_makan/constants/options.dart';
 import 'package:jom_makan/constants/placeholderURL.dart';
 import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
@@ -22,26 +23,6 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   List<String> _selectedPreferences = [];
-  final List<String> _preferencesOptions = [
-    'Italian',
-    'Chinese',
-    'Indian',
-    'Mexican',
-    'Thai',
-    'French',
-    'Japanese',
-    'Korean',
-    'Vietnamese',
-    'Vegetarian',
-    'Vegan',
-    'Gluten-free',
-    'Prawn Allergy',
-    'Egg Allergy',
-    'Fish Allergy',
-    'Shellfish Allergy',
-    'Dairy Allergy',
-    'Soy Allergy',
-  ];
 
   @override
   void initState() {
@@ -59,6 +40,9 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final Set<String> combinedOptions = {...cuisineOptions, ...tagOptions};
+    final List<String> _preferencesOptions = combinedOptions.toList();
+
     final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       backgroundColor: AppColors.background,

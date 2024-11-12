@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:jom_makan/constants/collections.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/models/user.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 // import 'package:jom_makan/models/operatingHours.dart'; 
 
 
@@ -12,7 +11,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthRepository {
   final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   // final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
 

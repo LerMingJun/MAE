@@ -53,7 +53,6 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
         }
       });
     }
-
   }
 
   Future<String> getAddressFromCoordinates(
@@ -173,11 +172,84 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> {
                       style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 16),
               const Divider(),
+              _buildPromotionsSection(), // Add the promotions section here
+              // const Divider(),
+              const Divider(),
               _buildReviewsSection(reviewProvider),
               const Divider(),
               _buildActionButtons(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPromotionsSection() {
+    return widget.restaurant.promotions.isNotEmpty
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Promotions:",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.restaurant.promotions.length,
+                itemBuilder: (context, index) {
+                  final promotion = widget.restaurant.promotions[index];
+                  return _buildPromotionCard(
+                    promotion.title,
+                    promotion.description,
+                    promotion.discountAmount,
+                  );
+                },
+              ),
+              // const Divider(),
+            ],
+          )
+        : const Column(
+            children: [
+              Text(
+                "No promotions available",
+                style: TextStyle(color: Colors.grey),
+              ),
+              // const Divider(),
+            ],
+          );
+  }
+
+  Widget _buildPromotionCard(
+      String title, String description, String discountAmount) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Discount: $discountAmount",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.green,
+              ),
+            ),
+          ],
         ),
       ),
     );

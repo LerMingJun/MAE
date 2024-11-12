@@ -1,26 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:jom_makan/models/promotion.dart';
- 
+
 class PromotionRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference _restaurantCollection =
       FirebaseFirestore.instance.collection('restaurants');
- 
- 
+
   Future<void> addPromotion(Promotion promotion) async {
     try {
       Map<String, dynamic> newpromotionData = {
         'title': promotion.title,
-        'description': promotion.description,  
+        'description': promotion.description,
         'status': promotion.status,
         'discountAmount': promotion.discountAmount,
       };
 
-        await _firestore
-            .collection('restaurants')
-            .doc(promotion.restaurantId)  
-            .collection('promotion')  
-            .add(newpromotionData); 
+      await _firestore
+          .collection('restaurants')
+          .doc(promotion.restaurantId)
+          .collection('promotion')
+          .add(newpromotionData);
 
       print('promotiont added successfully');
     } catch (e) {
@@ -30,44 +29,43 @@ class PromotionRepository {
   }
 
   // Edit Promotion
-Future<void> editPromotion(Promotion promotion, String promotionId, String restaurantId) async {
-  try {
-    if (promotionId.isEmpty || restaurantId.isEmpty) {
-      throw Exception('Promotion ID or Restaurant ID is empty');
+  Future<void> editPromotion(
+      Promotion promotion, String promotionId, String restaurantId) async {
+    try {
+      if (promotionId.isEmpty || restaurantId.isEmpty) {
+        throw Exception('Promotion ID or Restaurant ID is empty');
+      }
+
+      Map<String, dynamic> updatedData = {
+        'title': promotion.title,
+        'description': promotion.description,
+        'status': promotion.status,
+        'discountAmount': promotion.discountAmount,
+      };
+
+      // Log the updated data to check what is being passed
+      print('Updated Data: $updatedData');
+
+      // Log the document path for debugging
+      String documentPath = _restaurantCollection
+          .doc(restaurantId)
+          .collection('promotion')
+          .doc(promotionId)
+          .path;
+      print('Document path: $documentPath');
+
+      await _restaurantCollection
+          .doc(restaurantId)
+          .collection('promotion')
+          .doc(promotionId) // Ensure promotionId is valid
+          .update(updatedData);
+
+      print('Promotion updated successfully');
+    } catch (e) {
+      print('Error updating promotion: $e');
+      throw Exception('Error updating promotion: $e');
     }
-
-    Map<String, dynamic> updatedData = {
-      'title': promotion.title,
-      'description': promotion.description,
-      'status': promotion.status,
-      'discountAmount': promotion.discountAmount,
-    };
-
-    // Log the updated data to check what is being passed
-    print('Updated Data: $updatedData');
-
-    // Log the document path for debugging
-    String documentPath = _restaurantCollection
-        .doc(restaurantId)
-        .collection('promotion')
-        .doc(promotionId)
-        .path;
-    print('Document path: $documentPath');
-
-    await _restaurantCollection
-        .doc(restaurantId)
-        .collection('promotion')
-        .doc(promotionId)  // Ensure promotionId is valid
-        .update(updatedData);
-
-    print('Promotion updated successfully');
-  } catch (e) {
-    print('Error updating promotion: $e');
-    throw Exception('Error updating promotion: $e');
   }
-}
-
-
 
   Future<List<Promotion>> fetchPromotions(String restaurantId) async {
     try {
@@ -88,9 +86,11 @@ Future<void> editPromotion(Promotion promotion, String promotionId, String resta
     try {
       // Access the restaurant collection, then the 'promotion' subcollection
       await _firestore
-          .collection('restaurants') // Assuming "restaurants" is the main collection
+          .collection(
+              'restaurants') // Assuming "restaurants" is the main collection
           .doc(restaurantId)
-          .collection('promotion') // 'promotion' is the subcollection of the restaurant
+          .collection(
+              'promotion') // 'promotion' is the subcollection of the restaurant
           .doc(promotionId) // Reference to the specific promotion document
           .delete();
 
@@ -101,7 +101,45 @@ Future<void> editPromotion(Promotion promotion, String promotionId, String resta
     }
   }
 
+  Future<Promotion?> getPromotionById(
+      String restaurantId, String promotionId) async {
+    try {
+      // Reference the specific promotion document within the restaurant's 'promotion' subcollection
+      final promotionDoc = await _restaurantCollection
+          .doc(restaurantId)
+          .collection('promotion')
+          .doc(promotionId)
+          .get();
 
+      // Check if the document exists
+      if (promotionDoc.exists) {
+        return Promotion.fromFirestore(promotionDoc);
+      } else {
+        print('Promotion not found');
+        return null; // Return null if no promotion was found with that ID
+      }
+    } catch (e) {
+      print('Error fetching promotion by ID: $e');
+      throw Exception('Error fetching promotion by ID: $e');
+    }
+  }
 
+  Future<List<Promotion>> getPromotionsByRestaurantId(
+      String restaurantId) async {
+    try {
+      final querySnapshot = await _restaurantCollection
+          .doc(restaurantId)
+          .collection('promotion')
+          .where('status', isEqualTo: true)
+          .get();
+
+      // Map the documents to Promotion objects and return the list
+      return querySnapshot.docs
+          .map((doc) => Promotion.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      print('Error fetching promotions by restaurant ID: $e');
+      throw Exception('Error fetching promotions by restaurant ID');
+    }
+  }
 }
-
