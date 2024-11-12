@@ -100,17 +100,48 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-// Remove location fetching code in _fetchUserLocation, and instead use a fixed location for testing
   Future<void> _fetchUserLocation() async {
     setState(() {
-      _isLoadingLocation = false; // Skip location fetching logic
-      _currentLocation =
-          LatLng(1.3521, 103.8198); // Mock location (Singapore for example)
-      _address = 'Singapore';
+      _isLoadingLocation = true;
     });
-    // Fetch restaurants based on the mocked location
-    Provider.of<RestaurantProvider>(context, listen: false)
-        .fetchAllRestaurants();
+
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        Position position = await Geolocator.getCurrentPosition();
+
+        // Collect data first
+        LatLng newLocation = LatLng(position.latitude, position.longitude);
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, position.longitude);
+        Placemark place = placemarks[0];
+        String address = '${place.street}, ${place.locality}, ${place.country}';
+
+        // Only call setState if mounted
+        if (mounted) {
+          setState(() {
+            _currentLocation = newLocation;
+            _address = address;
+            _isLoadingLocation = false;
+          });
+
+          // Fetch restaurants based on the updated location
+          Provider.of<RestaurantProvider>(context, listen: false)
+              .fetchAllRestaurants();
+        }
+      } else {
+        throw Exception('Location permission denied');
+      }
+    } catch (e) {
+      print("Error fetching location: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+      }
+    }
   }
 
   @override
