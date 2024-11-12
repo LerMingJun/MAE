@@ -40,24 +40,25 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      // Fetch user data first (async operation)
-      await userProvider.fetchUserData();
+      // Use Future.microtask to delay the calls slightly
+      await Future.microtask(() async {
+        await userProvider.fetchUserData();
 
-      // Perform status check after user data is loaded
-      final String? status = userProvider.userData?.status;
-      final String? commentByAdmin = userProvider.userData?.commentByAdmin;
-      _checkAndShowStatusDialog(status, commentByAdmin);
+        final String? status = userProvider.userData?.status;
+        final String? commentByAdmin = userProvider.userData?.commentByAdmin;
+        _checkAndShowStatusDialog(status, commentByAdmin);
 
-      final String? userId = userProvider.userData?.userID;
-      if (userId != null) {
-        Provider.of<FavoriteProvider>(context, listen: false)
-            .fetchFavorites(userId);
-      }
+        final String? userId = userProvider.userData?.userID;
+        if (userId != null) {
+          Provider.of<FavoriteProvider>(context, listen: false)
+              .fetchFavorites(userId);
+        }
 
-      // After checking status, fetch restaurants and user location
-      _fetchUserLocation();
-      Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchActiveRestaurants();
+        // Fetch user location and restaurants after status check
+        await _fetchUserLocation();
+        Provider.of<RestaurantProvider>(context, listen: false)
+            .fetchActiveRestaurants();
+      });
     });
   }
 
@@ -99,49 +100,17 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+// Remove location fetching code in _fetchUserLocation, and instead use a fixed location for testing
   Future<void> _fetchUserLocation() async {
     setState(() {
-      _isLoadingLocation = true;
+      _isLoadingLocation = false; // Skip location fetching logic
+      _currentLocation =
+          LatLng(1.3521, 103.8198); // Mock location (Singapore for example)
+      _address = 'Singapore';
     });
-
-    try {
-      LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-
-        // Collect data first
-        LatLng newLocation = LatLng(position.latitude, position.longitude);
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-            position.latitude, position.longitude);
-        Placemark place = placemarks[0];
-        String address = '${place.street}, ${place.locality}, ${place.country}';
-
-        // Only call setState if mounted
-        if (mounted) {
-          setState(() {
-            _currentLocation = newLocation;
-            _address = address;
-            _isLoadingLocation = false;
-          });
-
-          // Fetch restaurants based on the updated location
-          Provider.of<RestaurantProvider>(context, listen: false)
-              .fetchAllRestaurants();
-        }
-      } else {
-        throw Exception('Location permission denied');
-      }
-    } catch (e) {
-      print("Error fetching location: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingLocation = false;
-        });
-      }
-    }
+    // Fetch restaurants based on the mocked location
+    Provider.of<RestaurantProvider>(context, listen: false)
+        .fetchAllRestaurants();
   }
 
   @override
