@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
-import 'package:jom_makan/providers/user_provider.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
 import 'package:jom_makan/screens/admins/allreview.dart';
+import 'package:jom_makan/screens/admins/fullImgae.dart';
 import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -14,23 +14,22 @@ class RestaurantDetailsScreenAdmin extends StatefulWidget {
   RestaurantDetailsScreenAdmin({super.key, required this.restaurant});
 
   @override
+
   _RestaurantDetailsScreenAdminState createState() =>
       _RestaurantDetailsScreenAdminState();
 }
 
+  /// Returns an instance of [_RestaurantDetailsScreenAdminState], which is the
+  /// state class for this widget.
 class _RestaurantDetailsScreenAdminState
     extends State<RestaurantDetailsScreenAdmin> {
-  late Future<String> _restaurantAddress;
-  bool _reviewsFetched = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _restaurantAddress = getAddressFromCoordinates(
-      widget.restaurant.location.latitude,
-      widget.restaurant.location.longitude,
-    );
-  }
+ @override
+void initState() {
+  super.initState();
+  
+}
+
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
@@ -40,12 +39,10 @@ class _RestaurantDetailsScreenAdminState
     return "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
   }
 
+
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    userProvider.fetchUserData();
-    final String? userId = userProvider.userData?.userID;
-    final reviewProvider = Provider.of<ReviewProvider>(context);
+      final reviewProvider = Provider.of<ReviewProvider>(context);
 
     // Status banner properties
     Color statusColor;
@@ -78,14 +75,6 @@ class _RestaurantDetailsScreenAdminState
         break;
     }
 
-    // Clear reviews when navigating to a new restaurant
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_reviewsFetched) {
-        reviewProvider.clearReviews();
-        reviewProvider.fetchReviews(widget.restaurant.id);
-        _reviewsFetched = true;
-      }
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -110,154 +99,76 @@ class _RestaurantDetailsScreenAdminState
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Restaurant Image
-                  widget.restaurant.image.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: Image.network(
-                            widget.restaurant.image,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Container(
-                          height: 200,
-                          color: Colors.grey[300],
-                          child:
-                              const Center(child: Text('No Image Available')),
-                        ),
-                  const SizedBox(height: 16),
-                  Text(widget.restaurant.intro,
-                      style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 8),
-                  Text("Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  FutureBuilder<String>(
-                    future: _restaurantAddress,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text("Error: ${snapshot.error}");
-                      } else {
-                        return Text("Location: ${snapshot.data}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold));
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  const Text("Operating Hours:",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        widget.restaurant.operatingHours.entries.map((entry) {
-                      return Text(
-                          "${entry.key}: ${entry.value.open} - ${entry.value.close}");
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  if (widget.restaurant.tags.isNotEmpty) ...[
-                    const Text("Tags:",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: widget.restaurant.tags.map((tag) {
-                        return Chip(label: Text(tag));
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Reviews:', style: TextStyle(fontSize: 20)),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AllReviewsScreen(
-                        restaurantId: widget.restaurant.id,
-                        restaurantName: widget.restaurant.name,
-                        user: null,
-                      )),
-                    );
-                  },
-                  child: const Text('View All Reviews'),
-                ),
-              ],
-            ),
-                  const SizedBox(height: 8),
-                  // Horizontal scrollable reviews
-                  Consumer<ReviewProvider>(
-                    builder: (context, reviewProvider, _) {
-                      return reviewProvider.isLoading
-                          ? const SizedBox(
-                              height: 100,
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                          : reviewProvider.reviews.isEmpty
-                              ? const Text(
-                                  'No reviews yet',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey),
-                                )
-                              : SizedBox(
-                                  height:
-                                      150, // Set a fixed height for the review container
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: reviewProvider.reviews.length,
-                                    itemBuilder: (context, index) {
-                                      final review =
-                                          reviewProvider.reviews[index];
-                                      return Container(
-                                        width: 250, // Width of each review card
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        child: Card(
-                                          elevation: 4,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  review.feedback,
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Text(
-                                                  'Rating: ${review.rating}',
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
+Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildRestaurantImage(),
+              const SizedBox(height: 16),
+              _buildRestaurantIntro(),
+              const SizedBox(height: 16),
+              _buildCuisineType(),
+              const SizedBox(height: 16),
+              _buildLocation(),
+              const SizedBox(height: 16),
+              _buildOperatingHours(),
+              const SizedBox(height: 16),
+              _buildTags(),
+              const Divider(),
+              const Text("Menu Images",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              widget.restaurant.menu.isNotEmpty
+                  ? SizedBox(
+                      height: 150,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.restaurant.menu.length,
+                        itemBuilder: (context, index) {
+                          final imageUrl = widget.restaurant.menu[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FullScreenImageViewer(
+                                    imageUrls: widget
+                                        .restaurant.menu, // All menu images
+                                    initialIndex:
+                                        index, // Start at the tapped image
                                   ),
-                                );
-                    },
-                  ),
-
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                          child: Text("Image Not Available")),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : const Text("No menu images available",
+                      style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 16),
+              const Divider(),
+              _buildReviewsSection(reviewProvider),
+              const Divider(),
                   const SizedBox(height: 16),
 // Action Buttons
                   GridView.count(
@@ -485,6 +396,204 @@ class _RestaurantDetailsScreenAdminState
       },
     );
   }
-  
+   Widget _buildRestaurantImage() {
+    return widget.restaurant.image.isNotEmpty
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Image.network(
+              widget.restaurant.image,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          )
+        : Container(
+            height: 200,
+            color: Colors.grey[300],
+            child: const Center(child: Text('No Image Available')),
+          );
+  }
+
+  Widget _buildRestaurantIntro() {
+    return Text(
+      widget.restaurant.intro,
+      style: const TextStyle(fontSize: 16),
+    );
+  }
+
+  Widget _buildCuisineType() {
+    return Text(
+      "Cuisine: ${widget.restaurant.cuisineType.join(', ')}",
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildLocation() {
+    return FutureBuilder<String>(
+      future: getAddressFromCoordinates(
+        widget.restaurant.location.latitude,
+        widget.restaurant.location.longitude,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else {
+          return Text(
+            "Location: ${snapshot.data}",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildOperatingHours() {
+    // Define the correct order for the days of the week
+    final orderedDays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday'
+    ];
+
+    // Sort the operating hours based on the defined order
+    final sortedOperatingHours = widget.restaurant.operatingHours.entries
+        .toList()
+      ..sort((a, b) =>
+          orderedDays.indexOf(a.key).compareTo(orderedDays.indexOf(b.key)));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Operating Hours:",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        // Display each day in the sorted order
+        ...sortedOperatingHours.map((entry) {
+          return Padding(
+            padding: const EdgeInsets.only(
+                left: 10, top: 4), // Add padding above each entry
+            child: Text(
+                "${entry.key}: ${entry.value.open} - ${entry.value.close}"),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildTags() {
+    return widget.restaurant.tags.isNotEmpty
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Tags:",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Wrap(
+                spacing: 8.0,
+                children: widget.restaurant.tags.map((tag) {
+                  return Chip(label: Text(tag));
+                }).toList(),
+              ),
+            ],
+          )
+        : Container();
+  }
+
+Widget _buildReviewsSection(ReviewProvider reviewProvider) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Reviews:', style: TextStyle(fontSize: 20)),
+          if (reviewProvider.reviews.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllReviewsScreen(
+                      restaurantId: widget.restaurant.id,
+                      restaurantName: widget.restaurant.name,
+                      user: null,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('View All Reviews'),
+            ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Consumer<ReviewProvider>(
+        builder: (context, reviewProvider, _) {
+          return reviewProvider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : reviewProvider.reviews.isEmpty
+                  ? const Text(
+                      'No reviews yet',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    )
+                  : SizedBox(
+                      height: 150,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: reviewProvider.reviews.length,
+                        itemBuilder: (context, index) {
+                          final review = reviewProvider.reviews[index];
+                          return _buildReviewCard(
+                              review.feedback, review.rating);
+                        },
+                      ),
+                    );
+        },
+      ),
+    ],
+  );
+}
+
+  Widget _buildReviewCard(String feedback, double rating) {
+    return Container(
+      width: 250,
+      margin: const EdgeInsets.only(right: 10),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+  /// 10. The card is also given an elevation of 4.
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                feedback,
+                style: const TextStyle(fontSize: 16),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: List.generate(
+                  5,
+                  (starIndex) => Icon(
+                    starIndex < rating ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 }
 

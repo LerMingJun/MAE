@@ -717,6 +717,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+<<<<<<< HEAD
+=======
+  mgrs_dart:
+    dependency: transitive
+    description:
+      name: mgrs_dart
+      sha256: fb89ae62f05fa0bb90f70c31fc870bcbcfd516c843fb554452ab3396f78586f7
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
+>>>>>>> a6bd86c83e0af87f5f4024fbb6fafbe06f491a9e
   mime:
     dependency: transitive
     description:
@@ -1074,6 +1085,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
+<<<<<<< HEAD
   test_core:
     dependency: transitive
     description:
@@ -1082,6 +1094,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.4"
+=======
+>>>>>>> a6bd86c83e0af87f5f4024fbb6fafbe06f491a9e
   typed_data:
     dependency: transitive
     description:
@@ -1114,6 +1128,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "14.2.5"
+<<<<<<< HEAD
   watcher:
     dependency: transitive
     description:
@@ -1122,6 +1137,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+=======
+>>>>>>> a6bd86c83e0af87f5f4024fbb6fafbe06f491a9e
   web:
     dependency: transitive
     description:

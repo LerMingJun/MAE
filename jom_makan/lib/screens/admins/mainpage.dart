@@ -46,52 +46,53 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final restaurantProvider = Provider.of<RestaurantProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
-    final complainProvider = Provider.of<ComplainProvider>(context);
-    final List<Map<String, String>> pendingApprovals = [
-      {
-        "title":
-            "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
-        "subtitle": "Please check the application status.",
-        "status": "Approval required"
-      },
-      {
-        "title":
-            "Unresolved Complaint (${complainProvider.unresolvedComplainCount})",
-        "subtitle": "Check for pending resolve complaints.",
-        "status": "Complaints review required"
-      },
-      {
-        "title": "Update Store Information",
-        "subtitle": "Keep details accurate for customer trust.",
-        "status": "Review Regurlarly"
-      },
-    ];
+Widget build(BuildContext context) {
+  final restaurantProvider = Provider.of<RestaurantProvider>(context);
+  final userProvider = Provider.of<UserProvider>(context);
+  final complainProvider = Provider.of<ComplainProvider>(context);
+  final List<Map<String, String>> pendingApprovals = [
+    {
+      "title":
+          "Restaurant Pending Approval (${restaurantProvider.unapprovedRestaurantCount})",
+      "subtitle": "Please check the application status.",
+      "status": "Approval required"
+    },
+    {
+      "title":
+          "Unresolved Complaint (${complainProvider.unresolvedComplainCount})",
+      "subtitle": "Check for pending resolve complaints.",
+      "status": "Complaints review required"
+    },
+    {
+      "title": "Update Store Information",
+      "subtitle": "Keep details accurate for customer trust.",
+      "status": "Review Regularly"
+    },
+  ];
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Add this line
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Row(
-          children: [
-            Image.asset('assets/logo.jpg', width: 50, height: 50),
-            const SizedBox(width: 8),
-             Text(
-              'JomMakan',
-              style: GoogleFonts.lato(
-                fontSize: 24,
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false, 
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      title: Row(
+        children: [
+          Image.asset('assets/logo.jpg', width: 50, height: 50),
+          const SizedBox(width: 8),
+          Text(
+            'JomMakan',
+            style: GoogleFonts.lato(
+              fontSize: 24,
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      body: Padding(
+    ),
+    body: SingleChildScrollView( // Added SingleChildScrollView
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +118,6 @@ class _MainPageState extends State<MainPage> {
                   return InkWell(
                     onTap: () {
                       if (index == 0) {
-                        // Redirect to Unapproved Restaurant List for the first carousel card
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -125,7 +125,6 @@ class _MainPageState extends State<MainPage> {
                                   const UnapprovedRestaurantList()),
                         );
                       } else if (index == 1) {
-                        // Redirect to Complaints Page for the second carousel card
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -158,11 +157,13 @@ class _MainPageState extends State<MainPage> {
               ),
             ),
 
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
 
             // Grid Section
-            GridView(
-                shrinkWrap: true,
+            SizedBox( // Set a height to prevent overflow
+              height: 200,
+              child: GridView(
+                physics: const NeverScrollableScrollPhysics(), // Prevent internal scrolling
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                   crossAxisSpacing: 8,
@@ -211,7 +212,7 @@ class _MainPageState extends State<MainPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Community(userId: '',userRole: "Admin",)),
+                            builder: (context) => Community(userId: '', userRole: "Admin")),
                       );
                     },
                     child: _buildGridItem(Icons.group, 'Community'),
@@ -236,7 +237,9 @@ class _MainPageState extends State<MainPage> {
                     },
                     child: _buildGridItem(Icons.info, 'Info'),
                   ),
-                ]),
+                ],
+              ),
+            ),
             const SizedBox(height: 30),
 
             // Current Users and Restaurant/Partner Section
@@ -274,12 +277,14 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigation(
-        selectedIndex: _selectedIndex,
-        onItemSelected: _onItemTapped,
-      ),
-    );
-  }
+    ),
+    bottomNavigationBar: CustomBottomNavigation(
+      selectedIndex: _selectedIndex,
+      onItemSelected: _onItemTapped,
+    ),
+  );
+}
+
 
   // Helper method to build each grid item
   Widget _buildGridItem(IconData icon, String label) {
