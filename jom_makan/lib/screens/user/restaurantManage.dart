@@ -32,7 +32,6 @@ class _RestaurantManagementPageState extends State<RestaurantManagementPage>
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.fetchUserData();
       final String? userId = userProvider.userData?.userID;
-      print("User ID: $userId");
       Provider.of<FavoriteProvider>(context, listen: false)
           .fetchFavorites(userId!);
     });

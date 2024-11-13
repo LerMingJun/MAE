@@ -72,7 +72,8 @@ class RestaurantProvider with ChangeNotifier {
       for (var restaurant in _restaurants) {
         double averageRating =
             await _restaurantRepository.calculateAverageRating(restaurant.id);
-        restaurant.averageRating = averageRating; // Set the average rating
+        restaurant.averageRating =
+            double.parse(averageRating.toStringAsFixed(2));
       }
       print(
           'Number of restaurants loaded: ${_restaurants.length}'); // Debugging line
