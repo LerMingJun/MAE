@@ -98,7 +98,7 @@ class AuthRepository {
           intro: intro,
           image: image,
           tags: tags,
-          status: 'pending',
+          status: 'Pending',
           commentByAdmin: '',
           email: email,
           // password: password,

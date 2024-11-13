@@ -35,7 +35,7 @@ class _CommunityState extends State<Community> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPosts();
-      if (widget.userId == null || widget.userRole == null) {
+      if (widget.userId == null || widget.userRole == "user") {
         // Fetch user data asynchronously and update state
         _fetchUserData();
       } else {
@@ -301,6 +301,7 @@ class _CommunityState extends State<Community> {
                           postDescription: post.description,
                           likes: post.likes,
                           userID: post.userID,
+                          currentUserID: userId,
                           edit: isEditable,
                           deletePost:
                               isEditable ? () => deletePost(post.postId) : null,

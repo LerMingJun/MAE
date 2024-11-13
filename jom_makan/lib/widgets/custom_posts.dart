@@ -19,6 +19,7 @@ class CommunityPost extends StatelessWidget {
   final List<String> likes;
   final List<String> tags;
   final String userID;
+  final String? currentUserID;
   final bool? edit;
   final VoidCallback? deletePost;
 
@@ -33,6 +34,7 @@ class CommunityPost extends StatelessWidget {
     this.postDescription,
     required this.likes,
     required this.userID,
+    required this.currentUserID,
     this.edit = false,
     super.key,
     this.deletePost,
@@ -44,7 +46,7 @@ class CommunityPost extends StatelessWidget {
     String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
 
     final postProvider = Provider.of<PostProvider>(context);
-    final bool isLiked = likes.contains(userID);
+    final bool isLiked = likes.contains(currentUserID);
     final TextEditingController commentController = TextEditingController();
 
     // Get the screen width
@@ -224,9 +226,9 @@ class CommunityPost extends StatelessWidget {
                     ),
                     onTap: () {
                       if (isLiked) {
-                        postProvider.unlikePost(postID);
+                        postProvider.unlikePost(postID, currentUserID);
                       } else {
-                        postProvider.likePost(postID);
+                        postProvider.likePost(postID, currentUserID);
                       }
                     },
                   ),
