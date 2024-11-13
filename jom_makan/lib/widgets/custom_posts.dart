@@ -205,36 +205,38 @@ class CommunityPost extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Row(
-                children: [
-                  Transform.translate(
-                    offset:
-                        const Offset(0, 2.5), // Move the count down by 4 pixels
-                    child: Text(
-                      '${likes.length} ',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+              if (currentUserID != "admin") ...[
+                Row(
+                  children: [
+                    Transform.translate(
+                      offset: const Offset(
+                          0, 2.5), // Move the count down by 4 pixels
+                      child: Text(
+                        '${likes.length} ',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
+                    ), // Add some space between the count and the icon
+                    InkWell(
+                      splashColor: Colors.transparent,
+                      child: Icon(
+                        isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                        color: isLiked ? AppColors.primary : Colors.grey,
+                      ),
+                      onTap: () {
+                        if (isLiked) {
+                          postProvider.unlikePost(postID, currentUserID);
+                        } else {
+                          postProvider.likePost(postID, currentUserID);
+                        }
+                      },
                     ),
-                  ), // Add some space between the count and the icon
-                  InkWell(
-                    splashColor: Colors.transparent,
-                    child: Icon(
-                      isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                      color: isLiked ? AppColors.primary : Colors.grey,
-                    ),
-                    onTap: () {
-                      if (isLiked) {
-                        postProvider.unlikePost(postID, currentUserID);
-                      } else {
-                        postProvider.likePost(postID, currentUserID);
-                      }
-                    },
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ]
             ],
           ),
         ],
