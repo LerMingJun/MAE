@@ -30,9 +30,7 @@ class _AllReviewsScreenState extends State<AllReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    print("Current User ID: ${widget.user?.userID}");
     final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
-// Fetch reviews and replies after the first frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!reviewProvider.isLoading) {
         reviewProvider.fetchAllReviewsAndReplies(widget.restaurantId);

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:jom_makan/models/user.dart';
 import 'package:jom_makan/providers/user_provider.dart';
+import 'package:jom_makan/screens/admins/mainpage.dart';
 import 'package:jom_makan/screens/admins/user_detail.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
@@ -81,7 +82,10 @@ class _UsersPageState extends State<UsersPage>
                           IconButton(
                             icon: const Icon(Icons.arrow_back),
                             onPressed: () {
-                              Navigator.pop(context);
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => const MainPage()),
+                              );
                             },
                           ),
                           Text(
@@ -346,9 +350,7 @@ class CustomUserCard extends StatelessWidget {
                     Text(
                       status == 'Delete'
                           ? 'Deleted'
-                          : (status == 'Suspend'
-                              ? 'Suspended'
-                              : 'Active'),
+                          : (status == 'Suspend' ? 'Suspended' : 'Active'),
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: status == 'Delete'

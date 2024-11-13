@@ -51,18 +51,18 @@ class UnapprovedRestauranrDetail extends StatelessWidget {
     });
 
     return Scaffold(
-     appBar: AppBar(
-       leading: IconButton(
-         icon: const Icon(Icons.arrow_back),
-         onPressed: () {
-           Navigator.pushReplacement(
-             context,
-             MaterialPageRoute(builder: (context) => const MainPage()),
-           );
-         },
-       ),
-       title: Text(restaurant.name),
-     ),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MainPage()),
+            );
+          },
+        ),
+        title: Text(restaurant.name),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -195,110 +195,112 @@ class UnapprovedRestauranrDetail extends StatelessWidget {
     );
   }
 
-  void _showDialogWithTextField(
-      BuildContext context, String title, String hintText) {
-    final TextEditingController textController = TextEditingController();
-    RestaurantProvider provider = RestaurantProvider();
+void _showDialogWithTextField(
+    BuildContext context, String title, String hintText) {
+  final TextEditingController textController = TextEditingController();
+  RestaurantProvider provider = RestaurantProvider();
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: textController,
-                maxLength: 150,
-                maxLines: 6, // Allows the text field to expand to 6 lines
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 8.0,
-                  ),
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: textController,
+              maxLength: 150,
+              maxLines: 6, // Allows the text field to expand to 6 lines
+              decoration: InputDecoration(
+                hintText: hintText,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                style: const TextStyle(height: 1.5),
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10.0,
+                  vertical: 8.0,
+                ),
               ),
-              const SizedBox(height: 10),
-            ],
+              style: const TextStyle(height: 1.5),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text('Cancel'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                provider.updateRestaurant(
-                  restaurant.copyWith(
-                    status: 'active',
-                    commentByAdmin: '',
-                  ),
-                );
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context)
-                    .push(
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const UnapprovedRestaurantList()),
-                    )
-                    .then((_) => Navigator.of(context).pop());
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+          TextButton(
+            onPressed: () {
+              provider.updateRestaurant(
+                restaurant.copyWith(
+                  status: 'Decline', // Sets status to Declined
+                  commentByAdmin: textController.text, // Adds admin comment
+                ),
+              );
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const UnapprovedRestaurantList()),
+                  )
+                  .then((_) => Navigator.of(context).pop());
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  void _showConfirmationDialog(
-      BuildContext context, String title, String message) {
-    RestaurantProvider provider = RestaurantProvider();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                provider.updateRestaurant(
-                  restaurant.copyWith(
-                    status: 'active',
-                    commentByAdmin: '',
-                  ),
-                );
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context)
-                    .push(
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const UnapprovedRestaurantList()),
-                    )
-                    .then((_) => Navigator.of(context).pop());
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
+void _showConfirmationDialog(
+    BuildContext context, String title, String message) {
+  RestaurantProvider provider = RestaurantProvider();
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              provider.updateRestaurant(
+                restaurant.copyWith(
+                  status: 'Active', // Sets status to Active
+                  commentByAdmin: '',
+                ),
+              );
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const UnapprovedRestaurantList()),
+                  )
+                  .then((_) => Navigator.of(context).pop());
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
