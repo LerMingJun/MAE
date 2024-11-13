@@ -155,6 +155,7 @@ class _ManageProfilePageState extends State<ManageProfilePage> {
     }
   }
 
+
   Future<GeoPoint> _getGeoPoint(String address) async {
     List<Location> locations = await locationFromAddress(address);
     return GeoPoint(locations.first.latitude, locations.first.longitude);
