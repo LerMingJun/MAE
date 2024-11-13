@@ -10,7 +10,7 @@ import 'package:jom_makan/screens/admins/overall_analytics.dart';
 import 'package:jom_makan/screens/admins/restaurant_list.dart';
 import 'package:jom_makan/screens/admins/unapproved_restaurant_list.dart';
 import 'package:jom_makan/screens/admins/users_list.dart';
-import 'package:jom_makan/screens/user/community.dart';
+import 'package:jom_makan/screens/admins/communityAdmin.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/admins/custom_bottom_navigation.dart';
 import 'package:provider/provider.dart';
@@ -212,7 +212,7 @@ Widget build(BuildContext context) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Community(userId: '', userRole: "Admin")),
+                            builder: (context) => Community()),
                       );
                     },
                     child: _buildGridItem(Icons.group, 'Community'),

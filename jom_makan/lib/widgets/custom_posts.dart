@@ -115,11 +115,12 @@ class CommunityPost extends StatelessWidget {
                   },
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.edit,
-                        color: Colors.blue,
-                        size: 20,
-                      ),
+                      if (currentUserID != "admin")
+                        const Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                          size: 20,
+                        ),
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: deletePost,

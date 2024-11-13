@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jom_makan/constants/placeholderURL.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
@@ -12,7 +13,6 @@ import 'package:jom_makan/widgets/custom_loading.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
 
 class Community extends StatefulWidget {
-
   @override
   State<Community> createState() => _CommunityState();
 }
@@ -20,7 +20,7 @@ class Community extends StatefulWidget {
 class _CommunityState extends State<Community> {
   final TextEditingController searchController = TextEditingController();
   List<Post> filteredPosts = [];
-
+  bool isDescending = true;
   @override
   void initState() {
     super.initState();
@@ -29,8 +29,8 @@ class _CommunityState extends State<Community> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       postProvider.fetchAllPosts().then((_) {
         setState(() {
-          filteredPosts =
-              postProvider.posts ?? []; // Initialize filteredPosts here
+          filteredPosts = postProvider.posts ?? [];
+          sortPosts(); // Initialize filteredPosts here
         });
       });
     });
@@ -53,22 +53,97 @@ class _CommunityState extends State<Community> {
     }
   }
 
+  void toggleSortOrder() {
+    setState(() {
+      isDescending = !isDescending;
+      sortPosts();
+    });
+  }
+
+  void sortPosts() {
+    setState(() {
+      filteredPosts.sort((a, b) {
+        final aTime = a.createdAt;
+        final bTime = b.createdAt;
+        if (aTime == null || bTime == null) {
+          return 0;
+        }
+        return isDescending ? bTime.compareTo(aTime) : aTime.compareTo(bTime);
+      });
+    });
+  }
+
+  void deletePost(String postId) async {
+    final postProvider = Provider.of<PostProvider>(context, listen: false);
+
+    bool? confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this post?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      await postProvider.deletePost(postId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post deleted successfully')),
+      );
+      setState(() {
+        filteredPosts.removeWhere((post) => post.postId == postId);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
-    final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/addPost');
-        },
-        backgroundColor: AppColors.tertiary,
-        foregroundColor: Colors.black,
-        elevation: 10,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: BackButton(
+          // color: AppColors.primary, // Set the color of the back icon
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'Community',
+          style: GoogleFonts.lato(
+            fontSize: 24,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isDescending ? Icons.arrow_downward : Icons.arrow_upward,
+              color: Colors.black,
+            ),
+            onPressed: toggleSortOrder,
+            tooltip: isDescending ? 'Sort Ascending' : 'Sort Descending',
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -76,27 +151,7 @@ class _CommunityState extends State<Community> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Heading
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Community',
-                          style: GoogleFonts.lato(
-                              fontSize: 24,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 10),
-              // Search Bar
               TextField(
                 controller: searchController,
                 onChanged: filterPosts,
@@ -113,7 +168,6 @@ class _CommunityState extends State<Community> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Post Content
               if (postProvider.isLoading)
                 const Expanded(
                   child: Center(
@@ -133,30 +187,36 @@ class _CommunityState extends State<Community> {
                     onRefresh: () async {
                       await postProvider.fetchAllPosts();
                       setState(() {
-                        filteredPosts =
-                            postProvider.posts ?? []; // Reset after refresh
+                        filteredPosts = postProvider.posts ?? [];
+                        sortPosts();
                       });
                     },
                     child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 80.0),
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
                         final post = filteredPosts[index];
-                        final isEditable =
-                            post.userID == userProvider.userData!.userID;
+
+                        final isEditable = true;
                         return CommunityPost(
                           postID: post.postId,
-                          profileImage:
-                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
-                          name: post.user!.username,
+                          profileImage: post.user?.profileImage ??
+                              post.restaurant?.image ??
+                              userPlaceholder,
+                          name: post.user?.username ??
+                              post.restaurant?.name ??
+                              '',
                           tags: post.tags,
                           date: post.createdAt,
                           postImage: post.postImage,
                           postTitle: post.title,
                           postDescription: post.description,
                           likes: post.likes,
-                          userID: userProvider.userData!.userID,
-                          currentUserID: "",
+                          userID: post.userID,
+                          currentUserID: "admin",
                           edit: isEditable,
+                          deletePost:
+                              isEditable ? () => deletePost(post.postId) : null,
                         );
                       },
                     ),
