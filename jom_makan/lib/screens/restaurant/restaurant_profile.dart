@@ -255,7 +255,7 @@ Future<void> _deleteImage(String imageUrl) async {
                       radius: 75,
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!)
-                          : NetworkImage(_restaurant!.image) as ImageProvider,
+                          : NetworkImage(_restaurant!.image),
                     ),
                   ),
                   const SizedBox(height: 16),

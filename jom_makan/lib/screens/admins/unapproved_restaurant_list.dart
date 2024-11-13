@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/restaurant.dart';
 import 'package:jom_makan/providers/restaurant_provider.dart';
+import 'package:jom_makan/screens/admins/mainpage.dart';
 import 'package:jom_makan/screens/admins/unapproved_restauranr_detail.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
@@ -49,141 +50,143 @@ class _RestaurantsPageState extends State<UnapprovedRestaurantList>
         .searchRestaurants(text);
   }
 
-@override
-Widget build(BuildContext context) {
-  final restaurantProvider = Provider.of<RestaurantProvider>(context);
+  @override
+  Widget build(BuildContext context) {
+    final restaurantProvider = Provider.of<RestaurantProvider>(context);
 
-  // Filter to get only pending restaurants
-  final pendingRestaurants = restaurantProvider.restaurants
-      .where((restaurant) => restaurant.status == 'Pending')
-      .toList();
+    // Filter to get only pending restaurants
+    final pendingRestaurants = restaurantProvider.restaurants
+        .where((restaurant) => restaurant.status == 'Pending')
+        .toList();
 
-  return Scaffold(
-    backgroundColor: AppColors.background,
-    body: Column(
-      children: [
-        // AppBar at the top
-        AppBar(
-          backgroundColor: AppColors.background,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              Text(
-                'Pending Restaurants',
-                style: GoogleFonts.lato(
-                  fontSize: 24,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Column(
+        children: [
+          // AppBar at the top
+          AppBar(
+            backgroundColor: AppColors.background,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MainPage()));
+                  },
                 ),
-              ),
-            ],
-          ),
-        ),
-        
-        // Search bar below the AppBar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-          child: TextField(
-            onChanged: (text) {
-              _searchRestaurants(text);
-            },
-            decoration: InputDecoration(
-              hintText: 'Search Pending Restaurants',
-              hintStyle: GoogleFonts.poppins(fontSize: 12),
-              suffixIcon: const Icon(Icons.search, size: 20),
-              filled: true,
-              isDense: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: AppColors.primary),
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-          ),
-        ),
-        
-        // Remaining content in an Expanded widget to fill available space
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await restaurantProvider.fetchAllRestaurants();
-            },
-            edgeOffset: 100,
-            child: CustomScrollView(
-              slivers: [
-                SliverFillRemaining(
-                  child: _buildRestaurantList(pendingRestaurants, restaurantProvider.isLoading),
+                Text(
+                  'Pending Restaurants',
+                  style: GoogleFonts.lato(
+                    fontSize: 24,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
 
-
-  }
-
-  Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
-    if (isLoading) {
-      return const Center(
-          child: CustomLoading(text: 'Fetching Restaurants...'));
-    } else if (restaurants.isEmpty) {
-      return const Center(
-        child: EmptyWidget(
-          text: "No Restaurants Found.\nPlease try again.",
-          image: 'assets/projectEmpty.png',
-        ),
-      );
-    } else {
-      return ListView.builder(
-        itemCount: restaurants.length,
-        itemBuilder: (BuildContext context, int index) {
-          Restaurant restaurant = restaurants[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UnapprovedRestauranrDetail(
-                      restaurant: restaurant,
-                    ),
-                  ),
-                );
+          // Search bar below the AppBar
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            child: TextField(
+              onChanged: (text) {
+                _searchRestaurants(text);
               },
-              child: CustomRestaurantCard(
-                imageUrl: restaurant.image,
-                name: restaurant.name,
-                location: restaurant.location,
-                cuisineTypes: restaurant.cuisineType,
-                rating: restaurant.averageRating,
-                restaurantID: restaurant.id,
-                intro: restaurant.intro,
-                restaurant: restaurant,
+              decoration: InputDecoration(
+                hintText: 'Search Pending Restaurants',
+                hintStyle: GoogleFonts.poppins(fontSize: 12),
+                suffixIcon: const Icon(Icons.search, size: 20),
+                filled: true,
+                isDense: true,
+                fillColor: Colors.white,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
             ),
-          );
-        },
-      );
-    }
-  }
+          ),
 
+          // Remaining content in an Expanded widget to fill available space
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await restaurantProvider.fetchAllRestaurants();
+              },
+              edgeOffset: 100,
+              child: CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    child: _buildRestaurantList(
+                        pendingRestaurants, restaurantProvider.isLoading),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _buildRestaurantList(List<Restaurant> restaurants, bool isLoading) {
+  if (isLoading) {
+    return const Center(child: CustomLoading(text: 'Fetching Restaurants...'));
+  } else if (restaurants.isEmpty) {
+    return const Center(
+      child: EmptyWidget(
+        text: "No Restaurants Found.\nPlease try again.",
+        image: 'assets/projectEmpty.png',
+      ),
+    );
+  } else {
+    return ListView.builder(
+      itemCount: restaurants.length,
+      itemBuilder: (BuildContext context, int index) {
+        Restaurant restaurant = restaurants[index];
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UnapprovedRestauranrDetail(
+                    restaurant: restaurant,
+                  ),
+                ),
+              );
+            },
+            child: CustomRestaurantCard(
+              imageUrl: restaurant.image,
+              name: restaurant.name,
+              location: restaurant.location,
+              cuisineTypes: restaurant.cuisineType,
+              rating: restaurant.averageRating,
+              restaurantID: restaurant.id,
+              intro: restaurant.intro,
+              restaurant: restaurant,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
 class CustomRestaurantCard extends StatefulWidget {
   final String imageUrl;

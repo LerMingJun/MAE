@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:jom_makan/models/complain.dart';
 import 'package:jom_makan/providers/complain_provider.dart';
+import 'package:jom_makan/screens/admins/mainpage.dart';
 import 'package:jom_makan/screens/admins/specific_complain.dart';
 import 'package:jom_makan/theming/custom_themes.dart';
 import 'package:jom_makan/widgets/custom_empty.dart';
@@ -46,7 +47,8 @@ class _ComplainsPageState extends State<ComplainsPage>
         ),
         leading: BackButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const MainPage()));
           },
         ),
       ),
