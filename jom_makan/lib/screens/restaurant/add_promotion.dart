@@ -218,7 +218,7 @@ class _NextScreenState extends State<NextScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Review Your Voucher"),
+        title: const Text("Review Your Promotion"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -226,7 +226,7 @@ class _NextScreenState extends State<NextScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Voucher Details",
+              "Promotion Details",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),

@@ -155,6 +155,7 @@ class _CommunityState extends State<Community> {
                           postDescription: post.description,
                           likes: post.likes,
                           userID: userProvider.userData!.userID,
+                          currentUserID: "",
                           edit: isEditable,
                         );
                       },

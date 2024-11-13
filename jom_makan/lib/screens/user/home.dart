@@ -40,24 +40,25 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      // Fetch user data first (async operation)
-      await userProvider.fetchUserData();
+      // Use Future.microtask to delay the calls slightly
+      await Future.microtask(() async {
+        await userProvider.fetchUserData();
 
-      // Perform status check after user data is loaded
-      final String? status = userProvider.userData?.status;
-      final String? commentByAdmin = userProvider.userData?.commentByAdmin;
-      _checkAndShowStatusDialog(status, commentByAdmin);
+        final String? status = userProvider.userData?.status;
+        final String? commentByAdmin = userProvider.userData?.commentByAdmin;
+        _checkAndShowStatusDialog(status, commentByAdmin);
 
-      final String? userId = userProvider.userData?.userID;
-      if (userId != null) {
-        Provider.of<FavoriteProvider>(context, listen: false)
-            .fetchFavorites(userId);
-      }
+        final String? userId = userProvider.userData?.userID;
+        if (userId != null) {
+          Provider.of<FavoriteProvider>(context, listen: false)
+              .fetchFavorites(userId);
+        }
 
-      // After checking status, fetch restaurants and user location
-      _fetchUserLocation();
-      Provider.of<RestaurantProvider>(context, listen: false)
-          .fetchActiveRestaurants();
+        // Fetch user location and restaurants after status check
+        await _fetchUserLocation();
+        Provider.of<RestaurantProvider>(context, listen: false)
+            .fetchActiveRestaurants();
+      });
     });
   }
 
@@ -108,8 +109,7 @@ class _HomeState extends State<Home> {
       LocationPermission permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
+        Position position = await Geolocator.getCurrentPosition();
 
         // Collect data first
         LatLng newLocation = LatLng(position.latitude, position.longitude);

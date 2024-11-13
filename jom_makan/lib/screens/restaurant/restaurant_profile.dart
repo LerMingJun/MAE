@@ -35,17 +35,8 @@ class _ManageProfilePageState extends State<ManageProfilePage> {
   Map<String, TimeOfDay> _closeTimes = {};
 
   final List<String> _cuisineOptions = cuisineOptions;
-  // ['Italian', 'Chinese', 'Indian', 'Mexican', 'Thai',
-  //   'Japanese', 'French', 'Mediterranean', 'American', 'Lebanese',
-  //   'Spanish', 'Greek', 'Turkish', 'Korean', 'Vietnamese',
-  //   'Brazilian', 'Moroccan', 'Caribbean', 'German', 'Russian'];
 
   final List<String> _tagOptions = tagOptions;
-  // ['Fish Allergic Free', 'Prawn Allergic Free', 'Pork Free', 'Halal',
-  //   'Vegetarian', 'Vegan', 'Gluten Free', 'Nut Free',
-  //   'Dairy Free', 'Egg Free', 'Soy Free', 'Kosher',
-  //   'Organic', 'Locally Sourced', 'Low Carb', 'Low Sugar',
-  //   'Keto Friendly', 'High Protein', 'Family Friendly', 'Pet Friendly'];
 
      final List<String> _daysOfWeek = [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
@@ -163,6 +154,7 @@ class _ManageProfilePageState extends State<ManageProfilePage> {
       );
     }
   }
+
 
   Future<GeoPoint> _getGeoPoint(String address) async {
     List<Location> locations = await locationFromAddress(address);

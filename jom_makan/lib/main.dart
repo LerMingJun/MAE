@@ -15,7 +15,6 @@ import 'package:jom_makan/providers/restaurant_provider.dart';
 import 'package:jom_makan/providers/review_provider.dart';
 import 'package:jom_makan/providers/booking_provider.dart';
 import 'package:jom_makan/screens/admins/mainpage.dart';
-import 'package:jom_makan/screens/onboarding/onboarding_screen.dart';
 import 'package:jom_makan/screens/restaurant/restaurant_home.dart';
 import 'package:jom_makan/screens/restaurant/signup.dart';
 import 'package:jom_makan/screens/user/addPost.dart';
@@ -26,9 +25,7 @@ import 'package:jom_makan/screens/user/home.dart';
 import 'package:jom_makan/screens/user/home_screen.dart';
 import 'package:jom_makan/screens/user/login.dart';
 import 'package:jom_makan/screens/user/profile.dart';
-import 'package:jom_makan/screens/user/schedule.dart';
 import 'package:jom_makan/screens/user/signup.dart';
-import 'package:jom_makan/screens/user/userPost.dart';
 import 'package:jom_makan/screens/user/addRestaurant.dart';
 import 'package:jom_makan/screens/user/restaurantList.dart';
 import 'package:jom_makan/screens/user/restaurantDetails.dart';
@@ -98,7 +95,6 @@ class MyApp extends StatelessWidget {
               '/homeScreen': (context) => const HomeScreen(), // Home screen for logged-in users
               '/profile': (context) => const Profile(), // User profile screen
               '/addRestaurant': (context) => const AddRestaurantScreen(), // Add Restaurant screen
-              '/userPost': (context) => const UserPost(), // User's posts screen
               '/editPost': (context) => const EditPost(), // Edit post screen
               '/restaurantList': (context) => const RestaurantsPage(), // Restaurant list screen
               '/restaurantManagement': (context) => const RestaurantManagementPage(), // Restaurant management screen
