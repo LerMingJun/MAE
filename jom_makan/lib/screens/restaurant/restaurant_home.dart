@@ -57,8 +57,8 @@ class _RestaurantHomeState extends State<RestaurantHome> {
           'Your restaurant is pending approval. Please wait for approval.');
     } else if (status == "delete" || status == "Delete" 
     || status == "suspend" || status == "Suspend") {
-      _showStatusDialog('Rejected Approval',
-          'Your restaurant is rejected. Please contact admin and read the comment given by admin: ${restaurantProvider.restaurant?.commentByAdmin}');
+      _showStatusDialog('Your restaurant is Inactive',
+          'Your restaurant is $status. Please contact admin and read the comment given by admin: ${restaurantProvider.restaurant?.commentByAdmin}');
     }
   }
 

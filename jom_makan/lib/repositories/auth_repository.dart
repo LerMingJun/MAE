@@ -38,7 +38,7 @@ class AuthRepository {
           profileImage: "userPlaceholder", 
           dietaryPreferences: dietaryPreferences,
           createdAt: Timestamp.now(),
-          status: "active",
+          status: "Active",
           commentByAdmin: "",
         );
 
